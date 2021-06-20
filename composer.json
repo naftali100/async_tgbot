@@ -1,0 +1,11 @@
+{
+    "require": {
+        "amphp/amp": "^2.5",
+        "amphp/http": "^1.6",
+        "amphp/http-client": "^4.5",
+        "amphp/http-server": "^2.1",
+        "amphp/log": "^1.1",
+        "amphp/cluster": "^1.0",
+        "amphp/file": "^1.0"
+    }
+}
