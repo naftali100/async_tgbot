@@ -15,7 +15,7 @@ class Config{
     /**
      * @var $server the base url of the server to send requests
      */
-    public $server = "https://api.telegrma.org/bot"; 
+    public $server = 'https://api.telegram.org/bot'; 
 
     /**
      * @var $noUpdate to use the bot without update

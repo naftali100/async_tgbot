@@ -18,7 +18,7 @@ class http
 {
     public function ApiRequest($method, $data = [])
     {
-        $url = $this->config->server . $this->config->token . "/" . $method;
+        $url = $this->config->server . $this->config->token . '/' . $method;
         return $this->Request($url, $data, $this->config->async);
     }
 
@@ -29,7 +29,7 @@ class http
             if ($data != []) {
                 $body = new FormBody;
                 foreach ($data as $key => $value) {
-                    if (in_array($key, ["document", "photo", "audio", "thumb"]) && !empty($value)) {
+                    if (in_array($key, ['document', 'photo', 'audio', 'thumb']) && !empty($value)) {
                         if (is_file($value)) {
                             \Amp\File\StatCache::clear($value);
                             $body->addFile($key, $value);
@@ -50,7 +50,7 @@ class http
                 $request = $url;
             } else {
                 $request = new Client\Request($url);
-                if (str_ends_with(strtolower($url), "getfile")) {
+                if (str_ends_with(strtolower($url), 'getfile')) {
                     $request->setInactivityTimeout($this->config->fileRequstsTimeout * 1000);
                     $request->setTransferTimeout($this->config->fileRequstsTimeout * 1000);
                 }
@@ -126,19 +126,19 @@ class Response implements \Amp\Promise {
 
     public function __get($key){
         switch($key){
-            case "result":
-            case "response":
+            case 'result':
+            case 'response':
                 return $this->get_res();
                 break;
-            case "decode":
-            case "array":
+            case 'decode':
+            case 'array':
                 return $this->get_decoded_res(true);
                 break;
-            case "promise":
-            case "request":
+            case 'promise':
+            case 'request':
                 return $this->request;
                 break;
-            case "update":
+            case 'update':
             default:
                 return $this->get_update();
         }

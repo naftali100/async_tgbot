@@ -1,9 +1,9 @@
 <?php
 
-require_once __DIR__."/../vendor/autoload.php";
+require_once __DIR__.'/../vendor/autoload.php';
 
-$class_list = ["config", "http", "api", "update", "handler", "loader", "helpers", "server", "filter"];
+$class_list = ['config', 'http', 'api', 'update', 'handler', 'loader', 'helpers', 'server', 'filter'];
 foreach ($class_list as $file) {
-    $file = __DIR__ . "/" . $file . ".php";
+    $file = __DIR__ . '/' . $file . '.php';
     require_once $file;
 }

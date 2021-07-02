@@ -1,8 +1,11 @@
 <?php
 
-
+/**
+ * basic usage examples
+ */
+   
 use bot_lib\Config;
-use bot_lib\Handler;
+use bot_lib\HandlersHub;
 use bot_lib\Update;
 use bot_lib\Helpers;
 
@@ -17,12 +20,12 @@ $conf->apiErrorHandler = function($err, $res){
     }
 };
 
-$handler = new Handler();
+$handler = new HandlersHub();
 
 // this handler run once per request before any other handler
 $handler->before(function($u) {
     if(user_in_black_list($u->chatId))
-        return []; // disable all handlers
+        return []; // you can disable all handlers by returning empty array
     
     $u->blabla = "some data"; // will be available to all handlers
     $u->user = new User($u->chatId); // say you have class that load user from db, and you wand to use it with all handlers
@@ -30,7 +33,7 @@ $handler->before(function($u) {
 
 $handler->middle(function($u, $next){
     // if you have somthing to run before any handler
-    // unlike before this handler will run once per handler
+    // unlike before, middle will run once per handler
 
     // will done before handler
     yield $next($u); // wait the handler to finish
@@ -64,17 +67,17 @@ $handler->hey_i_can_call_handlers_whatever_i_want(function($u){
 
 $handler->on_message( // only few handlers can take array or string as filter. 
     filter: ["***", "xxx" , "f"],
-    func: fn($u) => $u->reply("hey! you cant sey stuff like this in here") // arrow function
+    func: fn($u) => $u->reply("hey! you can't sey stuff like this in here") // arrow function
 );
 
 $handler->on_file(function($u){
-    $file = yield $u->download();
-    $u->reply("your file downloaded to: " . $file->update["result"]["file_path"]);
+    $file = yield $u->download()->decode;
+    $u->reply("your file downloaded to: " . $file["result"]["file_path"]);
 }, ["audio", "photo"]);
 // here we pass args by order. 
 // if you wand to write the filter first, you need to use named arguments like on_start handler in this example
 
-$handler->get_keyboard(
+$handler->send_keyboard(
     filter: fn($u) => $u->message == "keyboard",
     func: fn($u) => $u->reply(
         "message with keyboard", 
@@ -82,7 +85,7 @@ $handler->get_keyboard(
     )
 );
 
-$handler->on_cbq( // another name that accept string|array filter
+$handler->on_cbq( // another handler that accept string|array filter
     filter: "keyboard",
     func: function($u){
         $u->alert("you press the button " . $u->data);
@@ -90,13 +93,17 @@ $handler->on_cbq( // another name that accept string|array filter
 );
 
 // handler without filter will run every request
+$handler->everytime(function($u){
+    $u->reply("-----");
+});
+
 $handler->do_some_request(function($u){
     $decoded_result = yield $u->Request("http://exapmle.com/json")->decode;
-    $text_result = yield $u->Request("http://exapmle.com/json")->result;
+    $plain_text_result = yield $u->Request("http://exapmle.com/json")->result;
 
     // if the result is big you can read is asynchronicly
     $file = yield Amp\File\open("big_file", "w"); // open file
-    $response = yield $u->Request("http://exapmle.com/big_file")->request; // with for response
+    $response = yield $u->Request("http://exapmle.com/big_file")->request; // wait for response
     while(null !== $chunk = yield $response->getBody()->read()){ // read response
         yield $file->write($chunk); // write it to the file
     }

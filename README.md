@@ -82,20 +82,57 @@ this list of handler can accept also string or array filters. any other handler 
 you can config varios things see src/config.php file. can be set in json file and load using `load` method as shown above.
 
 ### Update
-all bot api method and some more in this class. instance of this class is passed to the handlers.
+All bot api method and some more in this class. instance of this class is passed to the handlers.
 
 telegram api methods - https://core.telegram.org/bots/api#available-methods
 
-added methods:
+Added methods:
 
-- reply: reply to the incoming message.
+- reply: reply to the message.
 - delete: delete the message.
 - ban: [only in groups and channels] ban the user from chat.
 - leave: leave group or channel.
 - edit: edit the message.
-- forward: forward the message to another chat with or as copy.
-- alert: reply to callbacl_quesy this alert.
+- forward: forward the message to another chat with credit or as copy.
+- alert: reply to callback_query.
+- download: download media in message.
 - editKeyboard: edit inline keyboard.
 - editButton: edit only one inline button.
 
 Also there is a lot of preset variables to many update parts. see update.php file.
+
+Partial list:
+
+- chat: the chat where the message sent.
+- from: the user that send the message. same as chat in private message.
+- updateType: the update type (message, callback_query, etc).
+- cb_answered: wherethr callback_query aswered or not. can be used in after handler to answer if not answered.
+- service: if message is service message.
+- media: contain media from message.
+
+you can access the update as object or as array. `$u->message->chat->id` or `$u['message']['chat']['id']`.
+
+you can skip the update type (message is above example). 
+
+`$u->data` will be the callback data in callback update. `$u->message_id` is the message_id.
+
+### Loader
+The Server class extends the Loader. you shouldn't use it directly.
+
+You can load file, folders or HandlersHub.
+
+##### extra access
+You can load file that will be able to change handlers of other bots. to do so pass true in 3rd arguments to `load_file`.
+
+When laoding file with extra access the handlers in this file loaded with $this of bot_lib/Server.
+
+The `files` prop in Server class contain the
+
+- path 
+    - file_name 
+    - handler 
+    - config 
+ 
+of every file loaded by the server.
+
+Examples what you can do with extra access in exapmles folder.
