@@ -137,3 +137,9 @@ The `files` prop in Server class contain the
 of every file loaded by the server.
 
 Examples what you can do with extra access in exapmles folder.
+
+### Helper
+contain static heplers functions.
+
+- keyboard: create inline keybead eazy. see comment how to use.
+- permissions: create [ChatPremissions](https://core.telegram.org/bots/api#chatpermissions) json.
