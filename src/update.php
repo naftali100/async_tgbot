@@ -200,7 +200,7 @@ class Update extends API implements \ArrayAccess{
 
         $this->forward = $update_obj->$updateType->forward_from ?? $update_obj->$updateType->forward_from_chat ?? null;
         $this->chat = $this->__get('chat') ?? null;
-        $this->from = $this->update_arr['callback_query']['from'] ?? $update_obj->$updateType->sender_chat ?? $update_obj->$updateType->from ?? $this->chat ?? null;
+        $this->from = $this->update_obj->callback_query->from ?? $update_obj->$updateType->sender_chat ?? $update_obj->$updateType->from ?? $this->chat ?? null;
         $this->reply = $update_obj->$updateType->reply_to_message ?? null;
         $this->text = $update[$updateType]['text'] ?? $update[$updateType]['caption'] ?? $update[$updateType]['query'] ?? null;
         $this->chatType = $this->chat->type ?? null;
