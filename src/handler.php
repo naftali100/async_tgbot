@@ -119,31 +119,25 @@ class TheHandler{
         }else{
             switch($this->when){
                 case 'on_update': 
-                    if(empty($this->filter) || in_array($update->updateType, $this->filter))
-                        return true;
-                    else
-                        return false;
+                    return empty($this->filter) || in_array($update->updateType, $this->filter);
                 break;
                 case 'on_message':
-                    if($update->updateType == 'message' && (empty($this->filter) || in_array($update->text, $this->filter)))
-                        return true;
-                    else
-                        return false;
+                    return $update->updateType == 'message' && ((empty($this->filter) || in_array($update->text, $this->filter)));
                 break;
                 case 'on_cbq':
-                    if($update->updateType == 'callback_query' && (empty($this->filter) || in_array($update->data, $this->filter)))
-                        return true;
-                    else
-                        return false;
+                    return $update->updateType == 'callback_query' && ((empty($this->filter) || in_array($update->data, $this->filter)));
                 break;
                 case 'on_file':
-                    if(isset($update->media['file_type']) && (empty($this->filter) || in_array($update->media['file_type'], $this->filter)))
-                        return true;
-                    else 
-                        return false;
+                    return isset($update->media['file_type']) && ((empty($this->filter) || in_array($update->media['file_type'], $this->filter)));
                 break;
                 case 'on_service':
                     return $update->service;
+                break;
+                case 'on_member':
+                    return $update->new_chat_members != null || $update->left_chat_member != null || in_array($update->updateType, ['chat_member', 'my_chat_member']);
+                break;
+                case 'on_new_member':
+                    return $update->new_chat_members != null;
                 break;
                 default:
                     return true;
