@@ -35,4 +35,40 @@ class Helpers
 
         return json_encode(array('inline_keyboard' => $keyRow));
     }
+
+    /**
+     * create ChatPermissions json. 
+     * 
+     * accepts:
+     * - block | default : block all user permissions 
+     * - open : open all user permissions
+     */
+    public static function permissions($mode = 'block'){
+        switch($mode){
+            case 'block':
+                return self::build_prem();
+                break;
+            case 'default':
+                //TODO: get chat permissions
+                break;
+            case 'open':
+                return self::build_prem(1, 1, 1, 1, 1, 1, 1, 1);
+        }
+    }
+
+    public static function build_prem($send_message = false, $send_media = false, $send_polls = false,
+     $send_other_messages = false, $send_web_page = false, $change_info = false, $invite = false, $pin = false
+    ){
+        $prem = [
+            'can_send_messages' => $send_message,
+            'can_send_media_messages' => $send_media,
+            'can_send_polls' => $send_polls, 
+            'can_send_other_messages'  => $send_other_messages, 
+            'can_add_web_page_previews' => $send_web_page,
+            'can_change_info' => $change_info,
+            'can_invite_users' => $invite,
+            'can_pin_messages' => $pin,
+        ];
+        return json_encode($prem); 
+    }
 }
