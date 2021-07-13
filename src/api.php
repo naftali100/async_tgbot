@@ -201,6 +201,15 @@ class API extends http{
         $data['user_id'] = $uId;
         return $this->ApiRequest('unbanChatMember', $data);
     }
+
+    public function restrictChatMember($id, $user, $prem = null, $until = 0){
+        $data['chat_id'] = $id;
+        $data['user_id'] = $user;
+        $data['permissions'] = $prem ?? Helpers::build_prem();
+        $data['until_date'] = $until;
+        return $this->ApiRequest('restrictChatMember', $data);
+    }
+
     public function getFile($fileId)
     {
         $data['file_id'] = $fileId;
