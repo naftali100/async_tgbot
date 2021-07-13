@@ -13,7 +13,7 @@ class Config{
     public $ParseMode;
 
     /**
-     * @var $server the base url of the server to send requests
+     * @var $server the base url of the server to send api requests.
      */
     public $server = 'https://api.telegram.org/bot'; 
 
@@ -31,7 +31,6 @@ class Config{
      * @var $async send requests asynchronously 
      */
     public $async = true;
-
 
     /**
      * @var $debug show debug info
@@ -51,7 +50,7 @@ class Config{
     public $apiErrorHandler = null;
 
     /**
-     * set timeout and inactivity time upload and download requests.
+     * timeout and inactivity time for upload and download requests.
      */
     public $fileRequstsTimeout = 30;
 

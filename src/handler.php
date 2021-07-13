@@ -19,8 +19,7 @@ class HandlersHub extends HandlersCreator
             $this->update = $update;
     }
 
-    public function run($data){
-        list($config, $update) = $data;
+    public function activate($config, $update){
 
         if ($config->token === null)
             throw new \Error('token not set');
@@ -68,7 +67,8 @@ class HandlersHub extends HandlersCreator
             }
             return $res;
         } catch (\Throwable $e) {
-            print $e->getMessage() . ' when running handlers in ' . $e->getFile() . ' line ' . $e->getLine() . PHP_EOL;
+            // TODO: get backtrace to the file where the error coming from
+            print $e->getMessage() . ', when running handlers in ' . $e->getFile() . ' line ' . $e->getLine() . PHP_EOL;
             if (isset($this->on_error)) {
                 return $this->on_error->runHandler($e, $config->async) ?? [];
             }

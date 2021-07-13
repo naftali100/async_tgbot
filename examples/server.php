@@ -14,8 +14,6 @@ $server->load_file("bot2.php", "index"); // will run the handlers in bot2.php on
 $server->load_file("manager.php", "index.php", true); // this file is load with extra access. 
 $server->load_folder("folder_full_of_bots");
 
-// you can choose whether run the server with one thread or multiple
+// you can choose whether run the server with one thread or multiple. pass 'true' param to run method to run cluster
 // if you use cluster you have to run the server with vendor/bin/cluster server.php 
 $server->run();
-// OR
-$server->runCluster();

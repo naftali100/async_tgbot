@@ -75,7 +75,7 @@ class Update extends API implements \ArrayAccess{
     public function delete()
     {
         if(isset($this->update))
-        return $this->deleteMessage($this->chat->id, $this->message->id);
+        return $this->deleteMessage($this->chat->id, $this->message_id);
     }
 
     public function edit($newMessage, $replyMarkup = null, $ent = null)
@@ -162,7 +162,7 @@ class Update extends API implements \ArrayAccess{
     public function ban($id = null)
     {
         if ($this->chatType != 'private')
-            $this->kickChatMember($this->chat->id, $id ?? $this->from->id);
+            $this->banChatMember($this->chat->id, $id ?? $this->from->id);
         else
             return $this;
     }
@@ -199,11 +199,11 @@ class Update extends API implements \ArrayAccess{
         }
 
         $this->forward = $update_obj->$updateType->forward_from ?? $update_obj->$updateType->forward_from_chat ?? null;
-        $this->chat = $update_obj->$updateType->chat ?? null;
+        $this->chat = $this->__get('chat') ?? null;
         $this->from = $this->update_arr['callback_query']['from'] ?? $update_obj->$updateType->sender_chat ?? $update_obj->$updateType->from ?? $this->chat ?? null;
         $this->reply = $update_obj->$updateType->reply_to_message ?? null;
         $this->text = $update[$updateType]['text'] ?? $update[$updateType]['caption'] ?? $update[$updateType]['query'] ?? null;
-        $this->chatType = $this->chat->type;
+        $this->chatType = $this->chat->type ?? null;
         
         $this->ent = $update[$updateType]['entities']                                     ?? null;
 
@@ -227,7 +227,7 @@ class Update extends API implements \ArrayAccess{
         $this->media = $media;
 
          // if thete ent in text its revers it to markdown and add `/```/*/_ to text
-        $realtext = $update[$updateType]['text'];
+        $realtext = $this->text;
         if ($this->ent != null) {
             $i = 0;
             foreach ($this->ent as $e) {
@@ -290,6 +290,9 @@ class Update extends API implements \ArrayAccess{
             return $this->update_obj->$value;
         if (isset($this->update_obj->{$this->updateType}->$value))
             return $this->update_obj->{$this->updateType}->$value;
+        // in cbq update the message is inside cbq object
+        if (isset($this->message->$value)) 
+            return $this->message->$value;
     }
 
     public function offsetSet($offset, $value)

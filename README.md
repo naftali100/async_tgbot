@@ -14,7 +14,7 @@ the recomended way is to use amphp's server to run all your bots
 #### server.php
 
 ```php
-$server = new Server("127.0.0.1:8080"); // create server instance running on port 8080
+$server = new Server("127.0.0.1:8080"); // create server instance listening to port 8080
 $server->load_file("bot.php", "index"); // load the handlers in "bot.php" and store them in "index" path
 $server->load_folder("folder", true); // load all files in a folder. the second param is whether to load recursivly or not
 $server->run();
@@ -44,7 +44,7 @@ a lot more hanlder, config and server options in examples folder.
 
 there is 4 main objects in the library
 
-1. Server: extends Loader. load files and runing the http-server and activating handlers.
+1. Server: extends Loader. load files, runing the http-server and activating handlers.
 2. Config: configuration.
 3. Update: extends API and HTTP. contains all the method to send request to bot api.
 4. Handler: create handlers that will run asyncronicly.
@@ -86,7 +86,7 @@ All bot api method and some more in this class. instance of this class is passed
 
 telegram api methods - https://core.telegram.org/bots/api#available-methods
 
-Added methods:
+#### Added methods:
 
 - reply: reply to the message.
 - delete: delete the message.
@@ -101,6 +101,7 @@ Added methods:
 
 Also there is a lot of preset variables to many update parts. see update.php file.
 
+#### variables 
 Partial list:
 
 - chat: the chat where the message sent.
@@ -112,7 +113,7 @@ Partial list:
 
 you can access the update as object or as array. `$u->message->chat->id` or `$u['message']['chat']['id']`.
 
-you can skip the update type (message is above example). 
+you can skip the update type (message in above example). 
 
 `$u->data` will be the callback data in callback update. `$u->message_id` is the message_id.
 

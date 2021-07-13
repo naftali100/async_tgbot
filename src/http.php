@@ -90,7 +90,7 @@ class http
  * 
  * `promise|request` - to yield amp's response object.
  * 
- * `update` - to yield resulse in update objcet.
+ * `update` - to yield result in update object.
  * 
  * by default the Response promise yields Update object.
  * 
@@ -98,6 +98,27 @@ class http
  */
 class Response implements \Amp\Promise {
     public function __construct(private $request, private $config){ }
+
+    public function __get($key)
+    {
+        switch ($key) {
+            case 'result':
+            case 'response':
+                return $this->get_res();
+                break;
+            case 'decode':
+            case 'array':
+                return $this->get_decoded_res(true);
+                break;
+            case 'promise':
+            case 'request':
+                return $this->request;
+                break;
+            case 'update':
+            default:
+                return $this->get_update();
+        }
+    }
 
     private function get_update(){
         $return_update = function($req, $conf){
@@ -122,26 +143,6 @@ class Response implements \Amp\Promise {
             return json_decode((yield $res->getBody()->buffer()), $array);
         };
         return call($return_decoded_response, $this->request);
-    }
-
-    public function __get($key){
-        switch($key){
-            case 'result':
-            case 'response':
-                return $this->get_res();
-                break;
-            case 'decode':
-            case 'array':
-                return $this->get_decoded_res(true);
-                break;
-            case 'promise':
-            case 'request':
-                return $this->request;
-                break;
-            case 'update':
-            default:
-                return $this->get_update();
-        }
     }
     
     public function onResolve(callable $cb)

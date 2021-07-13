@@ -41,7 +41,7 @@ class Loader{
     public function load_file($file_name, $as = null, $extraAccess = false){
         if(is_file($file_name)){
             if($extraAccess)  list($handler, $config) = $this->include_file_this($file_name);
-            else              list( $handler, $config) = self::include_file_static($file_name);
+            else              list($handler, $config) = self::include_file_static($file_name);
             
             $path = $file_name;
             if($as)
@@ -49,7 +49,7 @@ class Loader{
 
             $this->files[$path] = ['file_name' => $file_name, 'active' => 1, 'handler' => $handler, 'config' => $config];
         }else{
-            print 'file $file_name not fount' . PHP_EOL;
+            print 'file '. $file_name .' not fount' . PHP_EOL;
         }
     }
 
