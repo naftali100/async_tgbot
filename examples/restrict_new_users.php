@@ -12,7 +12,10 @@ $handler = new HandlersHub;
 $handler->on_mew_member(
     func: function(bot_lib\Update $u){
         $u->restrictChatMember($u->chat->id, $u->from->id);
-        $u->reply('please press', Helpers::keyboard([['I am human' => $u->from->id]]));
+        $message = yield $u->reply('please press', Helpers::keyboard([['I am human' => $u->from->id]]));
+        yield Amp\delay(1000 * 60);
+        $message->delete(); // delete the message and ban the user if the user does not press within 1 minute. 
+        $u->ban();
     }
 );
 
