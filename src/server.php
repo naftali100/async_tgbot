@@ -186,8 +186,9 @@ class Server extends Loader {
 
                 $file = $this->files[$path];
                 
+                $update_class_name = $file['update_class_name'];
                 $update_string = yield $request->getBody()->buffer();
-                $update = new Update($file['config'], $update_string);
+                $update = new $update_class_name($file['config'], $update_string);
 
                 parse_str($request->getUri()->getQuery(), $query);
                 if (isset($query['token']))

@@ -1,9 +1,5 @@
 <?php
 
-/**
- * this file is loaded with extra access and can change, add or remove handles of other files
- */
-
 use bot_lib\Config;
 use bot_lib\HandlersHub;
 use bot_lib\TheHandler;

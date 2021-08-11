@@ -123,9 +123,9 @@ The Server class extends the Loader. you shouldn't use it directly.
 You can load file, folders or HandlersHub.
 
 ##### extra access
-You can load file that will be able to change handlers of other bots. to do so pass true in 3rd arguments to `load_file`.
+File loaded with the ability to change handlers of other bots.
 
-When laoding file with extra access the handlers in this file loaded with $this of bot_lib/Server.
+The handlers in file loaded with $this of bot_lib/Server.
 
 The `files` prop in Server class contain the
 
