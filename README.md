@@ -14,6 +14,9 @@ the recomended way is to use amphp's server to run all your bots
 #### server.php
 
 ```php
+require_once("src/bot_lib.php");
+use bot_lib\Server; 
+
 $server = new Server("127.0.0.1:8080"); // create server instance listening to port 8080
 $server->load_file("bot.php", "index"); // load the handlers in "bot.php" and store them in "index" path
 $server->load_folder("folder", true); // load all files in a folder. the second param is whether to load recursivly or not
@@ -22,6 +25,9 @@ $server->run();
 #### bot.php
 
 ```php
+use bot_lib\Config;
+use bot_lib\Handler;
+
 $config = new Config;
 $config->load("conf.json"); // can store token
 $config->server = "http://loadlhost:8081/bot"; // if you using local telegram-bot-api
