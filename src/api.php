@@ -40,7 +40,7 @@ class API extends http{
         $data['reply_to_message_id'] = $replyMessage;
         $data['allow_sending_without_reply'] = true;
         $data['reply_markup'] = $replyMarkup;
-        $this->ApiRequest('copyMessage', $data);
+        return $this->ApiRequest('copyMessage', $data);
     }
 
     public function sendPhoto($id, $photo, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null)
@@ -163,7 +163,7 @@ class API extends http{
         $data['allow_sending_without_reply'] = true;
         $data['reply_markup'] = $replyMarkup;
         $data['disable_notification'] = $this->config->Notification;
-        $this->ApiRequest('sendDice', $data);
+        return $this->ApiRequest('sendDice', $data);
     }
     public function sendChatAction($id, $action)
     {
@@ -335,21 +335,21 @@ class API extends http{
         $data['commands'] = $commands;
         $data['scope'] = $scope;
         $data['language_code'] = $lang;
-        $this->ApiRequest('setMyCommands', $data);
+        return $this->ApiRequest('setMyCommands', $data);
     }
 
     public function deleteMyCommands($scope = null, $lang = null)
     {
         $data['scope'] = $scope;
         $data['language_code'] = $lang;
-        $this->ApiRequest('deleteMyCommands', $data);
+        return $this->ApiRequest('deleteMyCommands', $data);
     }
 
     public function getMyCommands($scope = null, $lang = null)
     {
         $data['scope'] = $scope;
         $data['language_code'] = $lang;
-        $this->ApiRequest('getMyCommands', $data);
+        return $this->ApiRequest('getMyCommands', $data);
     }
 
     /**
