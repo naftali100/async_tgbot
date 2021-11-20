@@ -105,7 +105,7 @@ class Update extends API implements \ArrayAccess{
         if(isset($this->update)){
             if (!$this->service) {
                 if ($nocredit) {
-                    $this->copyMessage($to, $this->chat->id, $this->message_id, $rm, $replyTo, $caption, $ent);
+                    return $this->copyMessage($to, $this->chat->id, $this->message_id, $rm, $replyTo, $caption, $ent);
                 } else
                     return $this->forwardMessage($to, $this->chat->id, $this->message_id);
             } else
@@ -162,7 +162,7 @@ class Update extends API implements \ArrayAccess{
     public function ban($id = null)
     {
         if ($this->chatType != 'private')
-            $this->banChatMember($this->chat->id, $id ?? $this->from->id);
+            return $this->banChatMember($this->chat->id, $id ?? $this->from->id);
         else
             return $this;
     }
@@ -170,7 +170,7 @@ class Update extends API implements \ArrayAccess{
     public function leave()
     {
         if ($this->chatType != 'private')
-            $this->leaveChat($this->chat->id);
+            return $this->leaveChat($this->chat->id);
         else
             return $this;
     }
