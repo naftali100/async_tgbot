@@ -4,7 +4,7 @@ namespace bot_lib;
 
 class Update extends API implements \ArrayAccess{
     /** update */
-    public $update_arr = null;
+    public array $update_arr = [];
     public $update_obj = null;
     public $update = null;
 
@@ -27,7 +27,7 @@ class Update extends API implements \ArrayAccess{
      */
     public $updateType;
 
-    /** forwad info */
+    /** forward info */
     public $forward = null;
 
     /** reply info */
@@ -100,11 +100,11 @@ class Update extends API implements \ArrayAccess{
         }
     }
 
-    public function forward($to, $nocredit = false, $rm = null, $replyTo = null, $caption = null, $ent = null)
+    public function forward($to, $noCredit = false, $rm = null, $replyTo = null, $caption = null, $ent = null)
     {
-        if(isset($this->update)){
+        if(isset($this->update) && !$this->has_protected_content){
             if (!$this->service) {
-                if ($nocredit) {
+                if ($noCredit) {
                     return $this->copyMessage($to, $this->chat->id, $this->message_id, $rm, $replyTo, $caption, $ent);
                 } else
                     return $this->forwardMessage($to, $this->chat->id, $this->message_id);
@@ -156,13 +156,17 @@ class Update extends API implements \ArrayAccess{
             }
             $newkey[] = $row;
         }
-        $this->editkeyboard(json_encode(['inline_keyboard' => $newkey]));
+        $this->editKeyboard(json_encode(['inline_keyboard' => $newkey]));
     }
 
     public function ban($id = null)
     {
-        if ($this->chatType != 'private')
-            return $this->banChatMember($this->chat->id, $id ?? $this->from->id);
+        if ($this->chatType != 'private'){
+            if($this->sender_chat == null)
+                return $this->banChatMember($this->chat->id, $id ?? $this->from->id);
+            else
+                return $this->banChatSenderChat($this->chat->id, $id ?? $this->from->id);
+        }
         else
             return $this;
     }
@@ -177,7 +181,7 @@ class Update extends API implements \ArrayAccess{
 
     public function download(){
         if($this->media != null){
-            return $this->getfile($this->media['file_id']);
+            return $this->getFile($this->media['file_id']);
         }
     }
 
@@ -211,7 +215,7 @@ class Update extends API implements \ArrayAccess{
 
 
         // general data for all kind of files 
-        // there is also varibals for any kind below, you can use them both or delete one of them
+        // there is also variables for any kind below, you can use them both or delete one of them
         $media = null;
         $fileTypes = ['photo', 'video', 'document', 'audio', 'sticker', 'voice', 'video_note'];
         foreach ($fileTypes as $type) {
@@ -226,31 +230,31 @@ class Update extends API implements \ArrayAccess{
         }
         $this->media = $media;
 
-         // if thete ent in text its revers it to markdown and add `/```/*/_ to text
-        $realtext = $this->text;
+         // if there ent in text its revers it to markdown and add `/```/*/_ to text
+        $realText = $this->text;
         if ($this->ent != null) {
             $i = 0;
             foreach ($this->ent as $e) {
                 if ($e['type'] == 'code')
-                    $replacment = '`';
+                    $replacement = '`';
                 elseif ($e['type'] == 'pre')
-                    $replacment = '```';
+                    $replacement = '```';
                 elseif ($e['type'] == 'bold')
-                    $replacment = '*';
+                    $replacement = '*';
                 elseif ($e['type'] == 'italic')
-                    $replacment = '_';
+                    $replacement = '_';
                 else
                     continue;
 
-                $realtext = substr_replace($realtext, $replacment, $e['offset'] + $i, 0);
-                $realtext = substr_replace($realtext, $replacment, $e['offset'] + $e['length'] + strlen($replacment) + $i, 0);
-                $i += strlen($replacment) * 2;
+                $realText = substr_replace($realText, $replacement, $e['offset'] + $i, 0);
+                $realText = substr_replace($realText, $replacement, $e['offset'] + $e['length'] + strlen($replacement) + $i, 0);
+                $i += strlen($replacement) * 2;
             }
         }
-        $this->mdText = $realtext;
+        $this->mdText = $realText;
 
         $this->service = false;
-        $serveiceTypes = [
+        $serviceTypes = [
             'new_chat_photo',
             'new_chat_members',
             'left_chat_member',
@@ -275,8 +279,8 @@ class Update extends API implements \ArrayAccess{
         if(in_array($updateType, ['chat_member', 'my_chat_member']))
             $this->service = true;
         else{
-            foreach ($serveiceTypes as $serveiceType) {
-                if (isset($update[$updateType][$serveiceType])) {
+            foreach ($serviceTypes as $serviceType) {
+                if (isset($update[$updateType][$serviceType])) {
                     $this->service = true;
                     break;
                 }
@@ -316,6 +320,7 @@ class Update extends API implements \ArrayAccess{
 
     public function offsetGet($offset)
     {
+        // todo: check why is this replaced by __get when accessing as array
         if (isset($this->$offset))
             return $this->$offset;
         if (isset($this->update_arr[$offset]))

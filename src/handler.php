@@ -82,9 +82,9 @@ class HandlersHub extends HandlersCreator
  * store the func and the condition if passed
  * 
  * @param string $when name of handler. can be used as a filter.
- * @param string|array|Closure $filter whether or not run the func. can be string or array combined with 'when' param or func that take Update as paramter and return bool
+ * @param string|array|Closure $filter whether or not run the func. can be string or array combined with 'when' param or func that take Update as parameter and return bool
  * @param Closure $func  the function that will run if all condition met
- * @param bool $last  whether or not keep runing handlers or this should be the last
+ * @param bool $last  whether or not keep running handlers or this should be the last
  */
 class TheHandler{
 
@@ -100,9 +100,9 @@ class TheHandler{
         return \Amp\call($this->func, $update, ...$args);
     }
 
-    public function runMiddle($update, $hanler){
-        $h = function($update, ...$args)use($hanler){
-            return $hanler->run_handler($update, ...$args);
+    public function runMiddle($update, $handler){
+        $h = function($update, ...$args)use($handler){
+            return $handler->run_handler($update, ...$args);
         };
         return \Amp\call($this->func, $update, $h);
     }

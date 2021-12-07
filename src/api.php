@@ -202,6 +202,19 @@ class API extends http{
         return $this->ApiRequest('unbanChatMember', $data);
     }
 
+    public function banChatSenderChat($id, $uId, $until = 0){
+        $data['chat_id'] = $id;
+        $data['sender_chat_id'] = $uId;
+        $data['until_date'] = $until;
+        return $this->ApiRequest('banChatSenderChat', $data);
+    }
+
+    public function unbanChatSenderChat($id, $uId){
+        $data['chat_id'] = $id;
+        $data['sender_chat_id'] = $uId;
+        return $this->ApiRequest('unbanChatSenderChat', $data);
+    }
+
     public function restrictChatMember($id, $user, $prem = null, $until = 0){
         $data['chat_id'] = $id;
         $data['user_id'] = $user;
