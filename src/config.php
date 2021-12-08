@@ -52,7 +52,7 @@ class Config{
     /**
      * timeout and inactivity time for upload and download requests.
      */
-    public $fileRequstsTimeout = 30;
+    public $fileRequestTimeout = 30;
 
     public function __construct(public $token = null)
     {

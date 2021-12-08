@@ -330,7 +330,7 @@ class API extends http{
     public function getStickerSet($name)
     {
         $data['name'] = $name;
-        return $this->ApiRequest('getstickerSet', $data);
+        return $this->ApiRequest('getStickerSet', $data);
     }
 
     public function logOut()

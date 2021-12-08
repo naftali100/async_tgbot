@@ -31,7 +31,8 @@ class Server extends Loader {
         $this->servers = $servers;
     }
 
-    public function run($as_cluster = false){ // TODO: replace with auto determiantion by command (php or bin/cluster)
+    public function run(){
+        $as_cluster = str_ends_with($argv[0] ?? "", "bin/cluster");
         Loop::run(function () use($as_cluster) { 
             try{
                 // TODO: fix this

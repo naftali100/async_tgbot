@@ -10,7 +10,7 @@ namespace bot_lib;
  */
 class Loader{
     /**
-     * cntain all file content 
+     * contain all file content 
      * 
      * - path
      *      -- file_name
@@ -35,7 +35,7 @@ class Loader{
     /**
      * load handler from file
      * @param string $file_name the file name to open
-     * @param string $as costom path to the file
+     * @param string $as custom path to the file
      * @param bool $extraAccess load the file with access to Server scop
      */
     public function load_file($file_name, $as = null){

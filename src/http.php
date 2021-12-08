@@ -44,15 +44,15 @@ class http
 
                 $request = new Client\Request($url, 'POST');
                 $request->setBody($body);
-                $request->setInactivityTimeout($this->config->fileRequstsTimeout * 1000);
-                $request->setTransferTimeout($this->config->fileRequstsTimeout * 1000);
+                $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
+                $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
             } else if ($url instanceof Client\Request) {
                 $request = $url;
             } else {
                 $request = new Client\Request($url);
                 if (str_ends_with(strtolower($url), 'getfile')) {
-                    $request->setInactivityTimeout($this->config->fileRequstsTimeout * 1000);
-                    $request->setTransferTimeout($this->config->fileRequstsTimeout * 1000);
+                    $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
+                    $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
                 }
             }
 
@@ -147,6 +147,6 @@ class Response implements \Amp\Promise {
     
     public function onResolve(callable $cb)
     {
-        $this->requset->onResolve($cb);
+        $this->request->onResolve($cb);
     }
 }
