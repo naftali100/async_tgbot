@@ -12,7 +12,7 @@ use bot_lib\Helpers;
  
 $conf = new Config();
 $conf->load("conf.json");
-$conf->server = "http://localhost:8081/bot";
+$conf->server_url = "http://localhost:8081/bot";
 $conf->debug = true;
 $conf->apiErrorHandler = function($err, $res){
     if($err){

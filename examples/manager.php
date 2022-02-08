@@ -6,7 +6,7 @@ use bot_lib\TheHandler;
 
 $conf = new Config();
 $conf->load("config.json");
-$conf->server = "http://localhost:8081/bot";
+$conf->server_url = "http://localhost:8081/bot";
 
 $handler = new HandlersHub();
 

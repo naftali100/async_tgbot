@@ -18,7 +18,7 @@ class http
 {
     public function ApiRequest($method, $data = [])
     {
-        $url = $this->config->server . $this->config->token . '/' . $method;
+        $url = $this->config->server_url . $this->config->token . '/' . $method;
         return $this->Request($url, $data, $this->config->async);
     }
 
