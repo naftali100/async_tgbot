@@ -2,5 +2,6 @@ composer.phar
 /vendor/
 /.vscode
 test.php
-conf.json
-/test
+**/conf.json
+test/
+tests/

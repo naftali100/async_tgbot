@@ -1,4 +1,5 @@
 <?php
+
 /**
  * the server that running all bots
  */
@@ -19,23 +20,25 @@ use Monolog\Logger;
 use Amp\Loop;
 
 use bot_lib\Loader;
+use BotFile;
 
-class Server extends Loader {
+class Server extends Loader
+{
     // public array $files = []; - set in Loader
 
     /** http server instance */
-    private $server; 
+    private $server;
 
     public function __construct($servers = null)
     {
         $this->servers = $servers;
     }
 
-    public function run(){
+    public function run()
+    {
         $as_cluster = str_ends_with($argv[0] ?? "", "bin/cluster");
-        Loop::run(function () use($as_cluster) { 
-            try{
-                // TODO: fix this
+        Loop::run(function () use ($as_cluster) {
+            try {
                 $servers = $as_cluster ? (yield $this->prepareServers($as_cluster)) : $this->prepareServers($as_cluster);
 
                 $logger = $this->get_logger($as_cluster);
@@ -45,7 +48,7 @@ class Server extends Loader {
                     try {
                         \Amp\asyncCall([$this, 'requestHandler'], $request, $logger);
                     } catch (\Throwable $e) {
-                        print $e->getMessage() . ' when handleing request to ' . $request->getUri() . ' on ' . $e->getFile().':'.$e->getLine() . PHP_EOL;
+                        print $e->getMessage() . ' when handling request to ' . $request->getUri() . ' on ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
                     }
                     return new Response(Status::OK, [
                         'content-type' => 'text/plain; charset=utf-8'
@@ -58,20 +61,19 @@ class Server extends Loader {
 
                 \Amp\call(\Closure::fromCallable([$this, 'cli_options']));
 
-                if($as_cluster){
+                if ($as_cluster) {
                     // Stop the server when the worker is terminated.
                     Cluster::onTerminate(function () use ($server) {
                         return $server->stop();
                     });
-                }else{
+                } else {
                     Loop::onSignal(\SIGINT, static function (string $watcherId) use ($server) {
                         Loop::cancel($watcherId);
                         yield $server->stop();
                         Loop::stop();
                     });
                 }
-                
-            }catch(\Throwable $e){
+            } catch (\Throwable $e) {
                 print $e->getMessage() . ' in event-loop. file: ' . $e->getFile() . ' line ' . $e->getLine() . ' exiting loop and server ' . PHP_EOL;
                 yield $server->stop();
                 Loop::stop();
@@ -79,27 +81,34 @@ class Server extends Loader {
         });
     }
 
-    private function prepareServers(bool $cluster = false){
+    private function prepareServers(bool $cluster = false): array
+    {
+        $listening_servers = [];
         if (gettype($this->servers) == 'array') {
-            $listening_servers = array_map(function ($elem)use($cluster) {
-                if($cluster) return Cluster::listen($elem);
-                return Socket\Server::listen($elem);
+            $listening_servers = array_map(function ($elem) use ($cluster) {
+                if ($cluster)
+                    return Cluster::listen($elem);
+                else
+                    return Socket\Server::listen($elem);
             }, $this->servers);
-
         } elseif (gettype($this->servers) == 'string') {
-            if($cluster) $listening_servers = [Cluster::listen($this->servers)];
-            else $listening_servers = [Socket\Server::listen($this->servers)];
-            
+            if ($cluster)
+                $listening_servers = [Cluster::listen($this->servers)];
+            else
+                $listening_servers = [Socket\Server::listen($this->servers)];
         } else {
-            if($cluster) $listening_servers = [Cluster::listen('127.0.0.1:1337')];
-            else $listening_servers = [Socket\Server::listen('127.0.0.1:1337')];
+            if ($cluster)
+                $listening_servers = [Cluster::listen('127.0.0.1:1337')];
+            else
+                $listening_servers = [Socket\Server::listen('127.0.0.1:1337')];
         }
 
         return $listening_servers;
     }
 
-    private function get_logger($cluster = false){
-        if($cluster){
+    private function get_logger($cluster = false)
+    {
+        if ($cluster) {
             // Creating a log handler in this way allows the script to be run in a cluster or standalone.
             if (Cluster::isWorker()) {
                 $handler = Cluster::createLogHandler();
@@ -111,7 +120,7 @@ class Server extends Loader {
             $logger = new Logger('worker-' . Cluster::getId());
             $logger->pushHandler($handler);
             return $logger;
-        }else{
+        } else {
             $logHandler = new StreamHandler(ByteStream\getStdout());
             $logHandler->setFormatter(new ConsoleFormatter);
             $logger = new Logger('bots server');
@@ -125,7 +134,8 @@ class Server extends Loader {
      * 
      * get info about running bots and handlers from console
      */
-    private function cli_options(){
+    private function cli_options()
+    {
         $in = ByteStream\getStdin();
 
         while (($chunk = yield $in->read()) !== null) {
@@ -172,36 +182,38 @@ class Server extends Loader {
      * load the update and file's handler using his config
      * then run the handlers
      */
-    public function requestHandler($request, $logger){
+    public function requestHandler($request, $logger)
+    {
         $path = ltrim($request->getUri()->getPath(), '/');
 
         if (!isset($this->files[$path])) {
             $logger->notice('file ' . $path . ' not exist');
-
-        }elseif ($this->files[$path]['active']) {
+        } elseif ($this->files[$path]->active) {
             // debug
-            $this->files[$path]['config']->debug && $logger->info('running file: ' . $path);
+            $this->files[$path]->config->debug && $logger->info('running file: ' . $path);
 
             try {
                 $time = \Amp\Loop::now();
-
+                /**
+                 * @var BotFile
+                 */ 
                 $file = $this->files[$path];
-                
-                $update_class_name = $file['update_class_name'];
-                $update_string = yield $request->getBody()->buffer();
-                $update = new $update_class_name($file['config'], $update_string);
 
+                $update_class_name = $file->update_class_name;
+                $update_string = yield $request->getBody()->buffer();
+                $update = new $update_class_name($file->config, $update_string);
+
+                // get token from request params if exist
                 parse_str($request->getUri()->getQuery(), $query);
                 if (isset($query['token']))
-                    $file['config']->token = $query['token'];
+                    $file->config->token = $query['token'];
 
-                $res = yield \Amp\call([$file['handler'], 'activate'], $file['config'], $update);
-                
-                $file['config']->debug && $logger->info('took: '.\Amp\Loop::now() - $time.'. handlers result', $res ?? []);
+                $res = yield \Amp\call([$file->handler, 'activate'], $file->config, $update);
 
+                $file->config->debug && $logger->info('took: ' . \Amp\Loop::now() - $time . '. handlers result', $res ?? []);
             } catch (\Throwable $e) {
-                $logger->error( $e->getMessage() . ' when activate handlers in file ' . $e->getFile() . ' in line ' . $e->getLine() . '. path ' . $path . ' - disabled!');
-                $this->files[$path]['active'] = 0;
+                $logger->error($e->getMessage() . ' when activate handlers in file ' . $e->getFile() . ' in line ' . $e->getLine() . '. path ' . $path . ' - disabled!');
+                $this->files[$path]->active = 0;
             }
         }
     }

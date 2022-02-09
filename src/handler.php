@@ -60,19 +60,20 @@ class HandlersHub extends HandlersCreator
             }
         }
         // wait for handler to finish and run after handler
+        $res = [];
         try {
             $res = yield $promises;
             if (isset($this->after)) {
                 $res[] = yield $this->after->runHandler($update, $config->async);
             }
-            return $res;
         } catch (\Throwable $e) {
             // TODO: get backtrace to the file where the error coming from
             print $e->getMessage() . ', when running handlers in ' . $e->getFile() . ' line ' . $e->getLine() . PHP_EOL;
             if (isset($this->on_error)) {
-                return $this->on_error->runHandler($e, $config->async) ?? [];
+                $res[] = yield $this->on_error->runHandler($e, $config->async);
             }
         }
+        return $res;
     }
 }
 

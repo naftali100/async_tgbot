@@ -6,9 +6,10 @@ namespace bot_lib;
  * The main telegram Api methods are here
  */
 
-class API extends http{
+class API extends http
+{
 
-    public function sendMessage($id, $text, $replyMarkup = null, $replyMessage = null, $entities = null)
+    public function sendMessage($id, $text, $replyMarkup = null, $replyMessage = null, $entities = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
         $data['text'] = $this->text_adjust($text);
@@ -18,6 +19,7 @@ class API extends http{
         $data['reply_to_message_id'] = $replyMessage;
         $data['reply_markup'] = $replyMarkup;
         $data['entities'] = $entities;
+        $data['protect_content'] = $protectContent;
         $data['allow_sending_without_reply'] = true;
         return $this->ApiRequest('sendMessage', $data);
     }
@@ -29,7 +31,8 @@ class API extends http{
         $data['message_id'] = $messageId;
         return $this->ApiRequest('forwardMessage', $data);
     }
-    public function copyMessage($id, $from, $messageId, $replyMessage = null, $replyMarkup = null, $caption = null, $captionEnt = null){
+    public function copyMessage($id, $from, $messageId, $replyMessage = null, $replyMarkup = null, $caption = null, $captionEnt = null)
+    {
         $data['chat_id'] = $id;
         $data['from_chat_id'] = $from;
         $data['message_id'] = $messageId;
@@ -43,7 +46,7 @@ class API extends http{
         return $this->ApiRequest('copyMessage', $data);
     }
 
-    public function sendPhoto($id, $photo, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null)
+    public function sendPhoto($id, $photo, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
         $data['photo'] = $photo;
@@ -54,9 +57,10 @@ class API extends http{
         $data['reply_markup'] = $replyMarkup;
         $data['allow_sending_without_reply'] = true;
         $data['caption_entities'] = $entities;
+        $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendPhoto', $data);
     }
-    public function sendAudio($id, $audio, $caption = null, $thumb = null, $duration = null, $performer = null, $title = null, $replyMessage = null, $replyMarkup = null, $entities = null)
+    public function sendAudio($id, $audio, $caption = null, $thumb = null, $duration = null, $performer = null, $title = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
         $data['audio'] = $audio;
@@ -70,9 +74,10 @@ class API extends http{
         $data['reply_markup'] = $replyMarkup;
         $data['allow_sending_without_reply'] = true;
         $data['caption_entities'] = $entities;
+        $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendAudio', $data);
     }
-    public function sendDocument($id, $document, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null)
+    public function sendDocument($id, $document, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
         $data['document'] = $document;
@@ -83,9 +88,10 @@ class API extends http{
         $data['reply_markup'] = $replyMarkup;
         $data['allow_sending_without_reply'] = true;
         $data['caption_entities'] = $entities;
+        $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendDocument', $data);
     }
-    public function sendSticker($id, $sticker, $replyMessage = null, $replyMarkup = null, $entities = null)
+    public function sendSticker($id, $sticker, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
         $data['sticker'] = $sticker;
@@ -94,9 +100,10 @@ class API extends http{
         $data['reply_markup'] = $replyMarkup;
         $data['allow_sending_without_reply'] = true;
         $data['caption_entities'] = $entities;
+        $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendSticker', $data);
     }
-    public function sendVideo($id, $video, $caption = null, $duration = null, $width = null, $height = null, $replyMessage = null, $replyMarkup = null, $entities = null)
+    public function sendVideo($id, $video, $caption = null, $duration = null, $width = null, $height = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
         $data['video'] = $video;
@@ -110,9 +117,10 @@ class API extends http{
         $data['reply_markup'] = $replyMarkup;
         $data['allow_sending_without_reply'] = true;
         $data['caption_entities'] = $entities;
+        $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendVideo', $data);
     }
-    public function sendVoice($id, $voice, $duration = null, $replyMessage = null, $replyMarkup = null)
+    public function sendVoice($id, $voice, $duration = null, $replyMessage = null, $replyMarkup = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
         $data['voice'] = $voice;
@@ -122,7 +130,7 @@ class API extends http{
         $data['reply_markup'] = $replyMarkup;
         return $this->ApiRequest('sendVoice', $data);
     }
-    public function sendLocation($id, $latitude, $longitude, $replyMessage = null, $replyMarkup = null)
+    public function sendLocation($id, $latitude, $longitude, $replyMessage = null, $replyMarkup = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
         $data['latitude'] = $latitude;
@@ -130,9 +138,10 @@ class API extends http{
         $data['disable_notification'] = $this->config->Notification;
         $data['reply_to_message_id'] = $replyMessage;
         $data['reply_markup'] = $replyMarkup;
+        $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendLocation', $data);
     }
-    public function sendVenue($id, $latitude, $longitude, $title, $address, $foursquare = null, $replyMessage = null, $replyMarkup = null)
+    public function sendVenue($id, $latitude, $longitude, $title, $address, $foursquare = null, $replyMessage = null, $replyMarkup = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
         $data['latitude'] = $latitude;
@@ -143,9 +152,10 @@ class API extends http{
         $data['disable_notification'] = $this->config->Notification;
         $data['reply_to_message_id'] = $replyMessage;
         $data['reply_markup'] = $replyMarkup;
+        $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendVenue', $data);
     }
-    public function sendContact($id, $phoneNumber, $firstName, $lastName = null, $replyMessage = null, $replyMarkup = null)
+    public function sendContact($id, $phoneNumber, $firstName, $lastName = null, $replyMessage = null, $replyMarkup = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
         $data['phone_number'] = $phoneNumber;
@@ -154,15 +164,18 @@ class API extends http{
         $data['disable_notification'] = $this->config->Notification;
         $data['reply_to_message_id'] = $replyMessage;
         $data['reply_markup'] = $replyMarkup;
+        $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendContact', $data);
     }
-    public function sendDice($id, $emoji, $replyTo = null, $replyMarkup = null){
+    public function sendDice($id, $emoji, $replyTo = null, $replyMarkup = null, bool $protectContent = false)
+    {
         $data['chat_id'] = $id;
         $data['emoji'] = $emoji;
         $data['reply_to_message_id'] = $replyTo;
         $data['allow_sending_without_reply'] = true;
         $data['reply_markup'] = $replyMarkup;
         $data['disable_notification'] = $this->config->Notification;
+        $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendDice', $data);
     }
     public function sendChatAction($id, $action)
@@ -202,20 +215,23 @@ class API extends http{
         return $this->ApiRequest('unbanChatMember', $data);
     }
 
-    public function banChatSenderChat($id, $uId, $until = 0){
+    public function banChatSenderChat($id, $uId, $until = 0)
+    {
         $data['chat_id'] = $id;
         $data['sender_chat_id'] = $uId;
         $data['until_date'] = $until;
         return $this->ApiRequest('banChatSenderChat', $data);
     }
 
-    public function unbanChatSenderChat($id, $uId){
+    public function unbanChatSenderChat($id, $uId)
+    {
         $data['chat_id'] = $id;
         $data['sender_chat_id'] = $uId;
         return $this->ApiRequest('unbanChatSenderChat', $data);
     }
 
-    public function restrictChatMember($id, $user, $prem = null, $until = 0){
+    public function restrictChatMember($id, $user, $prem = null, $until = 0)
+    {
         $data['chat_id'] = $id;
         $data['user_id'] = $user;
         $data['permissions'] = $prem ?? Helpers::build_prem();
@@ -367,7 +383,7 @@ class API extends http{
 
     /**
      * prepare the text to avoid send errors
-     */ 
+     */
     public function text_adjust($text)
     {
         $type = gettype($text);
@@ -377,7 +393,7 @@ class API extends http{
             $text = 'NULL';
 
         if (mb_strlen($text) > 4096)
-            $text = 'message is too long. '. $this->Request('https://nbots.ga/deldog/index.php', ['data' => $text], false);
+            $text = 'message is too long. ' . $this->Request('https://nbots.ga/deldog/index.php', ['data' => $text], false);
         elseif ($text == '')
             $text = '';
 
@@ -389,13 +405,13 @@ class API extends http{
         return $text;
     }
 
-    function __call($func, $args){
+    function __call($func, $args)
+    {
         $camelCaseFunc = str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', $func)));
-        if(method_exists($this, $camelCaseFunc)){
+        if (method_exists($this, $camelCaseFunc)) {
             return $this->$camelCaseFunc(...$args);
-        }else{
+        } else {
             throw new \BadMethodCallException('call to undefined method ' . $func);
         }
     }
-
 }

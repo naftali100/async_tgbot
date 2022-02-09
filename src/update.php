@@ -62,6 +62,9 @@ class Update extends API implements \ArrayAccess{
     {
         if ($update != null) 
             $this->init_vars($update);
+
+        // if(!$this->update_obj->ok)
+        //     throw new \Error($this->update_obj);
         
         if(isset($config->token)){
             // set bot info
@@ -243,6 +246,8 @@ class Update extends API implements \ArrayAccess{
                     $replacement = '*';
                 elseif ($e['type'] == 'italic')
                     $replacement = '_';
+                elseif ($e['type'] == 'spoiler')
+                    $replacement = '|';
                 else
                     continue;
 
@@ -299,7 +304,7 @@ class Update extends API implements \ArrayAccess{
             return $this->message->$value;
     }
 
-    public function offsetSet($offset, $value)
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         if (is_null($offset)) {
             $this->update_arr[] = $value;
@@ -308,19 +313,18 @@ class Update extends API implements \ArrayAccess{
         }
     }
 
-    public function offsetExists($offset)
+    public function offsetExists(mixed $offset): bool
     {
         return isset($this->update_arr[$offset]) || isset($this->$offset);
     }
 
-    public function offsetUnset($offset)
+    public function offsetUnset(mixed $offset): void
     {
         unset($this->update_arr[$offset]);
     }
 
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset)
     {
-        // todo: check why is this replaced by __get when accessing as array
         if (isset($this->$offset))
             return $this->$offset;
         if (isset($this->update_arr[$offset]))

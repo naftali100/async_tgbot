@@ -97,7 +97,7 @@ class http
  * @yield Amp\Result|Update|string|array 
  */
 class Response implements \Amp\Promise {
-    public function __construct(private $request, private $config){ }
+    public function __construct(private \Amp\Promise $request, private $config){ }
 
     public function __get($key)
     {
