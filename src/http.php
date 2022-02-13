@@ -97,7 +97,10 @@ class http
  * @yield Amp\Result|Update|string|array 
  */
 class Response implements \Amp\Promise {
-    public function __construct(private \Amp\Promise $request, private $config){ }
+    private $update_promise;
+    public function __construct(private \Amp\Promise $request, private $config){ 
+        $update_promise = $this->get_update();
+    }
 
     public function __get($key)
     {
@@ -116,7 +119,7 @@ class Response implements \Amp\Promise {
                 break;
             case 'update':
             default:
-                return $this->get_update();
+                return $this->update_promise;
         }
     }
 
@@ -147,6 +150,6 @@ class Response implements \Amp\Promise {
     
     public function onResolve(callable $cb)
     {
-        $this->request->onResolve($cb);
+        $this->update_promise->onResolve($cb);
     }
 }
