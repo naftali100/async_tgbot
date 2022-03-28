@@ -249,6 +249,10 @@ class API extends http
         $data['chat_id'] = $id;
         return $this->ApiRequest('leaveChat', $data);
     }
+    public function getChats()
+    {
+        return $this->ApiRequest('getChats');
+    }
     public function getChat($id)
     {
         $data['chat_id'] = $id;

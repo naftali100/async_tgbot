@@ -22,7 +22,7 @@ class http
         return $this->Request($url, $data, $this->config->async);
     }
 
-    public function Request($url, $data = [], $async = true)
+    public function Request($url, $data = [], $async = true): Response
     {
         if ($async) {
             $client = HttpClientBuilder::buildDefault();
@@ -30,6 +30,7 @@ class http
                 $body = new FormBody;
                 foreach ($data as $key => $value) {
                     if (in_array($key, ['document', 'photo', 'audio', 'thumb']) && !empty($value)) {
+                        # TODO: make this async \Amp\File\exist
                         if (is_file($value)) {
                             \Amp\File\StatCache::clear($value);
                             $body->addFile($key, $value);
@@ -96,9 +97,11 @@ class http
  * 
  * @yield Amp\Result|Update|string|array 
  */
-class Response implements \Amp\Promise {
+class Response implements \Amp\Promise
+{
     // private $update_promise;
-    public function __construct(private \Amp\Promise $request, private $config){ 
+    public function __construct(private \Amp\Promise $request, private $config)
+    {
         $this->update_promise = $this->get_update();
     }
 
@@ -123,8 +126,9 @@ class Response implements \Amp\Promise {
         }
     }
 
-    private function get_update(){
-        $return_update = function($req, $conf){
+    private function get_update()
+    {
+        $return_update = function ($req, $conf) {
             $res = yield $req;
             $res = yield $res->getBody()->buffer();
             return new Update($conf, $res);
@@ -132,25 +136,26 @@ class Response implements \Amp\Promise {
         return call($return_update, $this->request, $this->config);
     }
 
-    private function get_res(){
-        $return_response = function($req){
+    private function get_res()
+    {
+        $return_response = function ($req) {
             $res = yield $req;
             return yield $res->getBody()->buffer();
         };
         return call($return_response, $this->request);
     }
 
-    private function get_decoded_res($array = false){
-        $return_decoded_response = function ($req) use($array) {
+    private function get_decoded_res($array = false)
+    {
+        $return_decoded_response = function ($req) use ($array) {
             $res = yield $req;
             return json_decode((yield $res->getBody()->buffer()), $array);
         };
         return call($return_decoded_response, $this->request);
     }
-    
+
     public function onResolve(callable $cb)
     {
         $this->update_promise->onResolve($cb);
     }
-
 }
