@@ -26,13 +26,13 @@ $server->run();
 
 ```php
 use bot_lib\Config;
-use bot_lib\Handler;
+use bot_lib\HandlerHub;
 
 $config = new Config;
 $config->load("conf.json"); // can store token
 $config->server = "http://loadlhost:8081/bot"; // if you using local telegram-bot-api
 
-$handler = new Handler;
+$handler = new HandlerHub;
 $handler->on_message(
     fn($u) => $u->reply("hello");
 );
