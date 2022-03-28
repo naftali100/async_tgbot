@@ -45,16 +45,20 @@ class http
 
                 $request = new Client\Request($url, 'POST');
                 $request->setBody($body);
-                $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
-                $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
             } else if ($url instanceof Client\Request) {
                 $request = $url;
             } else {
                 $request = new Client\Request($url);
-                if (str_ends_with(strtolower($url), 'getfile')) {
-                    $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
-                    $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
-                }
+            }
+
+      
+            if($this->config->debug){
+                var_dump($url);
+            }
+
+            if (str_ends_with(strtolower($url), 'getfile')) {
+                $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
+                $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
             }
 
             $promise = $client->request($request);
