@@ -199,8 +199,8 @@ class Server extends Loader
                  */ 
                 $file = $this->files[$path];
 
-                $update_class_name = $file->update_class_name;
                 $update_string = yield $request->getBody()->buffer();
+                $update_class_name = $file->config->updateClassName;
                 $update = new $update_class_name($file->config, $update_string);
 
                 // get token from request params if exist

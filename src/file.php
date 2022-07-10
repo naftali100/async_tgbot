@@ -5,7 +5,7 @@ use bot_lib\HandlersHub;
 
 class BotFile
 {
-    function __construct(public $fileName, public bool $active, public HandlersHub $handler, public Config $config, public $update_class_name)
+    function __construct(public $fileName, public bool $active, public HandlersHub $handler, public Config $config)
     {
     }
 }

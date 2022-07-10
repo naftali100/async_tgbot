@@ -23,7 +23,12 @@ class Config{
     public $noUpdate;
 
     /**
-     * @var $webPrivew whether or not show preview of links 
+     * @var $updateClassName you can override the class that will be sent to handlers with your own extension of Update
+     */
+    public $updateClassName = Update::class;
+
+    /**
+     * @var $webPreview whether or not show preview of links 
      */
     public $webPagePreview = false;
 
