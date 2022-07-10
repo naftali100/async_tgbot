@@ -71,4 +71,11 @@ class Helpers
         ];
         return json_encode($prem); 
     }
+
+    static function objectToArray($o) { 
+        $a = array(); 
+        foreach ($o as $k => $v) 
+            $a[$k] = (is_array($v) || is_object($v)) ? Helpers::objectToArray($v): $v; 
+        return $a; 
+    }
 }

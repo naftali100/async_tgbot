@@ -325,8 +325,12 @@ class Update extends API implements \ArrayAccess{
 
     public function offsetGet(mixed $offset)
     {
-        if (isset($this->$offset))
-            return $this->$offset;
+        if (isset($this->$offset)){
+            if(gettype($this->$offset) == "string")
+                return $this->$offset;
+            else
+                return Helpers::objectToArray($this->$offset);
+        }
         if (isset($this->update_arr[$offset]))
             return $this->update_arr[$offset];
         if (isset($this->update_arr[$this->updateType][$offset]))
