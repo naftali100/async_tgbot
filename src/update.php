@@ -96,7 +96,7 @@ class Update extends API implements \ArrayAccess{
     public function pin($dis_notification = null)
     {
         if (isset($this->update)){
-            if ($this->chatType != 'private' && !$this->service)
+            if (!$this->service)
                 return $this->pinChatMessage($this->chat->id, $this->message_id, $dis_notification);
             else
                 return $this;
@@ -120,7 +120,7 @@ class Update extends API implements \ArrayAccess{
     public function reply($text, $replyMarkup = null, $ent = null)
     {
         if (isset($this->update))
-        return $this->sendMessage($this->chat->id ?? $this->from->id, $text, $replyMarkup, $this->message_id ?? null, entities: $ent);
+            return $this->sendMessage($this->chat->id ?? $this->from->id, $text, $replyMarkup, $this->message_id ?? null, entities: $ent);
     }
 
     public function editKeyboard($newKeyboard)
@@ -281,9 +281,9 @@ class Update extends API implements \ArrayAccess{
             'voice_chat_scheduled',
             'voice_chat_participants_invited'
         ];
-        if(in_array($updateType, ['chat_member', 'my_chat_member']))
+        if(in_array($updateType, ['chat_member', 'my_chat_member'])){
             $this->service = true;
-        else{
+        }else{
             foreach ($serviceTypes as $serviceType) {
                 if (isset($update[$updateType][$serviceType])) {
                     $this->service = true;

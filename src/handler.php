@@ -123,13 +123,13 @@ class TheHandler{
                     return empty($this->filter) || in_array($update->updateType, $this->filter);
                 break;
                 case 'on_message':
-                    return $update->updateType == 'message' && ((empty($this->filter) || in_array($update->text, $this->filter)));
+                    return $update->updateType == 'message' && (empty($this->filter) || in_array($update->text, $this->filter));
                 break;
                 case 'on_cbq':
-                    return $update->updateType == 'callback_query' && ((empty($this->filter) || in_array($update->data, $this->filter)));
+                    return $update->updateType == 'callback_query' && (empty($this->filter) || in_array($update->data, $this->filter));
                 break;
                 case 'on_file':
-                    return isset($update->media['file_type']) && ((empty($this->filter) || in_array($update->media['file_type'], $this->filter)));
+                    return isset($update->media['file_type']) && (empty($this->filter) || in_array($update->media['file_type'], $this->filter));
                 break;
                 case 'on_service':
                     return $update->service;
