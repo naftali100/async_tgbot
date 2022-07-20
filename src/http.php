@@ -62,7 +62,9 @@ class http
             }
 
             $promise = $client->request($request);
-            if (isset($this?->config?->apiErrorHandler) && $this?->config?->apiErrorHandle != null) {
+            if (isset($this?->config) &&
+                isset($this?->config?->apiErrorHandle) &&
+                $this?->config?->apiErrorHandle != null) {
                 $promise->onResolve($this->config->apiErrorHandler);
             }
             return new Response($promise, $this->config);
