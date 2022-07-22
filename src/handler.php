@@ -115,35 +115,37 @@ class TheHandler{
      * @return bool
      */
     public function shouldRun(Update $update): bool{
-        if(is_callable($this->filter) ){
-            return call_user_func($this->filter, $update);
-        }else{
-            switch($this->when){
-                case 'on_update': 
-                    return empty($this->filter) || in_array($update->updateType, $this->filter);
-                break;
-                case 'on_message':
-                    return $update->updateType == 'message' && (empty($this->filter) || in_array($update->text, $this->filter));
-                break;
-                case 'on_cbq':
-                    return $update->updateType == 'callback_query' && (empty($this->filter) || in_array($update->data, $this->filter));
-                break;
-                case 'on_file':
-                    return isset($update->media['file_type']) && (empty($this->filter) || in_array($update->media['file_type'], $this->filter));
-                break;
-                case 'on_service':
-                    return $update->service;
-                break;
-                case 'on_member':
-                    return $update->new_chat_members != null || $update->left_chat_member != null || in_array($update->updateType, ['chat_member', 'my_chat_member']);
-                break;
-                case 'on_new_member':
-                    return $update->new_chat_members != null;
-                break;
-                default:
-                    return true;
-            }
+        $shouldRun = true;
+        switch($this->when){
+            case 'on_update': 
+                $shouldRun = empty($this->filter) || in_array($update->updateType, $this->filter);
+            break;
+            case 'on_message':
+                $shouldRun = $update->updateType == 'message' && (empty($this->filter) || in_array($update->text, $this->filter));
+            break;
+            case 'on_cbq':
+                $shouldRun = $update->updateType == 'callback_query' && (empty($this->filter) || in_array($update->data, $this->filter));
+            break;
+            case 'on_file':
+                $shouldRun = isset($update->media['file_type']) && (empty($this->filter) || in_array($update->media['file_type'], $this->filter));
+            break;
+            case 'on_service':
+                $shouldRun = $update->service;
+            break;
+            case 'on_member':
+                $shouldRun = $update->new_chat_members != null || $update->left_chat_member != null || in_array($update->updateType, ['chat_member', 'my_chat_member']);
+            break;
+            case 'on_new_member':
+                $shouldRun = $update->new_chat_members != null;
+            break;
+            default:
+                $shouldRun = true;
         }
+        if(is_callable($this->filter) ){
+            $shouldRun = $shouldRun && call_user_func($this->filter, $update);
+        }
+        
+        return $shouldRun;
     }
 
     public function next($func, $filter = [], $when = '', $last = false){
