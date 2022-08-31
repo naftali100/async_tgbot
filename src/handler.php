@@ -7,12 +7,12 @@ namespace bot_lib;
  */
 class HandlersHub extends HandlersCreator
 {
-    public TheHandler $before;
-    public TheHandler $fallback;
-    public TheHandler $middle;
-    public TheHandler $after;
-    public TheHandler $on_error;
-    public array $handlers = [];
+    private TheHandler $before;
+    private TheHandler $fallback;
+    private TheHandler $middle;
+    private TheHandler $after;
+    private TheHandler $on_error;
+    public array $handlers = []; // TODO only public because of separation.. wrong... 
 
     public function __construct(Update|null $update = null){
         if ($update != null)
@@ -21,8 +21,9 @@ class HandlersHub extends HandlersCreator
 
     public function activate($config, $update){
 
-        if ($config->token === null)
+        if ($config->token === null){
             throw new \Error('token not set');
+        }
 
         if ($update === null || $update->update === null)
             throw new \Error('update not set');
@@ -91,9 +92,13 @@ class TheHandler{
 
     public $active = true;
 
-    function __construct(public $when, private $filter, private $func, public $last){
-        if(gettype($this->filter) == 'string'){
+    private array|\Closure $filter;
+
+    function __construct(public $when, $filter, private $func, public $last){
+        if(gettype($filter) == 'string'){
             $this->filter = [$this->filter];
+        } else {
+            $this->filter = $filter;
         }
     }
 
@@ -117,17 +122,17 @@ class TheHandler{
     public function shouldRun(Update $update): bool{
         $shouldRun = true;
         switch($this->when){
-            case 'on_update': 
-                $shouldRun = empty($this->filter) || in_array($update->updateType, $this->filter);
+            case 'on_update':
+                $shouldRun = $this->checkFilter($this->filter, $update->updateType, $update); 
             break;
             case 'on_message':
-                $shouldRun = $update->updateType == 'message' && (empty($this->filter) || in_array($update->text, $this->filter));
+                $shouldRun = $update->updateType == 'message' &&  $this->checkFilter($this->filter, $update->text, $update);
             break;
             case 'on_cbq':
-                $shouldRun = $update->updateType == 'callback_query' && (empty($this->filter) || in_array($update->data, $this->filter));
+                $shouldRun = $update->updateType == 'callback_query' && $this->checkFilter($this->filter, $update->data, $update);
             break;
             case 'on_file':
-                $shouldRun = isset($update->media['file_type']) && (empty($this->filter) || in_array($update->media['file_type'], $this->filter));
+                $shouldRun = isset($update->media['file_type']) && $this->checkFilter($this->filter, $update->media['file_type'], $update);
             break;
             case 'on_service':
                 $shouldRun = $update->service;
@@ -141,11 +146,19 @@ class TheHandler{
             default:
                 $shouldRun = true;
         }
-        if(is_callable($this->filter) ){
-            $shouldRun = $shouldRun && call_user_func($this->filter, $update);
-        }
+        
         
         return $shouldRun;
+    }
+
+    private function checkFilter($filter, $data, $update){
+        if(empty($filter)){
+            return true;
+        }
+        if(is_callable($filter) ){
+            return call_user_func($filter, $update);
+        }
+        return in_array($data, $filter);
     }
 
     public function next($func, $filter = [], $when = '', $last = false){
