@@ -101,7 +101,7 @@ class TheHandler
     function __construct(public $when, $filter, private $func, public $last)
     {
         if (gettype($filter) == 'string') {
-            $this->filter = [$this->filter];
+            $this->filter = [$filter];
         } else {
             $this->filter = $filter;
         }

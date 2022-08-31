@@ -14,7 +14,7 @@ use function Amp\call;
 /**
  * http class
  */
-class http
+class Http
 {
     public function ApiRequest($method, $data = [])
     {
@@ -38,8 +38,9 @@ class http
                             throw new \Error("file $value not exist");
                         }
                     } else {
-                        if (!empty($value))
+                        if (!empty($value)) {
                             $body->addField($key, $value);
+                        }
                     }
                 }
 
@@ -51,8 +52,7 @@ class http
                 $request = new Client\Request($url);
             }
 
-      
-            if($this->config->debug){
+            if ($this->config->debug) {
                 var_dump($url);
             }
 
@@ -62,26 +62,30 @@ class http
             }
 
             $promise = $client->request($request);
-            if (isset($this?->config) &&
+            if (
+                isset($this?->config) &&
                 isset($this?->config?->apiErrorHandle) &&
-                $this?->config?->apiErrorHandle != null) {
+                $this?->config?->apiErrorHandle != null
+            ) {
                 $promise->onResolve($this->config->apiErrorHandler);
             }
             return new Response($promise, $this->config);
         } else {
-            $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, $url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            // TODO
+            // throw new Error('sync request');
+            // $ch = curl_init();
+            // curl_setopt($ch, CURLOPT_URL, $url);
+            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 
-            $res = curl_exec($ch);
-            if (curl_error($ch)) {
-                curl_close($ch);
-                return false;
-            } else {
-                curl_close($ch);
-                return $res;
-            }
+            // $res = curl_exec($ch);
+            // if (curl_error($ch)) {
+            //     curl_close($ch);
+            //     return false;
+            // } else {
+            //     curl_close($ch);
+            //     return $res;
+            // }
         }
     }
 }

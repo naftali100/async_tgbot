@@ -6,7 +6,7 @@ namespace bot_lib;
  * The main telegram Api methods are here
  */
 
-class API extends http
+class API extends Http
 {
 
     public function sendMessage($id, $text, $replyMarkup = null, $replyMessage = null, $entities = null, bool $protectContent = false)
@@ -400,6 +400,10 @@ class API extends http
         return $this->ApiRequest('getMyCommands', $data);
     }
 
+    public function createNewStickerSet(int $user, string $name, string $title, $tgs_sticker, $stickerType, $emojis, $maskPosition = null){
+        // TODO
+    }
+
     /**
      * prepare the text to avoid send errors
      */
@@ -411,10 +415,10 @@ class API extends http
         elseif ($type == 'NULL')
             $text = 'NULL';
 
-        if (mb_strlen($text) > 4096)
-            $text = 'message is too long. ' . $this->Request('https://nbots.ga/deldog/index.php', ['data' => $text], false);
-        elseif ($text == '')
-            $text = '';
+        if (mb_strlen($text) > 4096){
+            $text = 'message is too long. '; 
+            // . $this->Request('https://nbots.ga/deldog/index.php', ['data' => $text]);
+        }
 
         if ($this->config->ParseMode == 'markdown' && preg_match_all('/(@|(?<!\()http)\S+_\S*/', $text, $m) != 0) {
             foreach ($m[0] as $username) {
