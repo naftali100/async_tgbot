@@ -14,19 +14,21 @@ class HandlersHub extends HandlersCreator
     private TheHandler $on_error;
     public array $handlers = []; // TODO only public because of separation.. wrong... 
 
-    public function __construct(Update|null $update = null){
+    public function __construct(Update|null $update = null)
+    {
         if ($update != null)
             $this->update = $update;
     }
 
-    public function activate($config, $update){
-
-        if ($config->token === null){
+    public function activate($config, $update)
+    {
+        if ($config->token === null) {
             throw new \Error('token not set');
         }
 
-        if ($update === null || $update->update === null)
+        if ($update === null || $update->update === null) {
             throw new \Error('update not set');
+        }
 
         $called = false;
         $promises = [];
@@ -48,8 +50,9 @@ class HandlersHub extends HandlersCreator
                     $promises[] = $theHandler->runHandler($update);
                 }
                 $called = true;
-                if ($theHandler->last)
+                if ($theHandler->last) {
                     break;
+                }
             }
         }
         // run fallback handler
@@ -88,26 +91,30 @@ class HandlersHub extends HandlersCreator
  * @param Closure $func  the function that will run if all condition met
  * @param bool $last  whether or not keep running handlers or this should be the last
  */
-class TheHandler{
+class TheHandler
+{
 
     public $active = true;
 
     private array|\Closure $filter;
 
-    function __construct(public $when, $filter, private $func, public $last){
-        if(gettype($filter) == 'string'){
+    function __construct(public $when, $filter, private $func, public $last)
+    {
+        if (gettype($filter) == 'string') {
             $this->filter = [$this->filter];
         } else {
             $this->filter = $filter;
         }
     }
 
-    function runHandler($update, ...$args){
+    function runHandler($update, ...$args)
+    {
         return \Amp\call($this->func, $update, ...$args);
     }
 
-    public function runMiddle($update, $handler){
-        $h = function($update, ...$args)use($handler){
+    public function runMiddle($update, $handler)
+    {
+        $h = function ($update, ...$args) use ($handler) {
             return $handler->run_handler($update, ...$args);
         };
         return \Amp\call($this->func, $update, $h);
@@ -119,49 +126,52 @@ class TheHandler{
      * 
      * @return bool
      */
-    public function shouldRun(Update $update): bool{
+    public function shouldRun(Update $update): bool
+    {
         $shouldRun = true;
-        switch($this->when){
+        switch ($this->when) {
             case 'on_update':
-                $shouldRun = $this->checkFilter($this->filter, $update->updateType, $update); 
-            break;
+                $shouldRun = $this->checkFilter($this->filter, $update->updateType, $update);
+                break;
             case 'on_message':
                 $shouldRun = $update->updateType == 'message' &&  $this->checkFilter($this->filter, $update->text, $update);
-            break;
+                break;
             case 'on_cbq':
                 $shouldRun = $update->updateType == 'callback_query' && $this->checkFilter($this->filter, $update->data, $update);
-            break;
+                break;
             case 'on_file':
                 $shouldRun = isset($update->media['file_type']) && $this->checkFilter($this->filter, $update->media['file_type'], $update);
-            break;
+                break;
             case 'on_service':
                 $shouldRun = $update->service;
-            break;
+                break;
             case 'on_member':
                 $shouldRun = $update->new_chat_members != null || $update->left_chat_member != null || in_array($update->updateType, ['chat_member', 'my_chat_member']);
-            break;
+                break;
             case 'on_new_member':
                 $shouldRun = $update->new_chat_members != null;
-            break;
+                break;
             default:
                 $shouldRun = true;
         }
-        
-        
+
+
         return $shouldRun;
     }
 
-    private function checkFilter($filter, $data, $update){
-        if(empty($filter)){
+    private function checkFilter($filter, $data, $update)
+    {
+        if (empty($filter)) {
             return true;
         }
-        if(is_callable($filter) ){
+        if (is_callable($filter)) {
             return call_user_func($filter, $update);
         }
         return in_array($data, $filter);
     }
 
-    public function next($func, $filter = [], $when = '', $last = false){
+    public function next($func, $filter = [], $when = '', $last = false)
+    {
         $this->backup = [$this->when, $this->func, $this->filter, $this->last];
         $this->func = $func;
         if (gettype($filter) == 'string')
@@ -172,7 +182,8 @@ class TheHandler{
         $this->when = $when;
     }
 
-    public function back(){
+    public function back()
+    {
         $this->when = $this->backup[0];
         $this->func = $this->backup[1];
         $this->filter = $this->backup[2];
@@ -181,7 +192,8 @@ class TheHandler{
 }
 
 
-class HandlersCreator{
+class HandlersCreator
+{
     function __call($func_name, $args)
     {
         try {
@@ -203,7 +215,8 @@ class HandlersCreator{
         }
     }
 
-    public function __invoke($func, $filter = [], $last = false){
+    public function __invoke($func, $filter = [], $last = false)
+    {
         $this->__call('anonymous', [$func, $filter, $last]);
     }
 }

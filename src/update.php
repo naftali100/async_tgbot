@@ -2,7 +2,8 @@
 
 namespace bot_lib;
 
-class Update extends API implements \ArrayAccess{
+class Update extends API implements \ArrayAccess
+{
     /** update */
     public array $update_arr = [];
     public $update_obj = null;
@@ -46,7 +47,7 @@ class Update extends API implements \ArrayAccess{
     public $callback = null;
 
     /** update entities */
-    public $ent = null; 
+    public $ent = null;
 
     /** media in update */
     public ?array $media = null;
@@ -58,15 +59,15 @@ class Update extends API implements \ArrayAccess{
     public $cb_answered = true;
 
 
-    public function __construct(public Config $config, string $update = null) 
+    public function __construct(public Config $config, string $update = null)
     {
-        if ($update != null) 
+        if ($update != null)
             $this->init_vars($update);
 
         // if(!$this->update_obj->ok)
         //     throw new \Error($this->update_obj);
-        
-        if(isset($config->token)){
+
+        if (isset($config->token)) {
             // set bot info
         }
     }
@@ -77,25 +78,28 @@ class Update extends API implements \ArrayAccess{
 
     public function delete()
     {
-        if(isset($this->update))
-        return $this->deleteMessage($this->chat->id, $this->message_id);
+        if (isset($this->update))
+            return $this->deleteMessage($this->chat->id, $this->message_id);
     }
 
     public function edit($newMessage, $replyMarkup = null, $ent = null)
     {
-        if (isset($this->update))
-        if (!$this->service) {
-            if ($this->media != null)
-                return $this->editMessageCaption($this->chat->id, $this->message_id, $this->inline_message_id, $newMessage, $replyMarkup, entities: $ent);
-            else
-                return $this->editMessageText($this->chat->id, $this->message_id, $this->inline_message_id, $newMessage, $replyMarkup, entities: $ent);
-        } else
-            return $this;
+        if (isset($this->update)) {
+            if (!$this->service) {
+                if ($this->media != null) {
+                    return $this->editMessageCaption($this->chat->id, $this->message_id, $this->inline_message_id, $newMessage, $replyMarkup, entities: $ent);
+                } else {
+                    return $this->editMessageText($this->chat->id, $this->message_id, $this->inline_message_id, $newMessage, $replyMarkup, entities: $ent);
+                }
+            } else {
+                return $this;
+            }
+        }
     }
 
     public function pin($dis_notification = null)
     {
-        if (isset($this->update)){
+        if (isset($this->update)) {
             if (!$this->service)
                 return $this->pinChatMessage($this->chat->id, $this->message_id, $dis_notification);
             else
@@ -105,16 +109,17 @@ class Update extends API implements \ArrayAccess{
 
     public function forward($to, $noCredit = false, $rm = null, $replyTo = null, $caption = null, $ent = null)
     {
-        if(isset($this->update) && !$this->has_protected_content){
+        if (isset($this->update) && !$this->has_protected_content) {
             if (!$this->service) {
                 if ($noCredit) {
                     return $this->copyMessage($to, $this->chat->id, $this->message_id, $rm, $replyTo, $caption, $ent);
-                } else
+                } else {
                     return $this->forwardMessage($to, $this->chat->id, $this->message_id);
-            } else
+                }
+            } else {
                 return $this;
+            }
         }
-       
     }
 
     public function reply($text, $replyMarkup = null, $ent = null)
@@ -126,7 +131,7 @@ class Update extends API implements \ArrayAccess{
     public function editKeyboard($newKeyboard)
     {
         if (isset($this->update))
-        return $this->editMessageReplyMarkup($this->chat->id, $this->message_id, $this->inline_message_id, $newKeyboard);
+            return $this->editMessageReplyMarkup($this->chat->id, $this->message_id, $this->inline_message_id, $newKeyboard);
     }
 
     public function alert($text, $show = false)
@@ -164,13 +169,12 @@ class Update extends API implements \ArrayAccess{
 
     public function ban($id = null)
     {
-        if ($this->chatType != 'private'){
-            if($this->sender_chat == null)
+        if ($this->chatType != 'private') {
+            if ($this->sender_chat == null)
                 return $this->banChatMember($this->chat->id, $id ?? $this->from->id);
             else
                 return $this->banChatSenderChat($this->chat->id, $id ?? $this->from->id);
-        }
-        else
+        } else
             return $this;
     }
 
@@ -182,19 +186,21 @@ class Update extends API implements \ArrayAccess{
             return $this;
     }
 
-    public function download(){
-        if($this->media != null){
+    public function download()
+    {
+        if ($this->media != null) {
             return $this->getFile($this->media['file_id']);
         }
     }
 
-    private function init_vars($update){
+    private function init_vars($update)
+    {
         $update_obj = json_decode($update);
         $this->update_obj = $this->update = json_decode($update);
         $this->update_arr = $update = json_decode($update, true);
-    
+
         $this->updateType = $updateType = array_keys($update)[1];
-        
+
         if ($updateType == 'callback_query') {
             $this->callback = $update_obj->callback_query;
             $this->cb_answered = false;
@@ -211,7 +217,7 @@ class Update extends API implements \ArrayAccess{
         $this->reply = $update_obj->$updateType->reply_to_message ?? null;
         $this->text = $update[$updateType]['text'] ?? $update[$updateType]['caption'] ?? $update[$updateType]['query'] ?? null;
         $this->chatType = $this->chat->type ?? null;
-        
+
         $this->ent = $update[$updateType]['entities']                                     ?? null;
 
         $this->keyboard = $update[$updateType]['reply_markup']['inline_keyboard']          ?? null;
@@ -233,7 +239,7 @@ class Update extends API implements \ArrayAccess{
         }
         $this->media = $media;
 
-         // if there ent in text its revers it to markdown and add `/```/*/_ to text
+        // if there ent in text its revers it to markdown and add `/```/*/_ to text
         $realText = $this->text;
         if ($this->ent != null) {
             $i = 0;
@@ -263,10 +269,10 @@ class Update extends API implements \ArrayAccess{
             'new_chat_photo',
             'new_chat_members',
             'left_chat_member',
-            'new_chat_title', 
+            'new_chat_title',
             'delete_chat_photo',
             'group_chat_created',
-            'supergroup_chat_created', 
+            'supergroup_chat_created',
             'channel_chat_created',
             'migrate_from_chat_id',
             'pinned_message',
@@ -281,9 +287,9 @@ class Update extends API implements \ArrayAccess{
             'voice_chat_scheduled',
             'voice_chat_participants_invited'
         ];
-        if(in_array($updateType, ['chat_member', 'my_chat_member'])){
+        if (in_array($updateType, ['chat_member', 'my_chat_member'])) {
             $this->service = true;
-        }else{
+        } else {
             foreach ($serviceTypes as $serviceType) {
                 if (isset($update[$updateType][$serviceType])) {
                     $this->service = true;
@@ -300,7 +306,7 @@ class Update extends API implements \ArrayAccess{
         if (isset($this->update_obj->{$this->updateType}->$value))
             return $this->update_obj->{$this->updateType}->$value;
         // in cbq update the message is inside cbq object
-        if (isset($this->message->$value)) 
+        if (isset($this->message->$value))
             return $this->message->$value;
     }
 
@@ -325,8 +331,8 @@ class Update extends API implements \ArrayAccess{
 
     public function offsetGet(mixed $offset)
     {
-        if (isset($this->$offset)){
-            if(gettype($this->$offset) == "string")
+        if (isset($this->$offset)) {
+            if (gettype($this->$offset) == "string")
                 return $this->$offset;
             else
                 return Helpers::objectToArray($this->$offset);
