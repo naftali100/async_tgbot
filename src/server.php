@@ -34,17 +34,28 @@ class Server extends Loader
         $this->servers = $servers;
     }
 
-    public function run()
+    public function run($startLoop = true)
     {
         $as_cluster = str_ends_with($argv[0] ?? "", "bin/cluster");
-        Loop::run(function () use ($as_cluster) {
+        if ($startLoop) {
+            Loop::run(function () use ($as_cluster) {
+                $this->runServer($as_cluster);
+            });
+        } else {
+            $this->runServer($as_cluster);
+        }
+    }
+
+    private function runServer($as_cluster)
+    {
+        return \Amp\call(function () use ($as_cluster) {
             try {
                 $servers = $as_cluster ? (yield $this->prepareServers($as_cluster)) : $this->prepareServers($as_cluster);
 
                 $logger = $this->get_logger($as_cluster);
 
                 // Set up a request handler.
-                $server = new HttpServer($servers, new CallableRequestHandler(function (Request $request) use ($logger) {
+                $this->server = new HttpServer($servers, new CallableRequestHandler(function (Request $request) use ($logger) {
                     try {
                         \Amp\asyncCall([$this, 'requestHandler'], $request, $logger);
                     } catch (\Throwable $e) {
@@ -56,26 +67,26 @@ class Server extends Loader
                 }), $logger);
 
                 // Start the HTTP server
-                yield $server->start();
-                $this->server = $server;
+                yield $this->server->start();
+                // $this->server = $this->server;
 
                 \Amp\call(\Closure::fromCallable([$this, 'cli_options']));
 
                 if ($as_cluster) {
                     // Stop the server when the worker is terminated.
-                    Cluster::onTerminate(function () use ($server) {
-                        return $server->stop();
+                    Cluster::onTerminate(function () {
+                        return $this->server->stop();
                     });
                 } else {
-                    Loop::onSignal(\SIGINT, static function (string $watcherId) use ($server) {
+                    Loop::onSignal(\SIGINT, function (string $watcherId) {
                         Loop::cancel($watcherId);
-                        yield $server->stop();
+                        yield $this->server->stop();
                         Loop::stop();
                     });
                 }
             } catch (\Throwable $e) {
                 print $e->getMessage() . ' in event-loop. file: ' . $e->getFile() . ' line ' . $e->getLine() . ' exiting loop and server ' . PHP_EOL;
-                yield $server->stop();
+                yield $this->server->stop();
                 Loop::stop();
             }
         });
@@ -196,7 +207,7 @@ class Server extends Loader
                 $time = \Amp\Loop::now();
                 /**
                  * @var BotFile
-                 */ 
+                 */
                 $file = $this->files[$path];
 
                 $update_string = yield $request->getBody()->buffer();
@@ -216,5 +227,10 @@ class Server extends Loader
                 $this->files[$path]->active = 0;
             }
         }
+    }
+
+    public function stop()
+    {
+        yield $this->server->stop();
     }
 }
