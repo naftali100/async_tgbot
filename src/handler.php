@@ -7,11 +7,11 @@ namespace bot_lib;
  */
 class HandlersHub extends HandlersCreator
 {
-    private TheHandler $before;
-    private TheHandler $fallback;
-    private TheHandler $middle;
-    private TheHandler $after;
-    private TheHandler $on_error;
+    public TheHandler $before;
+    public TheHandler $fallback;
+    public TheHandler $middle;
+    public TheHandler $after;
+    public TheHandler $on_error;
     public array $handlers = []; // TODO only public because of separation.. wrong... 
 
     public function __construct(Update|null $update = null)

@@ -53,7 +53,7 @@ class Loader
             // $this->files[$path] = ['file_name' => $file_name, 'active' => 1, 'handler' => $handler, 'config' => $config, 'update_class_name' => $update_class_name];
             $this->files[$path] = new BotFile($file_name, true, $handler, $config);
         } else {
-            print 'file ' . $file_name . ' not fount' . PHP_EOL;
+            print 'file ' . $file_name . ' not found' . PHP_EOL;
         }
     }
 
