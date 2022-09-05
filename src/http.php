@@ -120,6 +120,7 @@ class Response implements \Amp\Promise
         switch ($key) {
             case 'result':
             case 'response':
+            case 'json':
                 return $this->get_res();
                 break;
             case 'decode':

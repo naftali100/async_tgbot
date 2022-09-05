@@ -167,6 +167,7 @@ class TheHandler
         if (is_callable($filter)) {
             return call_user_func($filter, $update);
         }
+        // TODO: add regex support
         return in_array($data, $filter);
     }
 
