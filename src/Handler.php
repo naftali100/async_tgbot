@@ -5,7 +5,7 @@ namespace bot_lib;
 /**
  * per file
  */
-class HandlersHub extends HandlersCreator
+class Handler extends HandlersCreator
 {
     public TheHandler $before;
     public TheHandler $fallback;

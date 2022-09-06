@@ -6,7 +6,7 @@ namespace bot_lib;
  * The main telegram Api methods are here
  */
 
-class API extends Http
+class Api extends Http
 {
 
     public function sendMessage($id, $text, $replyMarkup = null, $replyMessage = null, $entities = null, bool $protectContent = false)

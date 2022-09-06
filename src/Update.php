@@ -219,6 +219,10 @@ class Update extends API implements \ArrayAccess
             $update['callback_query'] = $update['callback_query']['message'] ?? $update['callback_query'];
             $update_obj->callback_query = $update_obj->callback_query->message ?? $update_obj->callback_query;
         }
+        // elseif($updateType == 'my_chat_member'){
+        //     $update['my_chat_member'] = $update['my_chat_member']['message'] ?? $update['my_chat_member'];
+        //     $update_obj->my_chat_member = $update_obj->my_chat_member->message ?? $update_obj->my_chat_member;
+        // }
 
         $this->forward = $update_obj->$updateType->forward_from ?? $update_obj->$updateType->forward_from_chat ?? null;
         $this->chat = $this->__get('chat') ?? null;
