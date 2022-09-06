@@ -57,8 +57,15 @@ class Loader
 
     public function load_handler($name, $handler, $config = null)
     {
-        if ($config == null)
+        if ($config == null){
             $config = new Config;
+        }
+        // if function - create new Handler
+        if(get_class($handler) == 'Closure'){
+            $handler_obj = new Handler();
+            $handler_obj->func($handler);
+            $handler = $handler_obj;
+        }
         // $this->files[$name] =  ['active' => 1, 'handler' => $handler, 'config' => $config];
         $this->files[$name] =  new BotFile('', true, $handler, $config, Update::class);
     }
