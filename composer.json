@@ -22,7 +22,7 @@
     },
     "autoload": {
         "psr-4": {
-            "bot_lib\\": "src/"
+            "bot_lib\\": "./src/"
         }
     }
 }
