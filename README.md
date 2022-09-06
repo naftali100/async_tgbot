@@ -29,6 +29,7 @@ require_once './vendor/autoload.php';
 
 use bot_lib\Config;
 use bot_lib\Handler;
+use bot_lib\Update;
 
 $config = new Config;
 $config->load("conf.json"); // can store token
@@ -36,7 +37,7 @@ $config->server = "http://loadlhost:8081/bot"; // if you using local telegram-bo
 
 $handler = new Handler;
 $handler->on_message(
-    fn($u) => $u->reply("hello")
+    fn(Update $u) => $u->reply("hello")
 );
 ```
 set webhook to 127.0.0.1:8080/you_bot_file_name (or custom name passed in second argument to load_file).

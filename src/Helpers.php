@@ -40,19 +40,22 @@ class Helpers
      * create ChatPermissions json. 
      * 
      * accepts:
-     * - block | default : block all user permissions 
+     * - block : block all user permissions 
+     * - only_messages : open only sending messages 
      * - open : open all user permissions
      */
-    public static function permissions($mode = 'block'){
+    public static function permissions(string $mode = 'block'){
         switch($mode){
             case 'block':
                 return self::build_prem();
-                break;
             case 'default':
                 //TODO: get chat permissions
                 break;
             case 'open':
                 return self::build_prem(1, 1, 1, 1, 1, 1, 1, 1);
+            case 'only_messages':
+                return self::build_prem(send_message: true);
+            default;
         }
     }
 
@@ -74,8 +77,9 @@ class Helpers
 
     static function objectToArray($o) { 
         $a = array(); 
-        foreach ($o as $k => $v) 
+        foreach ($o as $k => $v){
             $a[$k] = (is_array($v) || is_object($v)) ? Helpers::objectToArray($v): $v; 
+        }
         return $a; 
     }
 }
