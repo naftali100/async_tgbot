@@ -2,8 +2,6 @@
 
 namespace bot_lib;
 
-use BotFile;
-
 /**
  * load bots files.
  * 
