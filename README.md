@@ -4,8 +4,7 @@ simple flexible and async library based on amphp for telegram bot api.
 
 ## installation
 
-- download and extract bot_lib repo.
-- run `composer update` to install amphp.
+- run `composer require naftali100/async_bot`.
 
 ## getting started
 
@@ -14,7 +13,8 @@ the recommended way is to use amphp's server to run all your bots
 #### server.php
 
 ```php
-require_once("src/bot_lib.php");
+require_once './vendor/autoload.php';
+
 use bot_lib\Server; 
 
 $server = new Server("127.0.0.1:8080"); // create server instance listening to port 8080
@@ -25,6 +25,8 @@ $server->run();
 #### bot.php
 
 ```php
+require_once './vendor/autoload.php';
+
 use bot_lib\Config;
 use bot_lib\Handler;
 
