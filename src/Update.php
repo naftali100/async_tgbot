@@ -72,10 +72,6 @@ class Update extends Api implements \ArrayAccess
         }
     }
 
-    // public function reply(string $message, array $reply_markup = NULL, $to_message_id = NULL, $to_id = NULL, $rm = NULL){
-
-    // }
-
     public function delete()
     {
         if (isset($this->update))
@@ -196,15 +192,15 @@ class Update extends Api implements \ArrayAccess
     private function init_vars($update_string)
     {
         $update_obj = json_decode($update_string);
-        if($update_obj == null){
+        if ($update_obj == null) {
             throw new \Error('failed to parse json object');
         }
 
         $update = json_decode($update_string, true);
-        if($update == null){
+        if ($update == null) {
             throw new \Error('failed to parse json array');
         }
-        
+
         $this->update_obj = $this->update = $update_obj;
         $this->update_arr = $update;
 
@@ -314,10 +310,12 @@ class Update extends Api implements \ArrayAccess
 
     public function __get($value)
     {
-        if (isset($this->update_obj->$value))
+        if (isset($this->update_obj->$value)) {
             return $this->update_obj->$value;
-        if (isset($this->update_obj->{$this->updateType}->$value))
+        }
+        if (isset($this->update_obj->{$this->updateType}->$value)) {
             return $this->update_obj->{$this->updateType}->$value;
+        }
         // in cbq update the message is inside cbq object
         if (isset($this->message->$value))
             return $this->message->$value;

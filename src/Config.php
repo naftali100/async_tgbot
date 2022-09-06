@@ -51,7 +51,8 @@ class Config
     public $Notification = false;
 
     /**
-     * callback function that will run after every api request when it resolve. the function should take 2 params $error and $result
+     * callback function that will run after every api request when it resolve. 
+     * the function should take 2 params $error and $result.
      */
     public $apiErrorHandler = null;
 
