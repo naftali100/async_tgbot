@@ -7,6 +7,7 @@ use bot_lib\Update;
 use Amp\Http\Client\Body\FormBody;
 use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client;
+use Amp\Promise;
 
 use function Amp\call;
 
@@ -19,74 +20,63 @@ class Http
     public function ApiRequest($method, $data = [])
     {
         $url = $this->config->server_url . $this->config->token . '/' . $method;
-        return $this->Request($url, $data, $this->config->async);
+        return $this->BuildApiRequestBody($url, $data);
     }
 
-    public function Request($url, $data = [], $async = true): Response
+    public function BuildApiRequestBody($url, $data = []): Promise
     {
-        if ($async) {
-            $client = HttpClientBuilder::buildDefault();
-            if ($data != []) {
-                $body = new FormBody;
-                foreach ($data as $key => $value) {
-                    if (in_array($key, ['document', 'photo', 'audio', 'thumb']) && !empty($value)) {
-                        # TODO: make this async \Amp\File\exist
-                        if (is_file($value)) {
-                            \Amp\File\StatCache::clear($value);
-                            $body->addFile($key, $value);
-                        } else {
-                            throw new \Error("file $value not exist");
-                        }
+        return \Amp\call(function() use ($url, $data){
+            $body = new FormBody;
+            foreach ($data as $key => $value) {
+                if (in_array($key, ['document', 'photo', 'audio', 'thumb']) && !empty($value)) {
+                    # TODO: make this async \Amp\File\exist
+                    // if (yield \Amp\File\exists($value)) {
+                    if (is_file($value)) {
+                        \Amp\File\StatCache::clear($value);
+                        $body->addFile($key, $value);
                     } else {
-                        if (!empty($value)) {
-                            $body->addField($key, $value);
-                        }
+                        throw new \Error("file $value not exist");
+                    }
+                } else {
+                    if (!empty($value)) {
+                        $body->addField($key, $value);
                     }
                 }
-
-                $request = new Client\Request($url, 'POST');
-                $request->setBody($body);
-            } else if ($url instanceof Client\Request) {
-                $request = $url;
-            } else {
-                $request = new Client\Request($url);
             }
+            return $this->Request($url, $body);
+        });
+    }
 
-            if ($this->config->debug) {
-                var_dump($url);
-            }
-
-            if (str_ends_with(strtolower($url), 'getfile')) {
-                $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
-                $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
-            }
-
-            $promise = $client->request($request);
-            if (
-                isset($this?->config) &&
-                isset($this?->config?->apiErrorHandle) &&
-                $this?->config?->apiErrorHandle != null
-            ) {
-                $promise->onResolve($this->config->apiErrorHandler);
-            }
-            return new Response($promise, $this->config);
+    public function Request($url, $body = null): Response
+    {
+        $client = HttpClientBuilder::buildDefault();
+        if ($body != null) {
+            $request = new Client\Request($url, 'POST');
+            $request->setBody($body);
+        } else if ($url instanceof Client\Request) {
+            $request = $url;
         } else {
-            // TODO
-            // throw new Error('sync request');
-            // $ch = curl_init();
-            // curl_setopt($ch, CURLOPT_URL, $url);
-            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-
-            // $res = curl_exec($ch);
-            // if (curl_error($ch)) {
-            //     curl_close($ch);
-            //     return false;
-            // } else {
-            //     curl_close($ch);
-            //     return $res;
-            // }
+            $request = new Client\Request($url);
         }
+
+        if ($this->config->debug) {
+            var_dump($url);
+        }
+
+        if (str_ends_with(strtolower($url), 'getfile')) {
+            $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
+            $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
+        }
+
+        $promise = $client->request($request);
+        if (
+            isset($this?->config) &&
+            isset($this?->config?->apiErrorHandle) &&
+            $this?->config?->apiErrorHandle != null
+        ) {
+            $promise->onResolve($this->config->apiErrorHandler);
+        }
+        return new Response($promise, $this->config);
     }
 }
 
@@ -109,19 +99,21 @@ class Http
  */
 class Response implements \Amp\Promise
 {
-    // private $update_promise;
+    private Promise $update_promise;
+
     public function __construct(private \Amp\Promise $request, private $config)
     {
         $this->update_promise = $this->get_update();
     }
 
-    public function __get($key)
+    public function __get($key): Promise
     {
         switch ($key) {
             case 'result':
             case 'response':
             case 'json':
-                return $this->get_res();
+            case 'plain':
+                return $this->get_plain_res();
                 break;
             case 'decode':
             case 'array':
@@ -147,7 +139,7 @@ class Response implements \Amp\Promise
         return call($return_update, $this->request, $this->config);
     }
 
-    private function get_res()
+    private function get_plain_res()
     {
         $return_response = function ($req) {
             $res = yield $req;
