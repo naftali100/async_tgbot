@@ -19,5 +19,10 @@
     "require-dev": {
         "phpunit/phpunit": "^9.5",
         "amphp/phpunit-util": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "bot_lib\\": "src/"
+        }
     }
 }
