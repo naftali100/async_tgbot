@@ -6,7 +6,6 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/basic_update.php';
 
 use bot_lib\Update;
-use bot_lib\Server;
 
 use Amp\PHPUnit\AsyncTestCase;
 
@@ -18,20 +17,6 @@ final class UpdateTest extends AsyncTestCase
     {
         parent::setUp();
         $this->init();
-    }
-
-    protected function tearDownAsync()
-    {
-        if (isset($this->server)) {
-            yield $this->server->stop();
-        }
-    }
-
-    public function setUpServer()
-    {
-        $this->server = new Server("127.0.0.1:1337");
-        $this->server->load_file(__DIR__ . "/handlers.php", "index");
-        $this->server->run(false);
     }
 
     public function testGetChatId(): void
@@ -72,10 +57,7 @@ final class UpdateTest extends AsyncTestCase
         $this->assertEquals($needle, $this->group_message['text']);
     }
 
-    /**
-     * @depend setUpServer
-     */
-    public function testRequest()
+    public function testRequestResult()
     {
         $promise = $this->private_message->sendMessage(227774988, "hello");
 
