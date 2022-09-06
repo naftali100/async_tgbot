@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/basic_update.php';
-require_once __DIR__ . '/../src/bot_lib.php';
 
 use bot_lib\Update;
 use bot_lib\Server;
@@ -19,26 +18,39 @@ final class UpdateTest extends AsyncTestCase
     {
         parent::setUp();
         $this->init();
-
-        $server = new Server("127.0.0.1:1337");
-        $server->load_file(__DIR__ . "/handlers.php", "index");
-        $server->run(false);
-        $this->server = $server;
     }
 
-    protected function tearDown(): void
+    protected function tearDownAsync()
     {
-        $this->server->stop();
+        if (isset($this->server)) {
+            yield $this->server->stop();
+        }
     }
 
-    public function testGetPrivateChatId(): void
+    public function setUpServer()
+    {
+        $this->server = new Server("127.0.0.1:1337");
+        $this->server->load_file(__DIR__ . "/handlers.php", "index");
+        $this->server->run(false);
+    }
+
+    public function testGetChatId(): void
     {
         $this->assertEquals($this->chat_id, $this->private_message->chat->id);
         $this->assertEquals($this->chat_id, $this->private_message['chat']['id']);
+
+        $this->assertEquals($this->chat_id, $this->group_message->chat->id);
+        $this->assertEquals($this->chat_id, $this->group_message['chat']['id']);
     }
 
-    public function testForwardedChatId(): void
+    public function testGetFromChat()
     {
+        $this->assertEquals($this->user_id, $this->private_message->from->id);
+        $this->assertEquals($this->user_id, $this->private_message['from']['id']);
+
+        $this->assertEquals($this->user_id, $this->group_message->from->id);
+        $this->assertEquals($this->user_id, $this->group_message['from']['id']);
+
         $this->assertEquals($this->user_id, $this->forwarded_message->from->id);
     }
 
@@ -60,6 +72,9 @@ final class UpdateTest extends AsyncTestCase
         $this->assertEquals($needle, $this->group_message['text']);
     }
 
+    /**
+     * @depend setUpServer
+     */
     public function testRequest()
     {
         $promise = $this->private_message->sendMessage(227774988, "hello");

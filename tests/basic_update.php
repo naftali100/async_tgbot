@@ -1,6 +1,6 @@
 <?php
 
-// require __DIR__ . '/../src/bot_lib.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use bot_lib\Update;
 use bot_lib\Config;
@@ -225,17 +225,3 @@ trait UpdateTypes
         // $this->sticker_file = new Update($this->config, json_encode([]));
     }
 }
-
-// class check
-// {
-//     use UpdateTypes;
-
-//     public function test()
-//     {
-//         $this->init();
-//         var_dump($this->private_message);
-//     }
-// }
-
-// $check = new check;
-// $check->test();
