@@ -193,11 +193,20 @@ class Update extends API implements \ArrayAccess
         }
     }
 
-    private function init_vars($update)
+    private function init_vars($update_string)
     {
-        $update_obj = json_decode($update);
-        $this->update_obj = $this->update = json_decode($update);
-        $this->update_arr = $update = json_decode($update, true);
+        $update_obj = json_decode($update_string);
+        if($update_obj == null){
+            throw new \Error('failed to parse json object');
+        }
+
+        $update = json_decode($update_string, true);
+        if($update == null){
+            throw new \Error('failed to parse json array');
+        }
+        
+        $this->update_obj = $this->update = $update_obj;
+        $this->update_arr = $update;
 
         $this->updateType = $updateType = array_keys($update)[1];
 

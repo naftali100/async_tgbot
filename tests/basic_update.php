@@ -9,6 +9,7 @@ trait UpdateTypes
 {
     public $user_id = 0000;
     public $chat_id = 1111;
+
     public $private_message;
     public $group_message;
     public $edited_message;
