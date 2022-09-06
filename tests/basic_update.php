@@ -17,6 +17,7 @@ trait UpdateTypes
     public Update $edited_message;
     public Update $new_member;
     public Update $cbq;
+    public Update $inline_query;
     public Update $channel_message;
     public Update $forwarded_message;
 
@@ -125,100 +126,95 @@ trait UpdateTypes
              "text": "text"
             }
            }');
-        // $this->cbq = new Update(
-        //     $this->config,
-        //     <<<END
-        // {
-        //     "update_id": 854947025,
-        //     "callback_query": {
-        //         "id": "4581105008550348206",
-        //         "from": {
-        //             "id": 5361588923,
-        //             "is_bot": false,
-        //             "is_deleted": false,
-        //             "first_name": "אבי",
-        //             "last_name": "מרדכי",
-        //             "language_code": "he",
-        //             "user_status": "recently"
-        //         },
-        //         "message": {
-        //             "message_id": 350078,
-        //             "from": {
-        //                 "id": 1568181297,
-        //                 "is_bot": true,
-        //                 "is_deleted": false,
-        //                 "first_name": "חיפוש סרטים",
-        //                 "username": "movie_4_you_tgbot",
-        //                 "user_status": "online"
-        //             },
-        //             "chat": {
-        //                 "id": -1001451090121,
-        //                 "title": "סרטים שירים סדרות",
-        //                 "username": "SeretPlus",
-        //                 "type": "supergroup"
-        //             },
-        //             "date": 1662225931,
-        //             "edit_date": 1662234210,
-        //             "reply_to_message": {
-        //                 "message_id": 350077,
-        //                 "from": {
-        //                     "id": 5361588923,
-        //                     "is_bot": false,
-        //                     "is_deleted": false,
-        //                     "first_name": "אבי",
-        //                     "last_name": "מרדכי",
-        //                     "language_code": "he",
-        //                     "user_status": "recently"
-        //                 },
-        //                 "chat": {
-        //                     "id": -1001451090121,
-        //                     "title": "סרטים שירים סדרות",
-        //                     "username": "SeretPlus",
-        //                     "type": "supergroup"
-        //                 },
-        //                 "date": 1662225929,
-        //                 "text": "!גון וויק 4"
-        //             },
-        //             "text": "גון וויק 4\nתוצאות 20-30\nמתוך",
-        //             "reply_markup": {
-        //                 "inline_keyboard": [
-        //                     [
-        //                         {
-        //                             "text": "כל הסדרות בחיפוש גון וויק 2 ק ת 2017 1080p BluRay  mp4",
-        //                             "callback_data": "12781732"
-        //                         }
-        //                     ],
-        //                     [
-        //                         {
-        //                             "text": "כל הסדרות בחיפוש גון וויק 3 ק ת 2019 1080p BluRay  mp4",
-        //                             "callback_data": "12781733"
-        //                         }
-        //                     ],
-        //                     [
-        //                         {
-        //                             "text": "⏪10",
-        //                             "callback_data": "12781734"
-        //                         },
-        //                         {
-        //                             "text": "10⏩",
-        //                             "callback_data": "12781735"
-        //                         }
-        //                     ],
-        //                     [
-        //                         {
-        //                             "text": "מחק הודעה",
-        //                             "callback_data": "12781736"
-        //                         }
-        //                     ]
-        //                 ]
-        //             }
-        //         },
-        //         "chat_instance": "-5686476100341976119",
-        //         "data": "12781735"
-        //     }
-        // }
-        // END
-        // );
+        $this->cbq = new Update(
+            $this->config,
+            '
+        {
+            "update_id": 883655366,
+            "callback_query": {
+                "message_id": 10321,
+                "from": {
+                    "id": ' . $this->user_id . ',
+                    "is_bot": true,
+                    "is_deleted": false,
+                    "first_name": "local test",
+                    "username": "local_tgbot",
+                    "user_status": "online"
+                },
+                "chat": {
+                    "id": ' . $this->chat_id . ',
+                    "first_name": "Naftali",
+                    "username": "Naftali100",
+                    "type": "private",
+                    "user_status": "recently"
+                },
+                "date": 1662490245,
+                "text": "text",
+                "reply_markup": {
+                    "inline_keyboard": [
+                        [
+                            {
+                                "text": "row 1 col 1",
+                                "callback_data": "row_1_col_1"
+                            },
+                            {
+                                "text": "row 1 col 2",
+                                "callback_data": "row_1_col_2"
+                            }
+                        ],
+                        [
+                            {
+                                "text": "row 2 col 1",
+                                "callback_data": "row_2_col_1"
+                            },
+                            {
+                                "text": "row 2 col 2",
+                                "callback_data": "row_2_col_2"
+                            }
+                        ],
+                        [
+                            {
+                                "text": "hello",
+                                "callback_data": "hello"
+                            }
+                        ],
+                        [
+                            {
+                                "text": "url",
+                                "url": "https://google.com/"
+                            }
+                        ],
+                        [
+                            {
+                                "text": "web app",
+                                "web_app": {
+                                    "url": "https://google.com/"
+                                }
+                            }
+                        ]
+                    ]
+                }
+            }
+        }
+        '
+        );
+        $this->inline_query = new Update($this->config, '{
+            "update_id": 933208702,
+            "inline_query": {
+             "id": "978286125037432537",
+             "from": {
+              "id": ' . $this->user_id . ',
+              "is_bot": false,
+              "first_name": "Naftali",
+              "username": "Naftali100",
+              "language_code": "en",
+              "is_premium": true
+             },
+             "chat_type": "sender",
+             "query": "text",
+             "offset": ""
+            }
+           }');
         // $this->channel_message = new Update($this->config, json_encode([]));
         // $this->new_member = new Update($this->config, json_encode([]));
         // $this->document_file = new Update($this->config, json_encode([]));
