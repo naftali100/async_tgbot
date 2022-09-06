@@ -126,7 +126,7 @@ you can skip the update type (message in above example).
 ### Loader
 The Server class extends the Loader. you shouldn't use it directly.
 
-You can load file, folders or HandlersHub.
+You can load file, folders or Handler.
 
 ##### extra access
 File loaded with the ability to change handlers of other bots.

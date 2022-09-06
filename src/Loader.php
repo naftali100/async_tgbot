@@ -73,7 +73,7 @@ class Loader
 
         require $name;
         foreach (get_defined_vars() as $value) {
-            if (is_a($value, 'bot_lib\HandlersHub')) {
+            if (is_a($value, 'bot_lib\Handler')) {
                 $res[0] = $value;
             }
             if (is_a($value, 'bot_lib\Config')) {
@@ -82,7 +82,7 @@ class Loader
         }
 
         if (!isset($res[0]))
-            throw new \Error('can\'t find HandlersHub instance');
+            throw new \Error('can\'t find Handler instance');
 
         if (!isset($res[1]))
             $res[1] = new Config();

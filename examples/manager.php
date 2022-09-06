@@ -1,14 +1,14 @@
 <?php
 
 use bot_lib\Config;
-use bot_lib\HandlersHub;
+use bot_lib\Handler;
 use bot_lib\TheHandler;
 
 $conf = new Config();
 $conf->load("config.json");
 $conf->server_url = "http://localhost:8081/bot";
 
-$handler = new HandlersHub();
+$handler = new Handler();
 
 $handler->before(
     function($u){

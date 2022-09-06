@@ -5,7 +5,7 @@
  */
    
 use bot_lib\Config;
-use bot_lib\HandlersHub;
+use bot_lib\Handler;
 use bot_lib\Update;
 use bot_lib\Helpers;
 
@@ -20,7 +20,7 @@ $conf->apiErrorHandler = function($err, $res){
     }
 };
 
-$handler = new HandlersHub();
+$handler = new Handler();
 
 // this handler run once per request before any other handler
 $handler->before(function($u) {

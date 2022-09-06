@@ -1,11 +1,11 @@
 <?php
 
 use bot_lib\Config;
-use bot_lib\HandlersHub;
+use bot_lib\Handler;
 
 $conf = new Config("123456789:qwertyui");
 
-$handler = new HandlersHub;
+$handler = new Handler;
 
 $handler->on_file(function($u){
     $file = yield $u->download()->decode; // get decoded json response

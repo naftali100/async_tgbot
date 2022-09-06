@@ -5,18 +5,18 @@
  */
 
 use bot_lib\Config;
-use bot_lib\HandlersHub;
+use bot_lib\Handler;
 use bot_lib\TheHandler;
 
 $conf = new Config();
 $conf->load("conf.json");
 $conf->server_url = "http://localhost:8081/bot";
 
-$handler = new HandlersHub;
+$handler = new Handler;
 
 $handler->before(function($u){
-    // create new HandlersHub to create the handlers (you can also return an array of TheHandler. see below)
-    $new_handler = new HandlersHub;
+    // create new Handler to create the handlers (you can also return an array of TheHandler. see below)
+    $new_handler = new Handler;
     $new_handler->on_update(fn($u) => $u->reply("yoo hoo"));
 
     return $new_handler->handlers;

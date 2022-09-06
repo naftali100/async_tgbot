@@ -1,13 +1,13 @@
 <?php
 
 use bot_lib\Config;
-use bot_lib\HandlersHub;
+use bot_lib\Handler;
 use bot_lib\Helpers;
 
 $conf = new Config;
 $conf->load('conf.json');
 
-$handler = new HandlersHub;
+$handler = new Handler;
 
 $handler->on_mew_member(
     func: function(bot_lib\Update $u){
