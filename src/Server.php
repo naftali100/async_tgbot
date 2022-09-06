@@ -70,7 +70,7 @@ class Server extends Loader
                 yield $this->server->start();
                 // $this->server = $this->server;
 
-                \Amp\call(\Closure::fromCallable([$this, 'cli_options']));
+                // \Amp\call(\Closure::fromCallable([$this, 'cli_options']));
 
                 if ($as_cluster) {
                     // Stop the server when the worker is terminated.
@@ -78,11 +78,11 @@ class Server extends Loader
                         return $this->server->stop();
                     });
                 } else {
-                    Loop::onSignal(\SIGINT, function (string $watcherId) {
+                    Loop::unreference(Loop::onSignal(\SIGINT, function (string $watcherId) {
                         Loop::cancel($watcherId);
                         yield $this->server->stop();
                         Loop::stop();
-                    });
+                    }));
                 }
             } catch (\Throwable $e) {
                 print $e->getMessage() . ' in event-loop. file: ' . $e->getFile() . ' line ' . $e->getLine() . ' exiting loop and server ' . PHP_EOL;
@@ -231,6 +231,6 @@ class Server extends Loader
 
     public function stop()
     {
-        yield $this->server->stop();
+        return $this->server->stop();
     }
 }

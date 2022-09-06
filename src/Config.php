@@ -5,7 +5,8 @@ namespace bot_lib;
 /**
  * config of the bot
  */
-class Config{
+class Config
+{
     /**
      * @var $parseMode how the text will be parsed
      */
@@ -15,7 +16,7 @@ class Config{
     /**
      * @var $server the base url of the server to send api requests.
      */
-    public $server_url = 'https://api.telegram.org/bot'; 
+    public $server_url = 'https://api.telegram.org/bot';
 
     /**
      * @var $noUpdate to use the bot without update
@@ -61,16 +62,16 @@ class Config{
 
     public function __construct(public $token = null)
     {
-        
     }
 
     /**
      * json with settings as they in the class
      * @param $file path of settings json file
      */
-    public function load($file){
-        $conf = json_decode( file_get_contents($file), true);
-        foreach($conf as $key => $value){
+    public function load($file)
+    {
+        $conf = json_decode(file_get_contents($file), true);
+        foreach ($conf as $key => $value) {
             $this->$key = $value;
         }
     }

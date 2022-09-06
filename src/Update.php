@@ -2,7 +2,7 @@
 
 namespace bot_lib;
 
-class Update extends API implements \ArrayAccess
+class Update extends Api implements \ArrayAccess
 {
     /** update */
     public array $update_arr = [];
