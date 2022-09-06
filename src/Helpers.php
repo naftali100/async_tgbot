@@ -44,8 +44,9 @@ class Helpers
      * - only_messages : open only sending messages 
      * - open : open all user permissions
      */
-    public static function permissions(string $mode = 'block'){
-        switch($mode){
+    public static function permissions(string $mode = 'block')
+    {
+        switch ($mode) {
             case 'block':
                 return self::build_prem();
             case 'default':
@@ -59,27 +60,35 @@ class Helpers
         }
     }
 
-    public static function build_prem($send_message = false, $send_media = false, $send_polls = false,
-     $send_other_messages = false, $send_web_page = false, $change_info = false, $invite = false, $pin = false
-    ){
+    public static function build_prem(
+        $send_message = false,
+        $send_media = false,
+        $send_polls = false,
+        $send_other_messages = false,
+        $send_web_page = false,
+        $change_info = false,
+        $invite = false,
+        $pin = false
+    ) {
         $prem = [
             'can_send_messages' => $send_message,
             'can_send_media_messages' => $send_media,
-            'can_send_polls' => $send_polls, 
-            'can_send_other_messages'  => $send_other_messages, 
+            'can_send_polls' => $send_polls,
+            'can_send_other_messages'  => $send_other_messages,
             'can_add_web_page_previews' => $send_web_page,
             'can_change_info' => $change_info,
             'can_invite_users' => $invite,
             'can_pin_messages' => $pin,
         ];
-        return json_encode($prem); 
+        return json_encode($prem);
     }
 
-    static function objectToArray($o) { 
-        $a = array(); 
-        foreach ($o as $k => $v){
-            $a[$k] = (is_array($v) || is_object($v)) ? Helpers::objectToArray($v): $v; 
+    static function objectToArray($o)
+    {
+        $a = array();
+        foreach ($o as $k => $v) {
+            $a[$k] = (is_array($v) || is_object($v)) ? Helpers::objectToArray($v) : $v;
         }
-        return $a; 
+        return $a;
     }
 }
