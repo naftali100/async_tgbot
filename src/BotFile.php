@@ -1,7 +1,5 @@
 <?php
-
-use bot_lib\Config;
-use bot_lib\Handler;
+namespace bot_lib;
 
 class BotFile
 {
