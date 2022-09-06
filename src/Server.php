@@ -42,7 +42,7 @@ class Server extends Loader
                 $this->runServer($as_cluster);
             });
         } else {
-            $this->runServer($as_cluster);
+            return $this->runServer($as_cluster);
         }
     }
 
@@ -232,5 +232,10 @@ class Server extends Loader
     public function stop()
     {
         return $this->server->stop();
+    }
+
+    public function getState()
+    {
+        return $this->server->getState();
     }
 }
