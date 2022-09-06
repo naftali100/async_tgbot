@@ -26,6 +26,9 @@ final class UpdateTest extends AsyncTestCase
 
         $this->assertEquals($this->chat_id, $this->group_message->chat->id);
         $this->assertEquals($this->chat_id, $this->group_message['chat']['id']);
+
+        $this->assertEquals($this->chat_id, $this->cbq->chat->id);
+        $this->assertEquals($this->chat_id, $this->cbq['chat']['id']);
     }
 
     public function testGetFromChat()
@@ -35,6 +38,12 @@ final class UpdateTest extends AsyncTestCase
 
         $this->assertEquals($this->user_id, $this->group_message->from->id);
         $this->assertEquals($this->user_id, $this->group_message['from']['id']);
+        
+        $this->assertEquals($this->user_id, $this->cbq->from->id);
+        $this->assertEquals($this->user_id, $this->cbq['from']['id']);
+        
+        $this->assertEquals($this->user_id, $this->inline_query->from->id);
+        $this->assertEquals($this->user_id, $this->inline_query['from']['id']);
 
         $this->assertEquals($this->user_id, $this->forwarded_message->from->id);
     }
@@ -55,9 +64,15 @@ final class UpdateTest extends AsyncTestCase
 
         $this->assertEquals($needle, $this->group_message->text);
         $this->assertEquals($needle, $this->group_message['text']);
+
+        $this->assertEquals($needle, $this->cbq->text);
+        $this->assertEquals($needle, $this->cbq['text']);
+
+        $this->assertEquals($needle, $this->inline_query->text);
+        $this->assertEquals($needle, $this->inline_query['text']);
     }
 
-    public function testRequestResult()
+    public function testRequestResultType()
     {
         $promise = $this->private_message->sendMessage($this->myUserId, "hello");
 
