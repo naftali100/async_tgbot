@@ -59,7 +59,7 @@ final class UpdateTest extends AsyncTestCase
 
     public function testRequestResult()
     {
-        $promise = $this->private_message->sendMessage(227774988, "hello");
+        $promise = $this->private_message->sendMessage($this->myUserId, "hello");
 
         $res = yield $promise;
         $this->assertIsObject($res);

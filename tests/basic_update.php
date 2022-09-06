@@ -10,6 +10,8 @@ trait UpdateTypes
     public $user_id = 0000;
     public $chat_id = 1111;
 
+    public $myUserId = 227774988; // set it to the chat that receive messages during testing
+
     public Update $private_message;
     public Update $group_message;
     public Update $edited_message;
@@ -81,7 +83,7 @@ trait UpdateTypes
               "is_premium": true
              },
              "chat": {
-              "id": 227774988,
+              "id": ' . $this->myUserId . ',
               "first_name": "Naftali",
               "username": "Naftali100",
               "type": "private"
@@ -105,14 +107,14 @@ trait UpdateTypes
               "is_premium": true
              },
              "chat": {
-              "id": 227774988,
+              "id": ' . $this->myUserId . ',
               "first_name": "Naftali",
               "username": "Naftali100",
               "type": "private"
              },
              "date": 1662391729,
              "forward_from": {
-              "id": 227774988,
+              "id": ' . $this->myUserId . ',
               "is_bot": false,
               "first_name": "Naftali",
               "username": "Naftali100",
