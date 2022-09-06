@@ -10,13 +10,13 @@ trait UpdateTypes
     public $user_id = 0000;
     public $chat_id = 1111;
 
-    public $private_message;
-    public $group_message;
-    public $edited_message;
-    public $new_member;
-    public $cbq;
-    public $channel_message;
-    public $forwarded_message;
+    public Update $private_message;
+    public Update $group_message;
+    public Update $edited_message;
+    public Update $new_member;
+    public Update $cbq;
+    public Update $channel_message;
+    public Update $forwarded_message;
 
     public function init()
     {
