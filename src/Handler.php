@@ -43,7 +43,7 @@ class Handler extends HandlersCreator
             }
         }
         // run handlers
-        $config->logger->debug('activating handlers');
+        $config->logger->debug('activating ' . count($handlers_to_run) . ' handlers');
         foreach ($handlers_to_run as $theHandler) {
             if ($theHandler->shouldRun($update)) {
                 $config->logger->debug('activating handler: ' . ($theHandler->name != '' ? $theHandler->name : $theHandler->when));
@@ -77,11 +77,11 @@ class Handler extends HandlersCreator
             }
             $config->logger->debug('finished all handlers');
         } catch (\Throwable $e) {
-            // TODO: get backtrace to the file where the error coming from
-            $config->logger->error($e->getMessage() . ', when running handlers in ' . $e->getFile() . ':' . $e->getLine());
             if (isset($this->on_error)) {
                 $res[] = yield $this->on_error->runHandler($e, $config->async);
             }
+            // TODO: get backtrace to the file where the error coming from
+            $config->logger->error($e->getMessage() . ', when running handlers in ' . $e->getFile() . ':' . $e->getLine());
         }
         return $res;
     }
@@ -139,7 +139,7 @@ class TheHandler
                 $shouldRun = $this->checkFilter($this->filter, $update->updateType, $update);
                 break;
             case 'on_message':
-                $shouldRun = $update->updateType == 'message' &&  $this->checkFilter($this->filter, $update->text, $update);
+                $shouldRun = $update->updateType == 'message' && !$update->service && $this->checkFilter($this->filter, $update->text, $update);
                 break;
             case 'on_cbq':
                 $shouldRun = $update->updateType == 'callback_query' && $this->checkFilter($this->filter, $update->data, $update);
@@ -148,13 +148,13 @@ class TheHandler
                 $shouldRun = isset($update->media['file_type']) && $this->checkFilter($this->filter, $update->media['file_type'], $update);
                 break;
             case 'on_service':
-                $shouldRun = $update->service;
+                $shouldRun = $update->service && $this->checkFilter($this->filter, null, $update);
                 break;
             case 'on_member':
-                $shouldRun = $update->new_chat_members != null || $update->left_chat_member != null || in_array($update->updateType, ['chat_member', 'my_chat_member']);
+                $shouldRun = ($update->new_chat_members != null || $update->left_chat_member != null || in_array($update->updateType, ['chat_member', 'my_chat_member'])) && $this->checkFilter($this->filter, null, $update);
                 break;
             case 'on_new_member':
-                $shouldRun = $update->new_chat_members != null;
+                $shouldRun = $update->new_chat_members != null && $this->checkFilter($this->filter, null, $update);
                 break;
             default:
                 $shouldRun = $this->checkFilter($this->filter, null, $update);
@@ -171,8 +171,11 @@ class TheHandler
         if (is_callable($filter)) {
             return call_user_func($filter, $update);
         }
-        // TODO: add regex support
-        return in_array($data, $filter);
+        if (is_array($filter)) {
+            // TODO: add regex support
+            return in_array($data, $filter);
+        }
+        return true;
     }
 
     public function next($func, $filter = [], $when = '', $last = false)
