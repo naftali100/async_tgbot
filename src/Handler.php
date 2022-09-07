@@ -74,6 +74,7 @@ class Handler extends HandlersCreator
                 $config->logger->debug('activating "after" handler');
                 $res[] = yield $this->after->runHandler($update, $config->async);
             }
+            $config->logger->debug('finished all handlers');
         } catch (\Throwable $e) {
             // TODO: get backtrace to the file where the error coming from
             $config->logger->error($e->getMessage() . ', when running handlers in ' . $e->getFile() . ' line ' . $e->getLine());
