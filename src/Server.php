@@ -19,9 +19,6 @@ use Amp\Socket;
 use Monolog\Logger;
 use Amp\Loop;
 
-use bot_lib\Loader;
-use BotFile;
-
 class Server extends Loader
 {
     // public array $files = []; - set in Loader
@@ -57,6 +54,7 @@ class Server extends Loader
                 // Set up a request handler.
                 $this->server = new HttpServer($servers, new CallableRequestHandler(function (Request $request) use ($logger) {
                     try {
+                        // yield \Amp\call([$this, 'requestHandler'], $request, $logger);
                         \Amp\asyncCall([$this, 'requestHandler'], $request, $logger);
                     } catch (\Throwable $e) {
                         print $e->getMessage() . ' when handling request to ' . $request->getUri() . ' on ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
@@ -195,13 +193,13 @@ class Server extends Loader
      */
     public function requestHandler($request, $logger)
     {
+        $logger->info('request handler');
         $path = ltrim($request->getUri()->getPath(), '/');
 
         if (!isset($this->files[$path])) {
             $logger->notice('file ' . $path . ' not exist');
         } elseif ($this->files[$path]->active) {
-            // debug
-            $this->files[$path]->config->debug && $logger->info('running file: ' . $path);
+            $this->files[$path]->config->logger->info('running file: ' . $path);
 
             try {
                 $time = \Amp\Loop::now();
@@ -210,21 +208,28 @@ class Server extends Loader
                  */
                 $file = $this->files[$path];
 
-                $update_string = yield $request->getBody()->buffer();
+                $update_string = '';
+
+                while (($chunk = yield $request->getBody()->read()) !== null) {
+                    $update_string .= $chunk;
+                }
+
                 $update_class_name = $file->config->updateClassName;
                 $update = new $update_class_name($file->config, $update_string);
 
                 // get token from request params if exist
                 parse_str($request->getUri()->getQuery(), $query);
-                if (isset($query['token']))
+                if (isset($query['token'])) {
                     $file->config->token = $query['token'];
+                }
 
+                $file->config->logger->debug('activating handlers');
                 $res = yield \Amp\call([$file->handler, 'activate'], $file->config, $update);
 
-                $file->config->debug && $logger->info('took: ' . \Amp\Loop::now() - $time . '. handlers result', $res ?? []);
+                $file->config->logger->debug($path . ' took: ' . \Amp\Loop::now() - $time . '. handlers result', $res ?? []);
             } catch (\Throwable $e) {
-                $logger->error($e->getMessage() . ' when activate handlers in file ' . $e->getFile() . ' in line ' . $e->getLine() . '. path ' . $path . ' - disabled!');
-                $this->files[$path]->active = 0;
+                $file->config->logger->error($e->getMessage() . ' when activate handlers in file ' . $e->getFile() . ' in line ' . $e->getLine() . '. path: "' . $path . '" - disabled!');
+                // $this->files[$path]->active = 0;
             }
         }
     }

@@ -36,12 +36,14 @@ class Handler extends HandlersCreator
         $handlers_to_run = $this->handlers;
         // run before handler
         if (isset($this->before)) {
+            $config->logger->debug('activating "before" handler');
             $new_handlers = yield $this->before->runHandler($update, $config->async);
             if (gettype($new_handlers) == 'array') {
                 $handlers_to_run = $new_handlers;
             }
         }
         // run handlers
+        $config->logger->debug('activating handlers');
         foreach ($handlers_to_run as $theHandler) {
             if ($theHandler->shouldRun($update)) {
                 if (isset($this->middle)) {
@@ -57,6 +59,7 @@ class Handler extends HandlersCreator
         }
         // run fallback handler
         if (!$called && isset($this->fallback)) {
+            $config->logger->debug('activating "fallback" handler');
             if (isset($this->middle)) {
                 $promises[] = $this->middle->runMiddle($update, $this->fallback);
             } else {
@@ -68,11 +71,12 @@ class Handler extends HandlersCreator
         try {
             $res = yield $promises;
             if (isset($this->after)) {
+                $config->logger->debug('activating "after" handler');
                 $res[] = yield $this->after->runHandler($update, $config->async);
             }
         } catch (\Throwable $e) {
             // TODO: get backtrace to the file where the error coming from
-            print $e->getMessage() . ', when running handlers in ' . $e->getFile() . ' line ' . $e->getLine() . PHP_EOL;
+            $config->logger->error($e->getMessage() . ', when running handlers in ' . $e->getFile() . ' line ' . $e->getLine());
             if (isset($this->on_error)) {
                 $res[] = yield $this->on_error->runHandler($e, $config->async);
             }
@@ -93,7 +97,6 @@ class Handler extends HandlersCreator
  */
 class TheHandler
 {
-
     public $active = true;
 
     private array|\Closure $filter;

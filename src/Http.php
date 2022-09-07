@@ -59,14 +59,16 @@ class Http
             $request = new Client\Request($url);
         }
 
-        if ($this->config->debug) {
+        if ($this->config->debug > 1) {
             var_dump($url);
         }
 
-        if (str_ends_with(strtolower($url), 'getfile')) {
-            $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
-            $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
-        }
+        // if (str_ends_with(strtolower($url), 'getfile')) {
+        //     $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
+        //     $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
+        // }
+
+        $time = hrtime(1);
 
         $promise = $client->request($request);
         if (
@@ -75,6 +77,11 @@ class Http
             $this?->config?->apiErrorHandle != null
         ) {
             $promise->onResolve($this->config->apiErrorHandler);
+        }
+        if($this?->config?->debug){
+            $promise->onResolve(function() use($url, $time){
+                print 'request to: ' .$url.' took: ' . ($time - hrtime(1)*1000*1000) . ' ms';
+            });
         }
         return new Response($promise, $this->config);
     }

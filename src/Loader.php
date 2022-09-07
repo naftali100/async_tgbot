@@ -45,10 +45,10 @@ class Loader
             list($handler, $config) = $this->include_file($file_name);
 
             $path = $file_name;
-            if ($as)
+            if ($as) {
                 $path = $as;
+            }
 
-            // $this->files[$path] = ['file_name' => $file_name, 'active' => 1, 'handler' => $handler, 'config' => $config, 'update_class_name' => $update_class_name];
             $this->files[$path] = new BotFile($file_name, true, $handler, $config);
         } else {
             print 'file ' . $file_name . ' not found' . PHP_EOL;
@@ -57,17 +57,16 @@ class Loader
 
     public function load_handler($name, $handler, $config = null)
     {
-        if ($config == null){
+        if ($config == null) {
             $config = new Config;
         }
         // if function - create new Handler
-        if(get_class($handler) == 'Closure'){
+        if (get_class($handler) == 'Closure') {
             $handler_obj = new Handler();
             $handler_obj->func($handler);
             $handler = $handler_obj;
         }
-        // $this->files[$name] =  ['active' => 1, 'handler' => $handler, 'config' => $config];
-        $this->files[$name] =  new BotFile('', true, $handler, $config, Update::class);
+        $this->files[$name] = new BotFile('', true, $handler, $config);
     }
 
     private function include_file($name)
@@ -92,7 +91,7 @@ class Loader
         if (!isset($res[1]))
             $res[1] = new Config();
 
-        $res[2] = Update::class;        
+        $res[2] = Update::class;
 
         foreach (get_declared_classes() as $class) {
             if (is_subclass_of($class, Update::class)) {

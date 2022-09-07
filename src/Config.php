@@ -2,6 +2,12 @@
 
 namespace bot_lib;
 
+use Amp\ByteStream;
+use Amp\Log\ConsoleFormatter;
+use Amp\Log\StreamHandler;
+use Monolog\Logger;
+use Psr\Log\LogLevel;
+
 /**
  * config of the bot
  */
@@ -41,7 +47,16 @@ class Config
     /**
      * @var $debug show debug info
      */
+    public static $severity = [
+        'none' => 0,
+        'info' => 1,
+        'debug' => 2,
+        'warning' => 3,
+        'error' => 4
+    ];
     public $debug = false;
+
+    public $logger;
 
     /**
      * @var $useDB if set to true store keyboard in db. requires redBean  
@@ -63,6 +78,25 @@ class Config
 
     public function __construct(public $token = null)
     {
+        // TODO: find better place
+        $logHandler = new StreamHandler(ByteStream\getStdout(), LogLevel::WARNING);
+        $logHandler->setFormatter(new ConsoleFormatter);
+        $this->logger = new Logger('bot logger');
+        $this->logger->pushHandler($logHandler);
+    }
+
+    public function renameLogger($name)
+    {
+        $this->logger = $this->logger->withName($name);
+    }
+
+    public function setLevel($level) {
+        $this->logger->popHandler();
+
+        $logHandler = new StreamHandler(ByteStream\getStdout(), $level);
+        $logHandler->setFormatter(new ConsoleFormatter);
+
+        $this->logger->pushHandler($logHandler);
     }
 
     /**
