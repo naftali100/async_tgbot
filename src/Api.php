@@ -8,7 +8,6 @@ namespace bot_lib;
 
 class Api extends Http
 {
-
     public function sendMessage($id, $text, $replyMarkup = null, $replyMessage = null, $entities = null, bool $protectContent = false)
     {
         $data['chat_id'] = $id;
@@ -239,17 +238,20 @@ class Api extends Http
         return $this->ApiRequest('restrictChatMember', $data);
     }
 
-    public function promoteChatMember($id, $user, $is_anonymous, $can_manage_chat, $can_post_messages, $can_edit_messages, $can_delete_messages, $can_manage_video_chats, $can_restrict_members, $can_promote_members, $can_change_info, $can_invite_users, $can_pin_messages){
+    public function promoteChatMember($id, $user, $is_anonymous, $can_manage_chat, $can_post_messages, $can_edit_messages, $can_delete_messages, $can_manage_video_chats, $can_restrict_members, $can_promote_members, $can_change_info, $can_invite_users, $can_pin_messages)
+    {
         // TODO
     }
 
-    public function setChatMenuButton($chat_id, $menu_button){
+    public function setChatMenuButton($chat_id, $menu_button)
+    {
         $data['chat_id'] = $chat_id;
         $data['menu_button'] = $menu_button;
         return $this->ApiRequest('setChatMenuButton', $data);
     }
 
-    public function getChatMenuButton($chat_id){
+    public function getChatMenuButton($chat_id)
+    {
         $data['chat_id'] = $chat_id;
         return $this->ApiRequest('getChatMenuButton', $data);
     }
@@ -400,7 +402,8 @@ class Api extends Http
         return $this->ApiRequest('getMyCommands', $data);
     }
 
-    public function createNewStickerSet(int $user, string $name, string $title, $tgs_sticker, $stickerType, $emojis, $maskPosition = null){
+    public function createNewStickerSet(int $user, string $name, string $title, $tgs_sticker, $stickerType, $emojis, $maskPosition = null)
+    {
         // TODO
     }
 
@@ -410,13 +413,14 @@ class Api extends Http
     public function text_adjust($text)
     {
         $type = gettype($text);
-        if ($type == 'array' || $type == 'object')
+        if ($type == 'array' || $type == 'object') {
             $text = json_encode($text, TRUE | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
-        elseif ($type == 'NULL')
+        } elseif ($type == 'NULL') {
             $text = 'NULL';
+        }
 
-        if (mb_strlen($text) > 4096){
-            $text = 'message is too long. '; 
+        if (mb_strlen($text) > 4096) {
+            $text = 'message is too long. ';
             // . $this->Request('https://nbots.ga/deldog/index.php', ['data' => $text]);
         }
 
