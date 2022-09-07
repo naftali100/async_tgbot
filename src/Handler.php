@@ -46,6 +46,7 @@ class Handler extends HandlersCreator
         $config->logger->debug('activating handlers');
         foreach ($handlers_to_run as $theHandler) {
             if ($theHandler->shouldRun($update)) {
+                $config->logger->debug('activating handler: ' . $theHandler->when);
                 if (isset($this->middle)) {
                     $promises[] = $this->middle->runMiddle($update, $theHandler);
                 } else {
