@@ -27,7 +27,8 @@ final class HandlerTest extends AsyncTestCase
     {
         return \Amp\call(function () use ($handlers) {
             $config = new Config();
-            // $config->setLevel('info');
+            $config->renameLogger('handlersTest logger');
+            // $config->setLevel('debug');
             $config->load(__DIR__ . '/conf.json');
 
             $this->server = new Server("127.0.0.1:1337");
@@ -107,7 +108,7 @@ final class HandlerTest extends AsyncTestCase
         $handler->free_name(
             filter: fn ($u) => $u->text == 'text1',
             func: function () {
-                throw new Error();
+                throw new Error('should not run');
             }
         );
         $handler->free_name(
@@ -142,5 +143,60 @@ final class HandlerTest extends AsyncTestCase
         yield $this->setupServer($handler);
 
         yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->cbq->update_arr))->plain;
+    }
+
+    public function testLast()
+    {
+        $handler = new Handler();
+
+        $handler->on_message(
+            function () {
+                //
+            },
+            last: true
+        );
+
+        $handler->on_message(
+            function () {
+                throw new Error('should not run');
+            }
+        );
+
+        yield $this->setupServer($handler);
+
+        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
+    }
+
+    public function testNewChatMember()
+    {
+        $handler = new Handler();
+        $handler->on_new_member(
+            function ($u) {
+                $this->assertEquals($this->user_id, $u->from->id);
+            }
+        );
+
+        $handler->on_new_member(
+            filter: fn ($u) => $u->chat->id == 01234,
+            func: function ($u) {
+                throw new Error('should not run');
+            }
+        );
+
+        $handler->on_new_member(
+            filter: fn ($u) => $u->chat->id == $this->chat_id,
+            func: function () {
+                // 
+            }
+        );
+        $handler->on_message(
+            function () {
+                throw new Error('should not run');
+            }
+        );
+
+        yield $this->setupServer($handler);
+
+        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->new_member->update_arr))->plain;
     }
 }
