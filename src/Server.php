@@ -223,7 +223,7 @@ class Server extends Loader
                     $file->config->token = $query['token'];
                 }
 
-                $file->config->logger->debug('activating handlers');
+                $file->config->logger->debug('server activating handlers');
                 $res = yield \Amp\call([$file->handler, 'activate'], $file->config, $update);
 
                 $file->config->logger->debug($path . ' took: ' . \Amp\Loop::now() - $time . '. handlers result', $res ?? []);
