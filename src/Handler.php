@@ -78,7 +78,7 @@ class Handler extends HandlersCreator
             $config->logger->debug('finished all handlers');
         } catch (\Throwable $e) {
             // TODO: get backtrace to the file where the error coming from
-            $config->logger->error($e->getMessage() . ', when running handlers in ' . $e->getFile() . ' line ' . $e->getLine());
+            $config->logger->error($e->getMessage() . ', when running handlers in ' . $e->getFile() . ':' . $e->getLine());
             if (isset($this->on_error)) {
                 $res[] = yield $this->on_error->runHandler($e, $config->async);
             }
@@ -157,9 +157,8 @@ class TheHandler
                 $shouldRun = $update->new_chat_members != null;
                 break;
             default:
-                $shouldRun = true;
+                $shouldRun = $this->checkFilter($this->filter, null, $update);
         }
-
 
         return $shouldRun;
     }
