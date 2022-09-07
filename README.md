@@ -18,7 +18,8 @@ require_once './vendor/autoload.php';
 use bot_lib\Server; 
 
 $server = new Server("127.0.0.1:8080"); // create server instance listening to port 8080
-$server->load_file("bot.php", "index"); // load the handlers in "bot.php" and store them in "index" path
+$server->load_file("bot.php"); // load the handlers in "bot.php" and store them in "bot.php" path
+$server->load_file("bot1.php", "index"); // you can add second param for different path
 $server->load_folder("folder", true); // load all files in a folder. the second param is whether to load recursively or not
 $server->run();
 ```
@@ -40,7 +41,7 @@ $handler->on_message(
     fn(Update $u) => $u->reply("hello")
 );
 ```
-set webhook to 127.0.0.1:8080/you_bot_file_name (or custom name passed in second argument to load_file).
+set webhook to 127.0.0.1:8080/you_bot_file_name.php (or custom name passed in second argument to load_file).
 
 you can add `token` parameter to the webhook url and the server will set it and use this token.
 
@@ -68,24 +69,39 @@ there is a verity of handlers you can set and ways to control how they will acti
 
 to create handler, simply call the method on Handler instance as handler name you want `$handler->handler_name()`.
 
-you can give it any name you want (accept the handler class methods).
+you can give it any name you want (except the handler class methods).
 the name can control when the handler is activating.
 
-handler accepts 3 parameter
+handler accepts 4 parameter
 
 - function (named func): the function to run when handler activated. accept Update instance as parameter.
-- filter: string, array or function that determine whether the handler should run or not. accept Update instance as parameter.
+- filter: string, array or function that determine whether the handler should run or not. accept Update instance as argument.
 - last: if true and handler is activated, the handler will be the last handler to run in current request.
+- name: name of the handler, useful for debugging what handler is activated.
 
-you can pass the parameters by order (function, filter, last) or by name `$handler->on_message(filter: "blabal", func: fn($u) => $u->reply("blablabl"));`
+you can pass the arguments by order (function, filter, last) or by name
+```php
+$handler->on_message(
+    filter: "blabal", 
+    func: fn($u) => $u->reply("blablabl"),
+    last: true,
+);
+```
 
 #### special handlers names
-this list of handler can accept also string or array filters. any other handler should filter with function
+##### this list of special handler activated in specific TBD.
+- before: activated before any other handler. can return new array of function to run instead of existing handlers, useful for disabling all of them by returning empty array.
+- middle: run before every handler. accept 2 arguments: Update and $next witch us the function of the handler.
+- after: activates after all handlers finished. useful for cleaning, or writing to db.
+- fallback: activates only if no other handler was activated.
+
+##### this list of special handler activated in specific update types.
 
 - on_update: activates on every update. accepts update type/s as filter (message, callback_query, etc).
 - on_message: activates on 'message' updates. accept message/s as filter (/start, menu, word, test, etc).
 - on_cbq: activates on 'callback_query' updates. accept text to match callback_data as filter.
 - on_file: activates when there is file in the request (no matter what update type). accept file type/s as filter (photo, audio, etc).
+- on_service: activated when update is service message, do not accept string or array filter, only function (string or array will result the handler not activating).
 
 ### Config
 you can config various things see src/config.php file. can be set in json file and load using `load` method as shown above.
