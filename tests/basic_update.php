@@ -217,8 +217,47 @@ trait UpdateTypes
              "offset": ""
             }
            }');
+        $this->new_member = new Update($this->config, '{
+            "update_id": 933211621,
+            "message": {
+             "message_id": 21858,
+             "from": {
+              "id": ' . $this->user_id . ',
+              "is_bot": false,
+              "first_name": "avi",
+              "username": "aaaaaa"
+             },
+             "chat": {
+              "id": ' . $this->chat_id . ',
+              "title": "chat name",
+              "username": "group_chat",
+              "type": "supergroup"
+             },
+             "date": 1662587549,
+             "new_chat_participant": {
+              "id": ' . $this->user_id . ',
+              "is_bot": false,
+              "first_name": "avi",
+              "username": "aaaaa"
+             },
+             "new_chat_member": {
+              "id": ' . $this->user_id . ',
+              "is_bot": false,
+              "first_name": "avi",
+              "username": "aaa"
+             },
+             "new_chat_members": [
+              {
+               "id": ' . $this->user_id . ',
+               "is_bot": false,
+               "first_name": "avi",
+               "username": "aaaa"
+              }
+             ],
+             "has_protected_content": true
+            }
+           }');
         // $this->channel_message = new Update($this->config, json_encode([]));
-        // $this->new_member = new Update($this->config, json_encode([]));
         // $this->document_file = new Update($this->config, json_encode([]));
         // $this->photo_file = new Update($this->config, json_encode([]));
         // $this->music_file = new Update($this->config, json_encode([]));
