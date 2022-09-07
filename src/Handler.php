@@ -46,7 +46,7 @@ class Handler extends HandlersCreator
         $config->logger->debug('activating handlers');
         foreach ($handlers_to_run as $theHandler) {
             if ($theHandler->shouldRun($update)) {
-                $config->logger->debug('activating handler: ' . $theHandler->when);
+                $config->logger->debug('activating handler: ' . ($theHandler->name != '' ? $theHandler->name : $theHandler->when));
                 if (isset($this->middle)) {
                     $promises[] = $this->middle->runMiddle($update, $theHandler);
                 } else {
@@ -103,7 +103,7 @@ class TheHandler
 
     private array|\Closure $filter;
 
-    function __construct(public $when, $filter, private $func, public $last)
+    function __construct(public $when, $filter, private $func, public $last, public string $name = '')
     {
         if (gettype($filter) == 'string') {
             $this->filter = [$filter];
@@ -209,11 +209,12 @@ class HandlersCreator
             }
             $filter = $args['filter'] ?? $args[1] ?? [];
             $last = $args['last'] ?? $args[2] ?? false;
+            $name = $args['name'] ?? $args[3] ?? '';
 
             if (in_array($func_name, ['fallback', 'middle', 'before', 'after', 'on_error'])) {
-                $this->$func_name = new TheHandler($func_name, $filter, $func, $last);
+                $this->$func_name = new TheHandler($func_name, $filter, $func, $last, $name);
             } else {
-                $this->handlers[] = new TheHandler($func_name, $filter, $func, $last);
+                $this->handlers[] = new TheHandler($func_name, $filter, $func, $last, $name);
             }
         } catch (\Throwable $e) {
             print $e->getMessage();
