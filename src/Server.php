@@ -199,7 +199,7 @@ class Server extends Loader
         if (!isset($this->files[$path])) {
             $logger->notice('file ' . $path . ' not exist');
         } elseif ($this->files[$path]->active) {
-            $this->files[$path]->config->logger->info('running file: ' . $path);
+            $logger->info('running file: ' . $path);
 
             try {
                 $time = \Amp\Loop::now();
@@ -228,8 +228,8 @@ class Server extends Loader
 
                 $file->config->logger->debug($path . ' took: ' . \Amp\Loop::now() - $time . '. handlers result', $res ?? []);
             } catch (\Throwable $e) {
-                $file->config->logger->error($e->getMessage() . ' when activate handlers in file ' . $e->getFile() . ' in line ' . $e->getLine() . '. path: "' . $path . '" - disabled!');
-                // $this->files[$path]->active = 0;
+                $file->config->logger->error($e->getMessage() . ' when activate handlers in file ' . $e->getFile() . ':' . $e->getLine() . '. path: "' . $path . '" - disabled!');
+                $this->files[$path]->active = 0;
             }
         }
     }
