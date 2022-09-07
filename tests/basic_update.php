@@ -193,7 +193,9 @@ trait UpdateTypes
                             }
                         ]
                     ]
-                }
+                },
+                "chat_instance": "7119003517878798448",
+                "data": "data"
             }
         }
         '

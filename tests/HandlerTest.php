@@ -27,6 +27,7 @@ final class HandlerTest extends AsyncTestCase
     {
         return \Amp\call(function () use ($handlers) {
             $config = new Config();
+            // $config->setLevel('info');
             $config->load(__DIR__ . '/conf.json');
 
             $this->server = new Server("127.0.0.1:1337");
@@ -70,7 +71,8 @@ final class HandlerTest extends AsyncTestCase
             filter: 'text',
             func: function ($u) {
                 $this->assertEquals('text', $u->text);
-            }
+            },
+            name: 'testing on message'
         );
 
         $handler->on_message(
@@ -124,11 +126,10 @@ final class HandlerTest extends AsyncTestCase
     {
         $handler = new Handler();
         $handler->on_cbq(
-            filter: 'text',
+            filter: 'data',
             func: function ($u) {
-                // TODO: check update
                 $this->assertEquals('text', $u->text);
-                $this->assertEquals('text', $u->data);
+                $this->assertEquals('data', $u->data);
             }
         );
 
@@ -140,6 +141,6 @@ final class HandlerTest extends AsyncTestCase
 
         yield $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
+        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->cbq->update_arr))->plain;
     }
 }

@@ -133,10 +133,11 @@ class Update extends Api implements \ArrayAccess
     public function alert($text, $show = false)
     {
         if (isset($this->update)) {
-            if ($this->data != null)
+            if ($this->data != null) {
                 return $this->answerCallbackQUery($this->id, $text, $show);
-            else
+            } else {
                 return $this;
+            }
         }
     }
 
