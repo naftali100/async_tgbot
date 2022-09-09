@@ -141,6 +141,9 @@ class TheHandler
             case 'on_message':
                 $shouldRun = $update->updateType == 'message' && !$update->service && $this->checkFilter($this->filter, $update->text, $update);
                 break;
+            case 'on_edit':
+                $shouldRun = $update->updateType == 'edited_message' && $this->checkFilter($this->filter, $update->text, $update);
+                break;
             case 'on_cbq':
                 $shouldRun = $update->updateType == 'callback_query' && $this->checkFilter($this->filter, $update->data, $update);
                 break;
