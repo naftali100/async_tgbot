@@ -8,8 +8,6 @@ simple flexible and async library based on amphp for telegram bot api.
 
 ## getting started
 
-the recommended way is to use amphp's server to run all your bots
-
 #### server.php
 
 ```php
@@ -79,12 +77,13 @@ handler accepts 4 parameter
 - last: if true and handler is activated, the handler will be the last handler to run in current request.
 - name: name of the handler, useful for debugging what handler is activated.
 
-you can pass the arguments by order (function, filter, last) or by name
+you can pass the arguments by order (function, filter, last, name) or by name
 ```php
 $handler->on_message(
     filter: "blabal", 
-    func: fn($u) => $u->reply("blablabl"),
+    func: fn($u) => $u->reply("bla"),
     last: true,
+    name: 'reply bla to blabla'
 );
 ```
 
@@ -99,6 +98,7 @@ $handler->on_message(
 
 - on_update: activates on every update. accepts update type/s as filter (message, callback_query, etc).
 - on_message: activates on 'message' updates. accept message/s as filter (/start, menu, word, test, etc).
+- on_edit: activates on 'edited_message' updates. accept new message/s as filter.
 - on_cbq: activates on 'callback_query' updates. accept text to match callback_data as filter.
 - on_file: activates when there is file in the request (no matter what update type). accept file type/s as filter (photo, audio, etc).
 - on_service: activated when update is service message, do not accept string or array filter, only function (string or array will result the handler not activating).
