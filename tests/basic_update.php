@@ -20,6 +20,7 @@ trait UpdateTypes
     public Update $inline_query;
     public Update $channel_message;
     public Update $forwarded_message;
+    public Update $pin_message;
 
     public function init()
     {
@@ -84,7 +85,7 @@ trait UpdateTypes
               "is_premium": true
              },
              "chat": {
-              "id": ' . $this->myUserId . ',
+              "id": ' . $this->chat_id . ',
               "first_name": "Naftali",
               "username": "Naftali100",
               "type": "private"
@@ -129,75 +130,54 @@ trait UpdateTypes
         $this->cbq = new Update(
             $this->config,
             '
-        {
-            "update_id": 883655366,
-            "callback_query": {
-                "message_id": 10321,
-                "from": {
-                    "id": ' . $this->user_id . ',
-                    "is_bot": true,
-                    "is_deleted": false,
-                    "first_name": "local test",
-                    "username": "local_tgbot",
-                    "user_status": "online"
-                },
-                "chat": {
-                    "id": ' . $this->chat_id . ',
-                    "first_name": "Naftali",
-                    "username": "Naftali100",
-                    "type": "private",
-                    "user_status": "recently"
-                },
-                "date": 1662490245,
-                "text": "text",
-                "reply_markup": {
-                    "inline_keyboard": [
-                        [
-                            {
-                                "text": "row 1 col 1",
-                                "callback_data": "row_1_col_1"
-                            },
-                            {
-                                "text": "row 1 col 2",
-                                "callback_data": "row_1_col_2"
-                            }
-                        ],
-                        [
-                            {
-                                "text": "row 2 col 1",
-                                "callback_data": "row_2_col_1"
-                            },
-                            {
-                                "text": "row 2 col 2",
-                                "callback_data": "row_2_col_2"
-                            }
-                        ],
-                        [
-                            {
-                                "text": "hello",
-                                "callback_data": "hello"
-                            }
-                        ],
-                        [
-                            {
-                                "text": "url",
-                                "url": "https://google.com/"
-                            }
-                        ],
-                        [
-                            {
-                                "text": "web app",
-                                "web_app": {
-                                    "url": "https://google.com/"
-                                }
-                            }
-                        ]
-                    ]
-                },
-                "chat_instance": "7119003517878798448",
-                "data": "data"
+            {
+                "update_id": 883655399,
+                "callback_query": {
+                    "id": "978286124481878657",
+                    "from": {
+                        "id": ' . $this->user_id . ',
+                        "is_bot": false,
+                        "is_deleted": false,
+                        "first_name": "Naftali",
+                        "username": "Naftali100",
+                        "language_code": "en",
+                        "is_premium": true,
+                        "user_status": "recently"
+                    },
+                    "message": {
+                        "message_id": 11122,
+                        "from": {
+                            "id": 123123123,
+                            "is_bot": true,
+                            "is_deleted": false,
+                            "first_name": "local test",
+                            "username": "local_tgbot",
+                            "user_status": "online"
+                        },
+                        "chat": {
+                            "id": ' . $this->chat_id . ',
+                            "first_name": "Naftali",
+                            "username": "Naftali100",
+                            "type": "private",
+                            "user_status": "recently"
+                        },
+                        "date": 1662724675,
+                        "text": "text",
+                        "reply_markup": {
+                            "inline_keyboard": [
+                                [
+                                    {
+                                        "text": "btn",
+                                        "callback_data": "data"
+                                    }
+                                ]
+                            ]
+                        }
+                    },
+                    "chat_instance": "-7164038307691258958",
+                    "data": "data"
+                }
             }
-        }
         '
         );
         $this->inline_query = new Update($this->config, '{
@@ -257,7 +237,55 @@ trait UpdateTypes
              "has_protected_content": true
             }
            }');
-        // $this->channel_message = new Update($this->config, json_encode([]));
+        $this->pin_message = new Update(
+            $this->config,
+            '{
+                "update_id": 883655407,
+                "message": {
+                    "message_id": 21868,
+                    "from": {
+                        "id": ' . $this->user_id . ',
+                        "is_bot": false,
+                        "is_deleted": false,
+                        "first_name": "Naftali",
+                        "username": "Naftali100",
+                        "language_code": "en",
+                        "is_premium": true,
+                        "user_status": "recently"
+                    },
+                    "chat": {
+                        "id": ' . $this->chat_id . ',
+                        "title": "בדיקות #vid vid#",
+                        "username": "n_tests",
+                        "type": "supergroup"
+                    },
+                    "date": 1662732485,
+                    "pinned_message": {
+                        "message_id": 21863,
+                        "from": {
+                            "id": ' . $this->user_id . ',
+                            "is_bot": false,
+                            "is_deleted": false,
+                            "first_name": "Naftali",
+                            "username": "Naftali100",
+                            "language_code": "en",
+                            "is_premium": true,
+                            "user_status": "recently"
+                        },
+                        "chat": {
+                            "id": ' . $this->chat_id . ',
+                            "title": "בדיקות #vid vid#",
+                            "username": "n_tests",
+                            "type": "supergroup"
+                        },
+                        "date": 1662732244,
+                        "text": "text",
+                        "has_protected_content": true
+                    },
+                    "has_protected_content": true
+                }
+            }'
+        );
         // $this->document_file = new Update($this->config, json_encode([]));
         // $this->photo_file = new Update($this->config, json_encode([]));
         // $this->music_file = new Update($this->config, json_encode([]));
