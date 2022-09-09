@@ -131,18 +131,34 @@ final class HandlerTest extends AsyncTestCase
             func: function ($u) {
                 $this->assertEquals('text', $u->text);
                 $this->assertEquals('data', $u->data);
+
+                $this->called1 = true;
             }
         );
+
+
 
         $handler->on_cbq(
             function ($u) {
                 $this->assertEquals('text', $u->text);
+                $this->assertEquals('data', $u->data);
+
+                $this->called2 = true;
+            }
+        );
+
+        $handler->on_cbq(
+            filter: 'data1',
+            func: function () {
+                throw new Error('should not run');
             }
         );
 
         yield $this->setupServer($handler);
 
         yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->cbq->update_arr))->plain;
+        $this->assertTrue($this->called1);
+        $this->assertTrue($this->called2);
     }
 
     public function testLast()
@@ -195,8 +211,53 @@ final class HandlerTest extends AsyncTestCase
             }
         );
 
+        $handler->on_service(
+            function () {
+                $this->testNewChatMemberCheck1 = true;
+            }
+        );
+
         yield $this->setupServer($handler);
 
         yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->new_member->update_arr))->plain;
+
+        $this->assertTrue($this->testNewChatMemberCheck1);
+    }
+
+    public function testOnService()
+    {
+        $handler = new Handler();
+
+        $handler->on_service(
+            function () {
+                $this->testOnServiceCheck1 = true;
+            }
+        );
+
+        yield $this->setupServer($handler);
+
+        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->pin_message->update_arr))->plain;
+        $this->assertTrue($this->testOnServiceCheck1);
+    }
+
+    public function testOnEdit()
+    {
+        $handler = new Handler();
+
+        $handler->on_edit(
+            function () {
+                $this->testOnEditCheck1 = true;
+            }
+        );
+        $handler->on_message(
+            function () {
+                throw new Error();
+            }
+        );
+
+        yield $this->setupServer($handler);
+
+        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->edited_message->update_arr))->plain;
+        $this->assertTrue($this->testOnEditCheck1);
     }
 }
