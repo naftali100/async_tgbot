@@ -4,7 +4,7 @@ simple flexible and async library based on amphp for telegram bot api.
 
 ## installation
 
-- run `composer require naftali100/async_bot`.
+- run ```composer require naftali100/async_bot```.
 
 ## getting started
 
