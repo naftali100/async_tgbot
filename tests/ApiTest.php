@@ -21,4 +21,9 @@ final class ApiTest extends AsyncTestCase
         $res = yield $this->private_message->sendPhoto($this->myUserId, __DIR__. '/image.jpg')->array;
         $this->assertTrue($res['ok']);
     }
+
+    public function testGetMessage(){
+        $res = yield $this->private_message->getMessage(227774988, 1)->array;
+        $this->assertTrue($res['ok']);
+    }
 }
