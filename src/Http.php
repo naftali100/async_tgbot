@@ -20,31 +20,30 @@ class Http
     public function ApiRequest($method, $data = [])
     {
         $url = $this->config->server_url . $this->config->token . '/' . $method;
-        return $this->BuildApiRequestBody($url, $data);
+        return $this->Request($url, $data);
     }
 
-    public function BuildApiRequestBody($url, $data = []): Promise
+    public function BuildApiRequestBody($data = [])
     {
-        return \Amp\call(function() use ($url, $data){
-            $body = new FormBody;
-            foreach ($data as $key => $value) {
-                if (in_array($key, ['document', 'photo', 'audio', 'thumb']) && !empty($value)) {
-                    # TODO: make this async \Amp\File\exist
-                    // if (yield \Amp\File\exists($value)) {
-                    if (is_file($value)) {
-                        \Amp\File\StatCache::clear($value);
-                        $body->addFile($key, $value);
-                    } else {
-                        throw new \Error("file $value not exist");
-                    }
+        $body = new FormBody;
+        foreach ($data as $key => $value) {
+            if (in_array($key, ['document', 'photo', 'audio', 'thumb']) && !empty($value)) {
+                # TODO: make this async
+                // if (yield \Amp\File\exists($value)) {
+                if (is_file($value)) {
+                    \Amp\File\StatCache::clear($value);
+                    $body->addFile($key, $value);
                 } else {
-                    if (!empty($value)) {
-                        $body->addField($key, $value);
-                    }
+                    throw new \Error("file $value not exist");
+                }
+            } else {
+                if (!empty($value)) {
+                    $body->addField($key, $value);
                 }
             }
-            return $this->Request($url, $body);
-        });
+        }
+
+        return $body;
     }
 
     public function Request($url, $body = null): Response
@@ -53,6 +52,9 @@ class Http
         if ($body != null) {
             $request = new Client\Request($url, 'POST');
             $request->setBody($body);
+        } else if (is_array($body)) {
+            $request = new Client\Request($url, 'POST');
+            $request->setBody($this->BuildApiRequestBody($body));
         } else if ($url instanceof Client\Request) {
             $request = $url;
         } else {
@@ -78,9 +80,9 @@ class Http
         ) {
             $promise->onResolve($this->config->apiErrorHandler);
         }
-        if($this?->config?->debug){
-            $promise->onResolve(function() use($url, $time){
-                print 'request to: ' .$url.' took: ' . ($time - hrtime(1)*1000*1000) . ' ms';
+        if ($this?->config?->debug) {
+            $promise->onResolve(function () use ($url, $time) {
+                print 'request to: ' . $url . ' took: ' . ($time - hrtime(1) * 1000 * 1000) . ' ms';
             });
         }
         return new Response($promise, $this->config);
