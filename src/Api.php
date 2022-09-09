@@ -295,7 +295,7 @@ class Api extends Http
     {
         $this->cb_answered = true;
         $data['callback_query_id'] = $callback;
-        $data['text'] = $this->text_adjust($text);
+        $data['text'] = $text;
         $data['show_alert'] = $alert;
         return $this->ApiRequest('answerCallbackQuery', $data);
     }
