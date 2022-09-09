@@ -201,57 +201,51 @@ class Update extends Api implements \ArrayAccess
 
     private function init_vars($update_string)
     {
-        $update_obj = json_decode($update_string);
-        if ($update_obj == null) {
+        $local_update_obj = json_decode($update_string);
+        $local_update_arr = json_decode($update_string, true);
+        if ($local_update_obj == null) {
             throw new \Error('failed to parse json object');
         }
 
-        $update = json_decode($update_string, true);
-        if ($update == null) {
+        if ($local_update_arr == null) {
             throw new \Error('failed to parse json array');
         }
 
-        $this->update_obj = $this->update = $update_obj;
-        $this->update_arr = $update;
+        $this->update_obj = $this->update = $local_update_obj;
+        $this->update_arr = $local_update_arr;
 
-        $this->updateType = $updateType = array_keys($update)[1];
+        $this->updateType = $updateType = array_keys($local_update_arr)[1];
 
         if ($updateType == 'callback_query') {
-            $this->callback = $update_obj->callback_query;
             $this->cb_answered = false;
-
-            // the callback update contain message update
-            // update the update to $update[updateType]{update body}
-            $update['callback_query'] = $update['callback_query']['message'] ?? $update['callback_query'];
-            $update_obj->callback_query = $update_obj->callback_query->message ?? $update_obj->callback_query;
         }
         // elseif($updateType == 'my_chat_member'){
         //     $update['my_chat_member'] = $update['my_chat_member']['message'] ?? $update['my_chat_member'];
-        //     $update_obj->my_chat_member = $update_obj->my_chat_member->message ?? $update_obj->my_chat_member;
+        //     $local_update_obj->my_chat_member = $local_update_obj->my_chat_member->message ?? $local_update_obj->my_chat_member;
         // }
 
-        $this->forward = $update_obj->$updateType->forward_from ?? $update_obj->$updateType->forward_from_chat ?? null;
-        $this->chat = $this->__get('chat') ?? null;
-        $this->from = $this->update_obj->callback_query->from ?? $update_obj->$updateType->sender_chat ?? $update_obj->$updateType->from ?? $this->chat ?? null;
-        $this->reply = $update_obj->$updateType->reply_to_message ?? null;
-        $this->text = $update[$updateType]['text'] ?? $update[$updateType]['caption'] ?? $update[$updateType]['query'] ?? null;
-        $this->chatType = $this->chat->type ?? null;
+        $this->forward = $this->__get('forward_from') ?? $this->__get('forward_from_chat');
+        $this->chat = $this->__get('chat');
+        $this->from = $this->update_obj->callback_query->from ?? $local_update_obj->$updateType->sender_chat ?? $local_update_obj->$updateType->from ?? $this->chat ?? null;
+        $this->reply = $local_update_obj->$updateType->reply_to_message ?? null;
+        $this->text = $this->__get('text') ?? $this->__get('caption') ?? $this->__get('query');
+        $this->chatType = $this->__get('chat')?->type;
 
-        $this->ent = $update[$updateType]['entities']                                     ?? null;
 
-        $this->keyboard = $update[$updateType]['reply_markup']['inline_keyboard']          ?? null;
-
+        // check if can be object
+        $this->ent = $this->offsetGet('entities');
+        $this->keyboard = $this->offsetGet('reply_markup')['inline_keyboard'] ?? null;
 
         // general data for all kind of files 
         // there is also variables for any kind below, you can use them both or delete one of them
         $media = null;
         $fileTypes = ['photo', 'video', 'document', 'audio', 'sticker', 'voice', 'video_note'];
         foreach ($fileTypes as $type) {
-            if (isset($update[$updateType][$type])) {
+            if (isset($local_update_arr[$updateType][$type])) {
                 if ($type == 'photo') {
-                    $media = $update[$updateType]['photo'][count($update[$updateType]['photo']) - 1];
+                    $media = $local_update_arr[$updateType]['photo'][count($local_update_arr[$updateType]['photo']) - 1];
                 } else {
-                    $media = $update[$updateType][$type];
+                    $media = $local_update_arr[$updateType][$type];
                 }
                 $media['file_type'] = $type;
                 break;
@@ -286,32 +280,29 @@ class Update extends Api implements \ArrayAccess
 
         $this->service = false;
         $serviceTypes = [
-            'new_chat_photo',
-            'new_chat_members',
+            'channel_chat_created',
+            'delete_chat_photo',
+            'group_chat_created',
             'left_chat_member',
-            'new_chat_title',
-            'delete_chat_photo',
-            'group_chat_created',
-            'supergroup_chat_created',
-            'channel_chat_created',
-            'migrate_from_chat_id',
-            'pinned_message',
-            'channel_chat_created',
-            'group_chat_created',
-            'supergroup_chat_created',
-            'proximity_alert_triggered',
-            'delete_chat_photo',
             'message_auto_delete_timer_changed',
+            'migrate_from_chat_id',
+            'new_chat_members',
+            'new_chat_photo',
+            'new_chat_title',
+            'pinned_message',
+            'proximity_alert_triggered',
+            'supergroup_chat_created',
+            'supergroup_chat_created',
             'voice_chat_ended',
-            'voice_chat_started',
+            'voice_chat_participants_invited',
             'voice_chat_scheduled',
-            'voice_chat_participants_invited'
+            'voice_chat_started'
         ];
-        if (in_array($updateType, ['chat_member', 'my_chat_member'])) {
+        if (in_array($updateType, ['edited_message', 'chat_member', 'my_chat_member'])) {
             $this->service = true;
         } else {
             foreach ($serviceTypes as $serviceType) {
-                if (isset($update[$updateType][$serviceType])) {
+                if (isset($local_update_arr[$updateType][$serviceType])) {
                     $this->service = true;
                     break;
                 }
@@ -328,8 +319,9 @@ class Update extends Api implements \ArrayAccess
             return $this->update_obj->{$this->updateType}->$value;
         }
         // in cbq update the message is inside cbq object
-        if (isset($this->message->$value))
-            return $this->message->$value;
+        if (isset($this->update_obj->{$this->updateType}->message->$value)) {
+            return $this->update_obj->{$this->updateType}->message->$value;
+        }
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
@@ -353,15 +345,11 @@ class Update extends Api implements \ArrayAccess
 
     public function offsetGet(mixed $offset)
     {
-        if (isset($this->$offset)) {
-            if (gettype($this->$offset) == "string")
-                return $this->$offset;
-            else
-                return Helpers::objectToArray($this->$offset);
+        $res = $this->$offset;
+        if (gettype($res) == "string") {
+            return $res;
+        } else if ($res != null) {
+            return Helpers::objectToArray($res);
         }
-        if (isset($this->update_arr[$offset]))
-            return $this->update_arr[$offset];
-        if (isset($this->update_arr[$this->updateType][$offset]))
-            return $this->update_arr[$this->updateType][$offset];
     }
 }
