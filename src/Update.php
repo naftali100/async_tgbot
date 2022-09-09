@@ -74,8 +74,9 @@ class Update extends Api implements \ArrayAccess
 
     public function delete()
     {
-        if (isset($this->update))
+        if (isset($this->update)) {
             return $this->deleteMessage($this->chat->id, $this->message_id);
+        }
     }
 
     public function edit($newMessage, $replyMarkup = null, $ent = null)
@@ -96,10 +97,11 @@ class Update extends Api implements \ArrayAccess
     public function pin($dis_notification = null)
     {
         if (isset($this->update)) {
-            if (!$this->service)
+            if (!$this->service) {
                 return $this->pinChatMessage($this->chat->id, $this->message_id, $dis_notification);
-            else
+            } else {
                 return $this;
+            }
         }
     }
 
@@ -120,14 +122,16 @@ class Update extends Api implements \ArrayAccess
 
     public function reply($text, $replyMarkup = null, $ent = null)
     {
-        if (isset($this->update))
+        if (isset($this->update)) {
             return $this->sendMessage($this->chat->id ?? $this->from->id, $text, $replyMarkup, $this->message_id ?? null, entities: $ent);
+        }
     }
 
     public function editKeyboard($newKeyboard)
     {
-        if (isset($this->update))
+        if (isset($this->update)) {
             return $this->editMessageReplyMarkup($this->chat->id, $this->message_id, $this->inline_message_id, $newKeyboard);
+        }
     }
 
     public function alert($text, $show = false)
@@ -154,10 +158,12 @@ class Update extends Api implements \ArrayAccess
             $row = [];
             foreach ($v as $button) {
                 if (isset($button['callback_data']) && $button['callback_data'] == $button_data) { //TODO: add url buttons
-                    if ($new_button != null)
+                    if ($new_button != null) {
                         $row[] = $new_button;
-                } else
+                    }
+                } else {
                     $row[] = $button;
+                }
             }
             $newkey[] = $row;
         }
@@ -167,20 +173,23 @@ class Update extends Api implements \ArrayAccess
     public function ban($id = null)
     {
         if ($this->chatType != 'private') {
-            if ($this->sender_chat == null)
+            if ($this->sender_chat == null) {
                 return $this->banChatMember($this->chat->id, $id ?? $this->from->id);
-            else
+            } else {
                 return $this->banChatSenderChat($this->chat->id, $id ?? $this->from->id);
-        } else
+            }
+        } else {
             return $this;
+        }
     }
 
     public function leave()
     {
-        if ($this->chatType != 'private')
+        if ($this->chatType != 'private') {
             return $this->leaveChat($this->chat->id);
-        else
+        } else {
             return $this;
+        }
     }
 
     public function download()
@@ -241,8 +250,9 @@ class Update extends Api implements \ArrayAccess
             if (isset($update[$updateType][$type])) {
                 if ($type == 'photo') {
                     $media = $update[$updateType]['photo'][count($update[$updateType]['photo']) - 1];
-                } else
+                } else {
                     $media = $update[$updateType][$type];
+                }
                 $media['file_type'] = $type;
                 break;
             }
