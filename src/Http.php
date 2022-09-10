@@ -23,38 +23,15 @@ class Http
         return $this->Request($url, $data);
     }
 
-    public function BuildApiRequestBody($data = [])
-    {
-        $body = new FormBody;
-        foreach ($data as $key => $value) {
-            if (in_array($key, ['document', 'photo', 'audio', 'thumb']) && !empty($value)) {
-                # TODO: make this async
-                // if (yield \Amp\File\exists($value)) {
-                if (is_file($value)) {
-                    \Amp\File\StatCache::clear($value);
-                    $body->addFile($key, $value);
-                } else {
-                    throw new \Error("file $value not exist");
-                }
-            } else {
-                if (!empty($value)) {
-                    $body->addField($key, $value);
-                }
-            }
-        }
-
-        return $body;
-    }
-
     public function Request($url, $body = null): Response
     {
         $client = HttpClientBuilder::buildDefault();
-        if ($body != null) {
-            $request = new Client\Request($url, 'POST');
-            $request->setBody($body);
-        } else if (is_array($body)) {
+        if (is_array($body)) {
             $request = new Client\Request($url, 'POST');
             $request->setBody($this->BuildApiRequestBody($body));
+        } else if (is_string($body) || get_class($body) == FormBody::class) {
+            $request = new Client\Request($url, 'POST');
+            $request->setBody($body);
         } else if ($url instanceof Client\Request) {
             $request = $url;
         } else {
@@ -86,6 +63,29 @@ class Http
             });
         }
         return new Response($promise, $this->config);
+    }
+
+    public function BuildApiRequestBody(array $data = [])
+    {
+        $body = new FormBody;
+        foreach ($data as $key => $value) {
+            if (in_array($key, ['document', 'photo', 'audio', 'thumb']) && !empty($value)) {
+                # TODO: make this async
+                // if (yield \Amp\File\exists($value)) {
+                if (is_file($value)) {
+                    \Amp\File\StatCache::clear($value);
+                    $body->addFile($key, $value);
+                } else {
+                    throw new \Error("file $value not exist");
+                }
+            } else {
+                if (!empty($value)) {
+                    $body->addField($key, $value);
+                }
+            }
+        }
+
+        return $body;
     }
 }
 
