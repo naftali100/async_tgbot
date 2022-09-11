@@ -73,7 +73,7 @@ class Http
                 # TODO: make this async
                 // if (yield \Amp\File\exists($value)) {
                 if (is_file($value)) {
-                    \Amp\File\StatCache::clear($value);
+                    // \Amp\File\StatCache::clear($value);
                     $body->addFile($key, $value);
                 } else {
                     throw new \Error("file $value not exist");
