@@ -298,7 +298,7 @@ class Update extends Api implements \ArrayAccess
             'voice_chat_scheduled',
             'voice_chat_started'
         ];
-        if (in_array($updateType, ['edited_message', 'chat_member', 'my_chat_member'])) {
+        if (in_array($updateType, ['chat_member', 'my_chat_member'])) {
             $this->service = true;
         } else {
             foreach ($serviceTypes as $serviceType) {

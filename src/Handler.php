@@ -139,7 +139,7 @@ class TheHandler
                 $shouldRun = $this->checkFilter($this->filter, $update->updateType, $update);
                 break;
             case 'on_message':
-                $shouldRun = $update->updateType == 'message' && !$update->service && $this->checkFilter($this->filter, $update->text, $update);
+                $shouldRun = $update->updateType == 'message' && !$update->updateType == 'edited_message' && !$update->service && $this->checkFilter($this->filter, $update->text, $update);
                 break;
             case 'on_edit':
                 $shouldRun = $update->updateType == 'edited_message' && $this->checkFilter($this->filter, $update->text, $update);
