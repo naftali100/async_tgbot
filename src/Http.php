@@ -29,7 +29,7 @@ class Http
         if (is_array($body)) {
             $request = new Client\Request($url, 'POST');
             $request->setBody($this->BuildApiRequestBody($body));
-        } else if (is_string($body) || get_class($body) == FormBody::class) {
+        } else if (is_string($body) || (is_object($body) && get_class($body) == FormBody::class)) {
             $request = new Client\Request($url, 'POST');
             $request->setBody($body);
         } else if ($url instanceof Client\Request) {
