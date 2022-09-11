@@ -254,6 +254,11 @@ final class HandlerTest extends AsyncTestCase
                 throw new Error();
             }
         );
+        $handler->on_service(
+            function () {
+                throw new Error();
+            }
+        );
 
         yield $this->setupServer($handler);
 
