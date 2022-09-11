@@ -24,7 +24,7 @@ class Server extends Loader
     // public array $files = []; - set in Loader
 
     /** http server instance */
-    private $server;
+    private HttpServer $server;
 
     public function __construct($servers = null)
     {
@@ -66,7 +66,6 @@ class Server extends Loader
 
                 // Start the HTTP server
                 yield $this->server->start();
-                // $this->server = $this->server;
 
                 // \Amp\call(\Closure::fromCallable([$this, 'cli_options']));
 
@@ -95,21 +94,24 @@ class Server extends Loader
         $listening_servers = [];
         if (gettype($this->servers) == 'array') {
             $listening_servers = array_map(function ($elem) use ($cluster) {
-                if ($cluster)
+                if ($cluster) {
                     return Cluster::listen($elem);
-                else
+                } else {
                     return Socket\Server::listen($elem);
+                }
             }, $this->servers);
         } elseif (gettype($this->servers) == 'string') {
-            if ($cluster)
+            if ($cluster) {
                 $listening_servers = [Cluster::listen($this->servers)];
-            else
+            } else {
                 $listening_servers = [Socket\Server::listen($this->servers)];
+            }
         } else {
-            if ($cluster)
+            if ($cluster) {
                 $listening_servers = [Cluster::listen('127.0.0.1:1337')];
-            else
+            } else {
                 $listening_servers = [Socket\Server::listen('127.0.0.1:1337')];
+            }
         }
 
         return $listening_servers;

@@ -59,7 +59,7 @@ class Http
         }
         if ($this?->config?->debug) {
             $promise->onResolve(function () use ($url, $time) {
-                print 'request to: ' . $url . ' took: ' . ($time - hrtime(1) * 1000 * 1000) . ' ms';
+                print 'request to: ' . $url . ' took: ' . ($time - hrtime(1) * 1000 * 1000) . ' ms' . PHP_EOL;
             });
         }
         return new Response($promise, $this->config);
