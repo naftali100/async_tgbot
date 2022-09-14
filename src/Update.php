@@ -346,7 +346,7 @@ class Update extends Api implements \ArrayAccess
     public function offsetGet(mixed $offset)
     {
         $res = $this->$offset;
-        if (gettype($res) == "string") {
+        if (in_array(gettype($res) ,['string', 'boolean', 'integer', 'double'])) {
             return $res;
         } else if ($res != null) {
             return Helpers::objectToArray($res);

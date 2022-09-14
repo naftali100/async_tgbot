@@ -46,6 +46,7 @@ class Http
         if (str_ends_with(strtolower($url), 'getfile') || str_ends_with(strtolower($url), 'sendaudio')) {
             $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
             $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
+            $request->setBodySizeLimit(2 * 1024 * 1024 * 1024); // 2 GB
         }
 
         $time = hrtime(1);
@@ -71,17 +72,16 @@ class Http
     {
         $body = new FormBody;
         foreach ($data as $key => $value) {
-            if (in_array($key, ['document', 'photo', 'audio', 'thumb']) && !empty($value)) {
-                # TODO: make this async
-                // if (yield \Amp\File\exists($value)) {
-                if (is_file($value)) {
-                    // \Amp\File\StatCache::clear($value);
-                    $body->addFile($key, $value);
+            if (!empty($value)) {
+                if (in_array($key, ['document', 'photo', 'audio', 'thumb'])) {
+                    # TODO: make this async
+                    // if (yield \Amp\File\exists($value)) {
+                    if (is_file($value)) {
+                        $body->addFile($key, $value);
+                    } else {
+                        throw new \Error("file $value not exist");
+                    }
                 } else {
-                    throw new \Error("file $value not exist");
-                }
-            } else {
-                if (!empty($value)) {
                     $body->addField($key, $value);
                 }
             }
