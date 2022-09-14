@@ -79,15 +79,7 @@ class Http
             foreach ($data as $key => $value) {
                 if (!empty($value)) {
                     if (in_array($key, ['document', 'photo', 'audio', 'thumb'])) {
-                        // if (is_file($value)) {
                         if (yield \Amp\File\exists($value)) {
-                            $size = filesize($value);
-                            if (
-                                (yield \Amp\File\getSize($value)) != $size ||
-                                (yield \Amp\File\getStatus($value))['size'] != $size
-                            ) {
-                                throw new \Error('not same size');
-                            }
                             $body->addFile($key, $value);
                         } else {
                             throw new \Error("file $value not exist");
