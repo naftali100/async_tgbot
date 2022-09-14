@@ -17,7 +17,7 @@ use function Amp\call;
  */
 class Http
 {
-    public static $client;
+    // public static $client;
 
     public function ApiRequest($method, $data = [])
     {
@@ -27,7 +27,9 @@ class Http
 
     public function Request($url, $body = null): Response
     {
-        if (is_array($body)) {
+        if ($body == null) {
+            $request = new Client\Request($url);
+        } else if (is_array($body)) {
             $request = new Client\Request($url, 'POST');
             $request->setBody($this->BuildApiRequestBody($body));
         } else if (is_string($body) || (is_object($body) && get_class($body) == FormBody::class)) {
@@ -35,8 +37,6 @@ class Http
             $request->setBody($body);
         } else if ($url instanceof Client\Request) {
             $request = $url;
-        } else {
-            $request = new Client\Request($url);
         }
 
         if ($this->config->debug > 1) {
@@ -50,7 +50,8 @@ class Http
 
         $time = hrtime(1);
 
-        $promise = self::$client->request($request);
+        $client = HttpClientBuilder::buildDefault();
+        $promise = $client->request($request);
         if (
             isset($this?->config) &&
             isset($this?->config?->apiErrorHandle) &&
@@ -89,7 +90,7 @@ class Http
         return $body;
     }
 }
-Http::$client = HttpClientBuilder::buildDefault();
+// Http::$client = HttpClientBuilder::buildDefault();
 
 /**
  * response to http request. can yield different result. 
