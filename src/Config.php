@@ -73,6 +73,7 @@ class Config
 
     /**
      * timeout and inactivity time for upload and download requests.
+     * default: 30 seconds
      */
     public $fileRequestTimeout = 30;
 

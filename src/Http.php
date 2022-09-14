@@ -43,10 +43,10 @@ class Http
             var_dump($url);
         }
 
-        // if (str_ends_with(strtolower($url), 'getfile')) {
-        //     $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
-        //     $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
-        // }
+        if (str_ends_with(strtolower($url), 'getfile') || str_ends_with(strtolower($url), 'sendaudio')) {
+            $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
+            $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
+        }
 
         $time = hrtime(1);
 
@@ -54,8 +54,8 @@ class Http
         $promise = $client->request($request);
         if (
             isset($this?->config) &&
-            isset($this?->config?->apiErrorHandle) &&
-            $this?->config?->apiErrorHandle != null
+            isset($this?->config?->apiErrorHandler) &&
+            $this?->config?->apiErrorHandler != null
         ) {
             $promise->onResolve($this->config->apiErrorHandler);
         }
