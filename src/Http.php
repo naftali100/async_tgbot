@@ -27,67 +27,73 @@ class Http
 
     public function Request($url, $body = null): Response
     {
-        if ($body == null) {
-            $request = new Client\Request($url);
-        } else if (is_array($body)) {
-            $request = new Client\Request($url, 'POST');
-            $request->setBody($this->BuildApiRequestBody($body));
-        } else if (is_string($body) || (is_object($body) && get_class($body) == FormBody::class)) {
-            $request = new Client\Request($url, 'POST');
-            $request->setBody($body);
-        } else if ($url instanceof Client\Request) {
-            $request = $url;
-        }
+        $promise = call(function () use ($url, $body) {
+            if ($body == null) {
+                $request = new Client\Request($url);
+            } else if (is_array($body)) {
+                $request = new Client\Request($url, 'POST');
+                $request->setBody(yield $this->BuildApiRequestBody($body));
+            } else if (is_string($body) || (is_object($body) && get_class($body) == FormBody::class)) {
+                $request = new Client\Request($url, 'POST');
+                $request->setBody($body);
+            } else if ($url instanceof Client\Request) {
+                $request = $url;
+            }
 
-        if ($this->config->debug > 1) {
-            var_dump($url);
-        }
+            if ($this->config->debug > 1) {
+                var_dump($url);
+            }
 
-        if (str_ends_with(strtolower($url), 'getfile') || str_ends_with(strtolower($url), 'sendaudio')) {
-            $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
-            $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
-            $request->setBodySizeLimit(2 * 1024 * 1024 * 1024); // 2 GB
-        }
+            if (str_ends_with(strtolower($url), 'getfile') || str_ends_with(strtolower($url), 'sendaudio')) {
+                $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
+                $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
+                $request->setBodySizeLimit(2 * 1024 * 1024 * 1024); // 2 GB
+            }
 
-        $time = hrtime(1);
+            $time = hrtime(1);
 
-        $client = HttpClientBuilder::buildDefault();
-        $promise = $client->request($request);
-        if (
-            isset($this?->config) &&
-            isset($this?->config?->apiErrorHandler) &&
-            $this?->config?->apiErrorHandler != null
-        ) {
-            $promise->onResolve($this->config->apiErrorHandler);
-        }
-        if ($this?->config?->debug) {
-            $promise->onResolve(function () use ($url, $time) {
-                print 'request to: ' . $url . ' took: ' . ($time - hrtime(1) * 1000 * 1000) . ' ms' . PHP_EOL;
-            });
-        }
+            $client = HttpClientBuilder::buildDefault();
+            $promise = $client->request($request);
+            if (
+                isset($this?->config) &&
+                isset($this?->config?->apiErrorHandler) &&
+                $this?->config?->apiErrorHandler != null
+            ) {
+                $promise->onResolve($this->config->apiErrorHandler);
+            }
+            if ($this?->config?->debug) {
+                $promise->onResolve(function () use ($url, $time) {
+                    print 'request to: ' . $url . ' took: ' . ($time - hrtime(1) * 1000 * 1000) . ' ms' . PHP_EOL;
+                });
+            }
+            return $promise;
+        });
+
         return new Response($promise, $this->config);
     }
 
     public function BuildApiRequestBody(array $data = [])
     {
-        $body = new FormBody;
-        foreach ($data as $key => $value) {
-            if (!empty($value)) {
-                if (in_array($key, ['document', 'photo', 'audio', 'thumb'])) {
-                    # TODO: make this async
-                    // if (yield \Amp\File\exists($value)) {
-                    if (is_file($value)) {
-                        $body->addFile($key, $value);
+        return call(function () use ($data) {
+            $body = new FormBody;
+            foreach ($data as $key => $value) {
+                if (!empty($value)) {
+                    if (in_array($key, ['document', 'photo', 'audio', 'thumb'])) {
+                        // if (is_file($value)) {
+                        if (yield \Amp\File\exists($value)) {
+                            yield \Amp\File\getStatus($value);
+                            $body->addFile($key, $value);
+                        } else {
+                            throw new \Error("file $value not exist");
+                        }
                     } else {
-                        throw new \Error("file $value not exist");
+                        $body->addField($key, $value);
                     }
-                } else {
-                    $body->addField($key, $value);
                 }
             }
-        }
 
-        return $body;
+            return $body;
+        });
     }
 }
 // Http::$client = HttpClientBuilder::buildDefault();
