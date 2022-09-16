@@ -78,6 +78,9 @@ class Http
             $body = new FormBody;
             foreach ($data as $key => $value) {
                 if (!empty($value)) {
+                    if(!is_string($value)){
+                        $value = json_encode($value);
+                    }
                     if (in_array($key, ['document', 'photo', 'audio', 'thumb'])) {
                         if (yield \Amp\File\exists($value)) {
                             $body->addFile($key, $value);
