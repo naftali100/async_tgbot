@@ -147,6 +147,9 @@ class TheHandler
             case 'on_cbq':
                 $shouldRun = $update->updateType == 'callback_query' && $this->checkFilter($this->filter, $update->data, $update);
                 break;
+            case 'on_inline':
+                $shouldRun = $update->updateType == 'inline_query' && $this->checkFilter($this->filter, $update->data, $update);
+                break;
             case 'on_file':
                 $shouldRun = isset($update->media['file_type']) && $this->checkFilter($this->filter, $update->media['file_type'], $update);
                 break;
@@ -159,6 +162,7 @@ class TheHandler
             case 'on_new_member':
                 $shouldRun = $update->new_chat_members != null && $this->checkFilter($this->filter, null, $update);
                 break;
+
             default:
                 $shouldRun = $this->checkFilter($this->filter, null, $update);
         }

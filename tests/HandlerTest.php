@@ -271,7 +271,7 @@ final class HandlerTest extends AsyncTestCase
         $handler = new Handler();
 
         $handler->on_message(
-            name: 'group search',
+            name: 'group message - good',
             filter: function (Update $u) {
                 return $u->chatType != 'private';
             },
@@ -281,7 +281,7 @@ final class HandlerTest extends AsyncTestCase
         );
 
         $handler->on_message(
-            name: 'group search',
+            name: 'group message - bad',
             filter: fn ($u) => $u->chatType == 'private',
             func: function ($u) {
                 throw new Error();
@@ -293,5 +293,28 @@ final class HandlerTest extends AsyncTestCase
 
         yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->group_message->update_arr))->plain;
         $this->assertTrue($this->groupMessageCheck1);
+    }
+
+    public function testOnInline(){
+        $handler = new Handler();
+
+        $handler->on_inline(
+            filter: fn (Update $u) => $u->chatType != 'private',
+            func: function ($u) {
+                $this->onInlineCheck1 = true;
+            }
+        );
+
+        $handler->on_message(
+            func: function ($u) {
+                throw new Error();
+            }
+        );
+
+
+        yield $this->setupServer($handler);
+
+        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->inline_query->update_arr))->plain;
+        $this->assertTrue($this->onInlineCheck1);
     }
 }
