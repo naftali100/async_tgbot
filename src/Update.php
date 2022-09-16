@@ -229,8 +229,7 @@ class Update extends Api implements \ArrayAccess
         $this->from = $this->update_obj->callback_query->from ?? $local_update_obj->$updateType->sender_chat ?? $local_update_obj->$updateType->from ?? $this->chat ?? null;
         $this->reply = $local_update_obj->$updateType->reply_to_message ?? null;
         $this->text = $this->__get('text') ?? $this->__get('caption') ?? $this->__get('query');
-        $this->chatType = $this->__get('chat')?->type;
-
+        $this->chatType = $this->__get('chat')?->type ?? $this->__get('chat_type');
 
         // check if can be object
         $this->ent = $this->offsetGet('entities');
