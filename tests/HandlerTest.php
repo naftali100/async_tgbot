@@ -29,6 +29,7 @@ final class HandlerTest extends AsyncTestCase
             $config = new Config();
             $config->renameLogger('handlersTest logger');
             // $config->setLevel('debug');
+            // $config->debug = true;
             $config->load(__DIR__ . '/conf.json');
 
             $this->server = new Server("127.0.0.1:1337");
@@ -264,5 +265,33 @@ final class HandlerTest extends AsyncTestCase
 
         yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->edited_message->update_arr))->plain;
         $this->assertTrue($this->testOnEditCheck1);
+    }
+
+    public function testGroupMessage(){
+        $handler = new Handler();
+
+        $handler->on_message(
+            name: 'group search',
+            filter: function (Update $u) {
+                return $u->chatType != 'private';
+            },
+            func: function ($u) {
+                $this->groupMessageCheck1 = true;
+            }
+        );
+
+        $handler->on_message(
+            name: 'group search',
+            filter: fn ($u) => $u->chatType == 'private',
+            func: function ($u) {
+                throw new Error();
+            }
+        );
+
+
+        yield $this->setupServer($handler);
+
+        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->group_message->update_arr))->plain;
+        $this->assertTrue($this->groupMessageCheck1);
     }
 }

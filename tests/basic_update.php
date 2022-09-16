@@ -39,7 +39,7 @@ trait UpdateTypes
               "is_premium": true
              },
              "chat": {
-              "id": ' . $this->chat_id . ',
+              "id": ' . $this->user_id . ',
               "first_name": "Naftali",
               "username": "Naftali100",
               "type": "private"
@@ -48,7 +48,8 @@ trait UpdateTypes
              "text": "text"
             }
            }');
-        $this->group_message = new Update($this->config, '{
+        $this->group_message = new Update($this->config, '
+        {
             "update_id": 933205654,
             "message": {
              "message_id": 21845,
