@@ -21,8 +21,8 @@ final class UpdateTest extends AsyncTestCase
 
     public function testGetChatId(): void
     {
-        $this->assertEquals($this->chat_id, $this->private_message->chat->id);
-        $this->assertEquals($this->chat_id, $this->private_message['chat']['id']);
+        $this->assertEquals($this->user_id, $this->private_message->chat->id);
+        $this->assertEquals($this->user_id, $this->private_message['chat']['id']);
 
         $this->assertEquals($this->chat_id, $this->group_message->chat->id);
         $this->assertEquals($this->chat_id, $this->group_message['chat']['id']);
@@ -91,5 +91,10 @@ final class UpdateTest extends AsyncTestCase
 
         $res = yield $promise->decode;
         $this->assertIsArray($res);
+    }
+
+    public function testChatType(){
+        $this->assertEquals('private', $this->private_message->chatType);
+        $this->assertEquals('supergroup', $this->group_message->chatType);
     }
 }
