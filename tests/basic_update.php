@@ -9,6 +9,7 @@ trait UpdateTypes
 {
     public $user_id = 0000;
     public $chat_id = 1111;
+    public $channel_id = 2222;
 
     public $myUserId = 227774988; // set it to the chat that receive messages during testing
 
@@ -21,6 +22,7 @@ trait UpdateTypes
     public Update $channel_message;
     public Update $forwarded_message;
     public Update $pin_message;
+    public Update $sender_chat;
 
     public function init()
     {
@@ -287,6 +289,33 @@ trait UpdateTypes
                 }
             }'
         );
+        $this->sender_chat = new Update($this->config, '
+        {
+            "update_id": 933240418,
+            "message": {
+             "message_id": 21886,
+             "from": {
+              "id": 136817688,
+              "is_bot": true,
+              "first_name": "Channel",
+              "username": "Channel_Bot"
+             },
+             "sender_chat": {
+              "id": '.$this->channel_id.',
+              "title": "האנונימי 😈",
+              "username": "username1",
+              "type": "channel"
+             },
+             "chat": {
+              "id": '.$this->chat_id.',
+              "title": "בדיקות #vid vid#",
+              "username": "n_tests",
+              "type": "supergroup"
+             },
+             "date": 1663481470,
+             "text": "text"
+            }
+           }');
         // $this->document_file = new Update($this->config, json_encode([]));
         // $this->photo_file = new Update($this->config, json_encode([]));
         // $this->music_file = new Update($this->config, json_encode([]));

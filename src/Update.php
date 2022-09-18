@@ -61,8 +61,9 @@ class Update extends Api implements \ArrayAccess
 
     public function __construct(public Config $config, string $update = null)
     {
-        if ($update != null)
+        if ($update != null) {
             $this->init_vars($update);
+        }
 
         // if(!$this->update_obj->ok)
         //     throw new \Error($this->update_obj);
@@ -226,7 +227,7 @@ class Update extends Api implements \ArrayAccess
 
         $this->forward = $this->__get('forward_from') ?? $this->__get('forward_from_chat');
         $this->chat = $this->__get('chat');
-        $this->from = $this->update_obj->callback_query->from ?? $local_update_obj->$updateType->sender_chat ?? $local_update_obj->$updateType->from ?? $this->chat ?? null;
+        $this->from = $this->__get('sender_chat') ?? $this->__get('from') ?? $this->__get('chat');
         $this->reply = $local_update_obj->$updateType->reply_to_message ?? null;
         $this->text = $this->__get('text') ?? $this->__get('caption') ?? $this->__get('query');
         $this->chatType = $this->__get('chat')?->type ?? $this->__get('chat_type');
@@ -345,7 +346,7 @@ class Update extends Api implements \ArrayAccess
     public function offsetGet(mixed $offset)
     {
         $res = $this->$offset;
-        if (in_array(gettype($res) ,['string', 'boolean', 'integer', 'double'])) {
+        if (in_array(gettype($res), ['string', 'boolean', 'integer', 'double'])) {
             return $res;
         } else if ($res != null) {
             return Helpers::objectToArray($res);
