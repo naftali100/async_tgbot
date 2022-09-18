@@ -11,6 +11,8 @@ trait UpdateTypes
     public $chat_id = 1111;
     public $channel_id = 2222;
 
+    public $username = 'username';
+
     public $myUserId = 227774988; // set it to the chat that receive messages during testing
 
     public Update $private_message;
@@ -36,14 +38,14 @@ trait UpdateTypes
               "id": ' . $this->user_id . ',
               "is_bot": false,
               "first_name": "Naftali",
-              "username": "Naftali100",
+              "username": ' . $this->username . ',
               "language_code": "en",
               "is_premium": true
              },
              "chat": {
               "id": ' . $this->user_id . ',
               "first_name": "Naftali",
-              "username": "Naftali100",
+              "username": "username",
               "type": "private"
              },
              "date": 1662391289,
@@ -59,7 +61,7 @@ trait UpdateTypes
               "id": ' . $this->user_id . ',
               "is_bot": false,
               "first_name": "Naftali",
-              "username": "Naftali100",
+              "username": "username",
               "language_code": "en",
               "is_premium": true
              },
@@ -83,14 +85,14 @@ trait UpdateTypes
               "id": ' . $this->user_id . ',
               "is_bot": false,
               "first_name": "Naftali",
-              "username": "Naftali100",
+              "username": "username",
               "language_code": "en",
               "is_premium": true
              },
              "chat": {
               "id": ' . $this->chat_id . ',
               "first_name": "Naftali",
-              "username": "Naftali100",
+              "username": "username",
               "type": "private"
              },
              "date": 1662391377,
@@ -107,14 +109,14 @@ trait UpdateTypes
               "id": ' . $this->user_id . ',
               "is_bot": false,
               "first_name": "Naftali",
-              "username": "Naftali100",
+              "username": "username",
               "language_code": "en",
               "is_premium": true
              },
              "chat": {
               "id": ' . $this->myUserId . ',
               "first_name": "Naftali",
-              "username": "Naftali100",
+              "username": "username",
               "type": "private"
              },
              "date": 1662391729,
@@ -122,7 +124,7 @@ trait UpdateTypes
               "id": ' . $this->myUserId . ',
               "is_bot": false,
               "first_name": "Naftali",
-              "username": "Naftali100",
+              "username": "username",
               "language_code": "en",
               "is_premium": true
              },
@@ -142,7 +144,7 @@ trait UpdateTypes
                         "is_bot": false,
                         "is_deleted": false,
                         "first_name": "Naftali",
-                        "username": "Naftali100",
+                        "username": "username",
                         "language_code": "en",
                         "is_premium": true,
                         "user_status": "recently"
@@ -160,7 +162,7 @@ trait UpdateTypes
                         "chat": {
                             "id": ' . $this->chat_id . ',
                             "first_name": "Naftali",
-                            "username": "Naftali100",
+                            "username": "username",
                             "type": "private",
                             "user_status": "recently"
                         },
@@ -191,7 +193,7 @@ trait UpdateTypes
               "id": ' . $this->user_id . ',
               "is_bot": false,
               "first_name": "Naftali",
-              "username": "Naftali100",
+              "username": "username",
               "language_code": "en",
               "is_premium": true
              },
@@ -251,7 +253,7 @@ trait UpdateTypes
                         "is_bot": false,
                         "is_deleted": false,
                         "first_name": "Naftali",
-                        "username": "Naftali100",
+                        "username": "username",
                         "language_code": "en",
                         "is_premium": true,
                         "user_status": "recently"
@@ -270,7 +272,7 @@ trait UpdateTypes
                             "is_bot": false,
                             "is_deleted": false,
                             "first_name": "Naftali",
-                            "username": "Naftali100",
+                            "username": "username",
                             "language_code": "en",
                             "is_premium": true,
                             "user_status": "recently"
@@ -301,13 +303,13 @@ trait UpdateTypes
               "username": "Channel_Bot"
              },
              "sender_chat": {
-              "id": '.$this->channel_id.',
+              "id": ' . $this->channel_id . ',
               "title": "האנונימי 😈",
               "username": "username1",
               "type": "channel"
              },
              "chat": {
-              "id": '.$this->chat_id.',
+              "id": ' . $this->chat_id . ',
               "title": "בדיקות #vid vid#",
               "username": "n_tests",
               "type": "supergroup"
