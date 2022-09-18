@@ -38,7 +38,7 @@ trait UpdateTypes
               "id": ' . $this->user_id . ',
               "is_bot": false,
               "first_name": "Naftali",
-              "username": ' . $this->username . ',
+              "username": "' . $this->username . '",
               "language_code": "en",
               "is_premium": true
              },
