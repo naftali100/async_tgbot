@@ -150,6 +150,9 @@ class TheHandler
             case 'on_inline':
                 $shouldRun = $update->updateType == 'inline_query' && $this->checkFilter($this->filter, $update->data, $update);
                 break;
+            case 'on_join_request':
+                $shouldRun = $update->updateType == 'chat_join_request';
+                break;
             case 'on_file':
                 $shouldRun = isset($update->media['file_type']) && $this->checkFilter($this->filter, $update->media['file_type'], $update);
                 break;

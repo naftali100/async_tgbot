@@ -407,6 +407,18 @@ class Api extends Http
         // TODO
     }
 
+    public function approveChatJoinRequest($chat, $user){
+        $data['chat_id'] = $chat;
+        $data['user_id'] = $user;
+        return $this->ApiRequest('approveChatJoinRequest', $data);
+    }
+
+    public function declineChatJoinRequest($chat, $user){
+        $data['chat_id'] = $chat;
+        $data['user_id'] = $user;
+        return $this->ApiRequest('declineChatJoinRequest', $data);
+    }
+
     /**
      * prepare the text to avoid send errors
      */
