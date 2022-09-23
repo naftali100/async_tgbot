@@ -18,6 +18,7 @@ use Amp\Log\StreamHandler;
 use Amp\Socket;
 use Monolog\Logger;
 use Amp\Loop;
+use Psr\Log\LogLevel;
 
 class Server extends Loader
 {
@@ -117,14 +118,14 @@ class Server extends Loader
         return $listening_servers;
     }
 
-    private function get_logger($cluster = false)
+    private function get_logger($cluster = false, $level = LogLevel::INFO)
     {
         if ($cluster) {
             // Creating a log handler in this way allows the script to be run in a cluster or standalone.
             if (Cluster::isWorker()) {
                 $handler = Cluster::createLogHandler();
             } else {
-                $handler = new StreamHandler(ByteStream\getStdout());
+                $handler = new StreamHandler(ByteStream\getStdout(), $level);
                 $handler->setFormatter(new ConsoleFormatter);
             }
 
@@ -132,7 +133,7 @@ class Server extends Loader
             $logger->pushHandler($handler);
             return $logger;
         } else {
-            $logHandler = new StreamHandler(ByteStream\getStdout());
+            $logHandler = new StreamHandler(ByteStream\getStdout(), $level);
             $logHandler->setFormatter(new ConsoleFormatter);
             $logger = new Logger('bots server');
             $logger->pushHandler($logHandler);
@@ -195,7 +196,6 @@ class Server extends Loader
      */
     public function requestHandler($request, $logger)
     {
-        $logger->info('request handler');
         $path = ltrim($request->getUri()->getPath(), '/');
 
         if (!isset($this->files[$path])) {
