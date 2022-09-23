@@ -17,8 +17,6 @@ use function Amp\call;
  */
 class Http
 {
-    // public static $client;
-
     public function ApiRequest($method, $data = [])
     {
         $url = $this->config->server_url . $this->config->token . '/' . $method;
@@ -97,7 +95,6 @@ class Http
         });
     }
 }
-// Http::$client = HttpClientBuilder::buildDefault();
 
 /**
  * response to http request. can yield different result. 
@@ -151,9 +148,18 @@ class Response implements \Amp\Promise
     private function get_update()
     {
         $return_update = function ($req, $conf) {
-            $res = yield $req;
-            $res = yield $res->getBody()->buffer();
-            return new Update($conf, $res);
+            /**
+             * @var Client\Response
+             */
+            $result = yield $req;
+            $requestBody = Helpers::cast(FormBody::class, $result->getRequest()->getBody());
+            $resultBody = yield $result->getBody()->buffer();
+            $update = new Update($conf, $resultBody);
+            $update->request_info = [
+                'url' => $result->getRequest()->getUri(),
+                'request_body' => $requestBody->getFields()
+            ];
+            return $update;
         };
         return call($return_update, $this->request, $this->config);
     }
