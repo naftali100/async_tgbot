@@ -29,6 +29,7 @@ require_once './vendor/autoload.php';
 use bot_lib\Config;
 use bot_lib\Handler;
 use bot_lib\Update;
+use bot_lib\Filter;
 
 $config = new Config;
 $config->load("conf.json"); // can store token
@@ -36,7 +37,8 @@ $config->server = "http://loadlhost:8081/bot"; // if you using local telegram-bo
 
 $handler = new Handler;
 $handler->on_message(
-    fn(Update $u) => $u->reply("hello")
+    fn(Update $u) => $u->reply("hello"),
+    Filter::Message('/start')
 );
 ```
 set webhook to 127.0.0.1:8080/you_bot_file_name.php (or custom name passed in second argument to load_file).
@@ -50,12 +52,13 @@ a lot more handler, config and server options in examples folder.
 ---
 # explanation
 
-there is 4 main objects in the library
+there is 5 main objects in the library
 
 1. Server: extends Loader. load files, running the http-server and activating handlers.
 2. Config: configuration.
 3. Update: extends API and HTTP. contains all the method to send request to bot api.
 4. Handler: create handlers that will run asynchronously.
+5. Filter: static methods to create filters.
 
 ### Server 
 the server is loading all of your robots files, take the handlers, and run a server listen to incoming requests.
