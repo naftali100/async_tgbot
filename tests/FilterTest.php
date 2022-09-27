@@ -37,5 +37,20 @@ final class FilterTest extends AsyncTestCase
         $this->assertTrue($f->validate($this->cbq));
         $f = Filter::Cbq(['dat1a', 'a']);
         $this->assertFalse($f->validate($this->cbq));
+        $f = Filter::Cbq(['data', 'a', 'b']);
+        $this->assertTrue($f->validate($this->cbq));
+    }
+
+    public function testFileTypeFilter(){
+        $f = Filter::FileType('photo');
+        $this->assertTrue($f($this->photo_file));
+        $this->assertFalse($f($this->private_message));
+    }
+
+    public function testFilterJoinRequests(){
+        $f = Filter::JoinRequests();
+        $this->assertTrue($f($this->join_request));
+        $this->assertFalse($f($this->private_message));
+        $this->assertFalse($f($this->group_message));
     }
 }
