@@ -443,14 +443,4 @@ class Api extends Http
         }
         return $text;
     }
-
-    function __call($func, $args)
-    {
-        $camelCaseFunc = str_replace(' ', '', ucwords(str_replace(['_', '-'], ' ', $func)));
-        if (method_exists($this, $camelCaseFunc)) {
-            return $this->$camelCaseFunc(...$args);
-        } else {
-            throw new \BadMethodCallException('call to undefined method ' . $func);
-        }
-    }
 }
