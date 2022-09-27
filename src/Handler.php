@@ -2,22 +2,25 @@
 
 namespace bot_lib;
 
+use Respect\Validation\Validator as v;
+
 /**
  * per file
  */
-class Handler extends HandlersCreator
+class Handler
 {
     public TheHandler $before;
     public TheHandler $fallback;
     public TheHandler $middle;
     public TheHandler $after;
     public TheHandler $on_error;
-    public array $handlers = []; // TODO only public because of separation.. wrong... 
+    private array $handlers = []; // TODO only public because of separation.. wrong... 
 
     public function __construct(Update|null $update = null)
     {
-        if ($update != null)
+        if ($update != null){
             $this->update = $update;
+        }
     }
 
     public function activate($config, $update)
@@ -85,6 +88,33 @@ class Handler extends HandlersCreator
         }
         return $res;
     }
+
+    function __call($func_name, $args)
+    {
+        // try {
+        $func = $args['func'] ?? $args[0] ?? null;
+        if ($func == null || !is_callable($func)) {
+            print "handler $func didn't have func set. ignoring" . PHP_EOL;
+            return;
+        }
+        $filter = $args['filter'] ?? $args[1] ?? [];
+        $last = $args['last'] ?? $args[2] ?? false;
+        $name = $args['name'] ?? $args[3] ?? '';
+
+        if (in_array($func_name, ['fallback', 'middle', 'before', 'after', 'on_error'])) {
+            $this->$func_name = new TheHandler($func_name, $filter, $func, $last, $name);
+        } else {
+            $this->handlers[] = new TheHandler($func_name, $filter, $func, $last, $name);
+        }
+        // } catch (\Throwable $e) {
+        //     print $e->getMessage();
+        // }
+    }
+
+    public function __invoke($func, $filter = [], $last = false)
+    {
+        $this->__call('anonymous', [$func, $filter, $last]);
+    }
 }
 
 /**
@@ -101,14 +131,14 @@ class TheHandler
 {
     public $active = true;
 
-    private array|\Closure $filter;
+    private \Closure|v $filter;
 
-    function __construct(public $when, $filter, private $func, public bool $last, public string $name = '')
+    function __construct(public $when, array|\Closure|v $filter, private $func, public bool $last, public string $name = '')
     {
-        if (gettype($filter) == 'string') {
-            $this->filter = [$filter];
-        } else {
+        if (is_callable($filter)) {
             $this->filter = $filter;
+        } else {
+            $this->filter = v::allOf(...$filter);
         }
     }
 
@@ -135,56 +165,50 @@ class TheHandler
     {
         $shouldRun = true;
         switch ($this->when) {
-            case 'on_update':
-                $shouldRun = $this->checkFilter($this->filter, $update->updateType, $update);
-                break;
             case 'on_message':
-                $shouldRun = $update->updateType == 'message' && $update->updateType != 'edited_message' && !$update->service && $this->checkFilter($this->filter, $update->text, $update);
+                $shouldRun = $update->updateType == 'message' && $update->updateType != 'edited_message' && !$update->service;
                 break;
             case 'on_edit':
-                $shouldRun = $update->updateType == 'edited_message' && $this->checkFilter($this->filter, $update->text, $update);
+                $shouldRun = $update->updateType == 'edited_message';
                 break;
             case 'on_cbq':
-                $shouldRun = $update->updateType == 'callback_query' && $this->checkFilter($this->filter, $update->data, $update);
+                $shouldRun = $update->updateType == 'callback_query';
                 break;
             case 'on_inline':
-                $shouldRun = $update->updateType == 'inline_query' && $this->checkFilter($this->filter, $update->data, $update);
+                $shouldRun = $update->updateType == 'inline_query';
                 break;
             case 'on_join_request':
                 $shouldRun = $update->updateType == 'chat_join_request';
                 break;
             case 'on_file':
-                $shouldRun = isset($update->media['file_type']) && $this->checkFilter($this->filter, $update->media['file_type'], $update);
+                $shouldRun = isset($update->media['file_type']);
                 break;
             case 'on_service':
-                $shouldRun = $update->service && $this->checkFilter($this->filter, null, $update);
+                $shouldRun = $update->service;
                 break;
             case 'on_member':
-                $shouldRun = ($update->new_chat_members != null || $update->left_chat_member != null || in_array($update->updateType, ['chat_member', 'my_chat_member'])) && $this->checkFilter($this->filter, null, $update);
+                $shouldRun = ($update->new_chat_members != null || $update->left_chat_member != null || in_array($update->updateType, ['chat_member', 'my_chat_member']));
                 break;
             case 'on_new_member':
-                $shouldRun = $update->new_chat_members != null && $this->checkFilter($this->filter, null, $update);
+                $shouldRun = $update->new_chat_members != null;
                 break;
-
             default:
-                $shouldRun = $this->checkFilter($this->filter, null, $update);
+                $shouldRun = true;
         }
 
-        return $shouldRun;
+        return $shouldRun && $this->checkFilter($this->filter, $update);
     }
 
-    private function checkFilter($filter, $data, $update)
+    private function checkFilter($filter, $update)
     {
         if (empty($filter)) {
             return true;
         }
+
         if (is_callable($filter)) {
             return call_user_func($filter, $update);
         }
-        if (is_array($filter)) {
-            // TODO: add regex support
-            return in_array($data, $filter);
-        }
+
         return true;
     }
 
@@ -206,36 +230,5 @@ class TheHandler
         $this->func = $this->backup[1];
         $this->filter = $this->backup[2];
         $this->last = $this->backup[3];
-    }
-}
-
-
-class HandlersCreator
-{
-    function __call($func_name, $args)
-    {
-        try {
-            $func = $args['func'] ?? $args[0] ?? null;
-            if ($func == null || !is_callable($func)) {
-                print "handler $func didn't have func set. ignoring" . PHP_EOL;
-                return;
-            }
-            $filter = $args['filter'] ?? $args[1] ?? [];
-            $last = $args['last'] ?? $args[2] ?? false;
-            $name = $args['name'] ?? $args[3] ?? '';
-
-            if (in_array($func_name, ['fallback', 'middle', 'before', 'after', 'on_error'])) {
-                $this->$func_name = new TheHandler($func_name, $filter, $func, $last, $name);
-            } else {
-                $this->handlers[] = new TheHandler($func_name, $filter, $func, $last, $name);
-            }
-        } catch (\Throwable $e) {
-            print $e->getMessage();
-        }
-    }
-
-    public function __invoke($func, $filter = [], $last = false)
-    {
-        $this->__call('anonymous', [$func, $filter, $last]);
     }
 }
