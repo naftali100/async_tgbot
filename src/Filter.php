@@ -10,14 +10,7 @@ class Filter
 
     static function Update($types, $not = false)
     {
-        if (gettype($types) != 'array') {
-            $types = [$types];
-        }
-        $validator = v::attribute('updateType', v::in($types));
-        if ($not) {
-            $validator = v::not($validator);
-        }
-        return $validator;
+        return self::Filter('updateType', $types, $not);
     }
     static function MessageUpdates($not = false)
     {
@@ -45,6 +38,11 @@ class Filter
     }
     static function ServiceUpdates($not = false)
     {
+        $validator = v::attribute('service', v::trueVal());
+        if ($not) {
+            $validator = v::not($validator);
+        }
+        return $validator;
     }
     static function FileUpdates($not = false)
     {
@@ -59,15 +57,8 @@ class Filter
 
     static function Message($text, $not = false)
     {
-        if (gettype($text) != 'array') {
-            $text = [$text];
-        }
-        $validator = v::attribute('text', v::in($text));
-        if ($not) {
-            $validator = v::not($validator);
-        }
         return v::allOf(
-            $validator,
+            self::Filter('text', $text, $not),
             self::MessageUpdates()
         );
     }
@@ -85,68 +76,50 @@ class Filter
     }
     static function Cbq($data, $not = false)
     {
-        if (gettype($data) != 'array') {
-            $data = [$data];
-        }
-        $validator = v::keyNested('data', v::in($data));
-        if ($not) {
-            $validator = v::not($validator);
-        }
         return v::allOf(
-            $validator,
+            self::Filter('data', $data, $not),
             self::CbqUpdates()
         );
     }
     static function User($id, $not = false)
     {
-        if (gettype($id) != 'array') {
-            $id = [$id];
-        }
-        $validator = v::keyNested('user.id', v::in($id));
-        if ($not) {
-            $validator = v::not($validator);
-        }
-        return $validator;
+        return self::Filter('from.id', $id, $not);
     }
     static function Chat($id, $not = false)
     {
-        if (gettype($id) != 'array') {
-            $id = [$id];
-        }
-        $validator = v::keyNested('chat.id', v::in($id));
-        if ($not) {
-            $validator = v::not($validator);
-        }
-        return $validator;
+        return self::Filter('chat.id', $id, $not);
     }
 
     /// type of 
 
     static function FileType($type, $not = false)
     {
-        if (gettype($type) != 'array') {
-            $type = [$type];
-        }
-        $validator = v::keyNested('media.file_type', v::in($type));
-        if ($not) {
-            $validator = v::not($validator);
-        }
-        return $validator;
+        return self::Filter('media.file_type', $type, $not);
     }
-    static function ServiceType($type, $not = false)
-    {
-    }
+    // static function ServiceType($type, $not = false)
+    // {
+    // }
     static function ChatType($type, $not = false)
     {
-        if (gettype($type) != 'array') {
-            $type = [$type];
-        }
-        $validator = v::keyNested('chatType', v::in($type));
+        return self::Filter('chatType', $type, $not);
+    }
+
+    /// misc
+
+    static function JoinRequests($not = false)
+    {
+        $validator = v::keyNested('chat_join_request');
         if ($not) {
             $validator = v::not($validator);
         }
         return $validator;
     }
+    // static function NewMember()
+    // {
+    // }
+    // static function MyStatusChanged()
+    // {
+    // }
 
     // free form 
     static function Filter($getter, $filter, $not)
@@ -154,7 +127,6 @@ class Filter
         if (gettype($filter) != 'array') {
             $filter = [$filter];
         }
-        // TODO: is require the attribute to be in update object without getter - find workaround
         $validator = v::keyNested($getter, v::in($filter));
         if ($not) {
             $validator = v::not($validator);
