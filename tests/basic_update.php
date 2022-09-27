@@ -26,6 +26,7 @@ trait UpdateTypes
     public Update $pin_message;
     public Update $sender_chat;
     public Update $photo_file;
+    public Update $join_request;
 
     public function init()
     {
@@ -325,7 +326,7 @@ trait UpdateTypes
             "message": {
              "message_id": 1190691,
              "from": {
-              "id": '.$this->user_id. ',
+              "id": ' . $this->user_id . ',
               "is_bot": false,
               "first_name": "Naftali",
               "username": "Naftali100",
@@ -377,6 +378,27 @@ trait UpdateTypes
              ]
             }
            }');
+        $this->join_request = new Update($this->config, '
+        {
+            "update_id": 883655480,
+            "chat_join_request": {
+                "chat": {
+                    "id": ' . $this->chat_id . ',
+                    "title": "בדיקות #vid vid#",
+                    "username": "username",
+                    "type": "supergroup"
+                },
+                "from": {
+                    "id": ' . $this->user_id . ',
+                    "is_bot": false,
+                    "is_deleted": false,
+                    "first_name": "Jam",
+                    "language_code": "en",
+                    "user_status": "recently"
+                },
+                "date": 1663503683
+            }
+        }');
         // $this->document_file = new Update($this->config, json_encode([]));
         // $this->photo_file = new Update($this->config, json_encode([]));
         // $this->music_file = new Update($this->config, json_encode([]));
