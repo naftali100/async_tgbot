@@ -76,7 +76,7 @@ the name can control when the handler is activating.
 handler accepts 4 parameter
 
 - function (named func): the function to run when handler activated. accept Update instance as parameter.
-- filter: string, array or function that determine whether the handler should run or not. accept Update instance as argument.
+- filter: must be callable. if you passed a function, it should receive one argument - Update instance
 - last: if true and handler is activated, the handler will be the last handler to run in current request.
 - name: name of the handler, useful for debugging what handler is activated.
 
