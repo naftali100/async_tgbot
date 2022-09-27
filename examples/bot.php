@@ -8,6 +8,7 @@ use bot_lib\Config;
 use bot_lib\Handler;
 use bot_lib\Update;
 use bot_lib\Helpers;
+use bot_lib\Filter;
 
  
 $conf = new Config();
@@ -32,24 +33,18 @@ $handler->before(function($u) {
 });
 
 $handler->middle(function($u, $next){
-    // if you have somthing to run before any handler
+    // if you have something to run before any handler
     // unlike before, middle will run once per handler
 
     // will done before handler
     yield $next($u); // wait the handler to finish
-    // will done  after handler
+    // will done after handler
 });
 
 $handler->after(function($u){
     // run after all handlers finished
     store_in_db($u->user);
 });
-
-// run everytime on avery update type
-// you can filter update type you want this handler to hanlde
-$handler->on_update(function(Update $u){
-    $u->reply($u->message);
-}); 
 
 $handler->on_start(
     filter: function($u){
@@ -58,22 +53,18 @@ $handler->on_start(
     func: function($u){
         $u->reply("you send \"/start\"");
     },
-    last: true // if this handler is runnin it will be the last. and no other handlers will run
+    last: true // if this handler run it will be the last. and no other handlers will run after it
 );
 
+// will run on every update(unless filter is passed)
 $handler->hey_i_can_call_handlers_whatever_i_want(function($u){
     $u->reply("haha cool handler name");
 });
 
-$handler->on_message( // only few handlers can take array or string as filter. 
-    filter: ["***", "xxx" , "f"],
-    func: fn($u) => $u->reply("hey! you can't sey stuff like this in here") // arrow function
-);
-
 $handler->on_file(function($u){
     $file = yield $u->download()->decode;
     $u->reply("your file downloaded to: " . $file["result"]["file_path"]);
-}, ["audio", "photo"]);
+}, Filter::FileType(["audio", "photo"]));
 // here we pass args by order. 
 // if you wand to write the filter first, you need to use named arguments like on_start handler in this example
 
@@ -92,16 +83,11 @@ $handler->on_cbq( // another handler that accept string|array filter
     }
 );
 
-// handler without filter will run every request
-$handler->everytime(function($u){
-    $u->reply("-----");
-});
-
 $handler->do_some_request(function($u){
     $decoded_result = yield $u->Request("http://exapmle.com/json")->decode;
     $plain_text_result = yield $u->Request("http://exapmle.com/json")->result;
 
-    // if the result is big you can read is asynchronicly
+    // if the result is big you can read it asynchronicity
     $file = yield Amp\File\open("big_file", "w"); // open file
     $response = yield $u->Request("http://exapmle.com/big_file")->request; // wait for response
     while(null !== $chunk = yield $response->getBody()->read()){ // read response
