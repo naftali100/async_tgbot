@@ -25,6 +25,7 @@ trait UpdateTypes
     public Update $forwarded_message;
     public Update $pin_message;
     public Update $sender_chat;
+    public Update $photo_file;
 
     public function init()
     {
@@ -316,6 +317,64 @@ trait UpdateTypes
              },
              "date": 1663481470,
              "text": "text"
+            }
+           }');
+        $this->photo_file = new Update($this->config, '
+        {
+            "update_id": 933261123,
+            "message": {
+             "message_id": 1190691,
+             "from": {
+              "id": '.$this->user_id. ',
+              "is_bot": false,
+              "first_name": "Naftali",
+              "username": "Naftali100",
+              "language_code": "en"
+             },
+             "chat": {
+              "id": 227774988,
+              "first_name": "Naftali",
+              "username": "Naftali100",
+              "type": "private"
+             },
+             "date": 1664048548,
+             "photo": [
+              {
+               "file_id": "AgACAgQAAxkBAAESKyNjL12kj17pLPrpHSdWMaWizTDgCAACjLwxG7n3gFHY8mnx8t4dnQEAAwIAA3MAAykE",
+               "file_unique_id": "AQADjLwxG7n3gFF4",
+               "file_size": 1093,
+               "width": 60,
+               "height": 90
+              },
+              {
+               "file_id": "AgACAgQAAxkBAAESKyNjL12kj17pLPrpHSdWMaWizTDgCAACjLwxG7n3gFHY8mnx8t4dnQEAAwIAA20AAykE",
+               "file_unique_id": "AQADjLwxG7n3gFFy",
+               "file_size": 14400,
+               "width": 214,
+               "height": 320
+              },
+              {
+               "file_id": "AgACAgQAAxkBAAESKyNjL12kj17pLPrpHSdWMaWizTDgCAACjLwxG7n3gFHY8mnx8t4dnQEAAwIAA3gAAykE",
+               "file_unique_id": "AQADjLwxG7n3gFF9",
+               "file_size": 50824,
+               "width": 534,
+               "height": 800
+              },
+              {
+               "file_id": "AgACAgQAAxkBAAESKyNjL12kj17pLPrpHSdWMaWizTDgCAACjLwxG7n3gFHY8mnx8t4dnQEAAwIAA3kAAykE",
+               "file_unique_id": "AQADjLwxG7n3gFF-",
+               "file_size": 108867,
+               "width": 854,
+               "height": 1280
+              },
+              {
+               "file_id": "AgACAgQAAxkBAAESKyNjL12kj17pLPrpHSdWMaWizTDgCAACjLwxG7n3gFHY8mnx8t4dnQEAAwIAA3cAAykE",
+               "file_unique_id": "AQADjLwxG7n3gFF8",
+               "file_size": 348614,
+               "width": 1708,
+               "height": 2560
+              }
+             ]
             }
            }');
         // $this->document_file = new Update($this->config, json_encode([]));
