@@ -11,6 +11,7 @@ use bot_lib\Server;
 use Amp\PHPUnit\AsyncTestCase;
 use bot_lib\Config;
 use bot_lib\Handler;
+use bot_lib\Filter;
 
 final class HandlerTest extends AsyncTestCase
 {
@@ -70,24 +71,26 @@ final class HandlerTest extends AsyncTestCase
     {
         $handler = new Handler();
         $handler->on_message(
-            filter: 'text',
+            filter: Filter::Message('text'),
             func: function ($u) {
                 $this->assertEquals('text', $u->text);
+                $this->checkOnMessage2 = true;
             },
             name: 'testing on message'
         );
 
         $handler->on_message(
-            filter: 'text1',
+            filter: Filter::Message('text1'),
             func: function () {
                 throw new Error('should not run');
             }
         );
 
         $handler->on_message(
-            filter: fn ($u) => $u->text == 'text' && $u->chat->id == $this->user_id,
+            filter: [Filter::Message('text'), Filter::Chat($this->user_id)],
             func: function ($u) {
                 $this->assertEquals('text', $u->text);
+                $this->checkOnMessage1 = true;
             }
         );
 
@@ -101,6 +104,8 @@ final class HandlerTest extends AsyncTestCase
         yield $this->setupServer($handler);
 
         yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
+        $this->assertTrue($this->checkOnMessage1);
+        $this->assertTrue($this->checkOnMessage2);
     }
 
     public function testFreeName()
@@ -128,7 +133,8 @@ final class HandlerTest extends AsyncTestCase
     {
         $handler = new Handler();
         $handler->on_cbq(
-            filter: 'data',
+            name: 'test only data filter',
+            filter: Filter::Cbq('data'),
             func: function ($u) {
                 $this->assertEquals('text', $u->text);
                 $this->assertEquals('data', $u->data);
@@ -137,22 +143,22 @@ final class HandlerTest extends AsyncTestCase
             }
         );
 
-
-
         $handler->on_cbq(
             function ($u) {
                 $this->assertEquals('text', $u->text);
                 $this->assertEquals('data', $u->data);
 
                 $this->called2 = true;
-            }
+            },
+            name: 'test only by function name'
         );
 
         $handler->on_cbq(
-            filter: 'data1',
+            filter: FIlter::Cbq('data1'),
             func: function () {
                 throw new Error('should not run');
-            }
+            },
+            name: 'test wrong data'
         );
 
         yield $this->setupServer($handler);
@@ -267,7 +273,8 @@ final class HandlerTest extends AsyncTestCase
         $this->assertTrue($this->testOnEditCheck1);
     }
 
-    public function testGroupMessage(){
+    public function testGroupMessage()
+    {
         $handler = new Handler();
 
         $handler->on_message(
@@ -275,7 +282,7 @@ final class HandlerTest extends AsyncTestCase
             filter: function (Update $u) {
                 return $u->chatType != 'private';
             },
-            func: function ($u) {
+            func: function () {
                 $this->groupMessageCheck1 = true;
             }
         );
@@ -283,7 +290,7 @@ final class HandlerTest extends AsyncTestCase
         $handler->on_message(
             name: 'group message - bad',
             filter: fn ($u) => $u->chatType == 'private',
-            func: function ($u) {
+            func: function () {
                 throw new Error();
             }
         );
@@ -295,7 +302,8 @@ final class HandlerTest extends AsyncTestCase
         $this->assertTrue($this->groupMessageCheck1);
     }
 
-    public function testOnInline(){
+    public function testOnInline()
+    {
         $handler = new Handler();
 
         $handler->on_inline(
@@ -316,5 +324,45 @@ final class HandlerTest extends AsyncTestCase
 
         yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->inline_query->update_arr))->plain;
         $this->assertTrue($this->onInlineCheck1);
+    }
+
+    public function testHandlerWithFilter()
+    {
+        $handler = new Handler();
+
+        $handler->on_message(
+            filter: Filter::Message('text'),
+            func: function () {
+                $this->HandlerWithFilterCheck1 = true;
+            }
+        );
+        $handler->on_update(
+            filter: Filter::Message('text'),
+            func: function () {
+                $this->HandlerWithFilterCheck2 = true;
+            }
+        );
+        $handler->checkThis(
+            filter: Filter::Message('text'),
+            func: function () {
+                $this->HandlerWithFilterCheck3 = true;
+            }
+        );
+
+        $this->HandlerWithFilterCheck4 = false;
+        $handler->on_cbq(
+            filter: Filter::Cbq('text'),
+            func: function () {
+                $this->HandlerWithFilterCheck4 = true;
+            }
+        );
+
+        yield $this->setupServer($handler);
+
+        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
+        $this->assertTrue($this->HandlerWithFilterCheck1);
+        $this->assertTrue($this->HandlerWithFilterCheck2);
+        $this->assertTrue($this->HandlerWithFilterCheck3);
+        $this->assertFalse($this->HandlerWithFilterCheck4);
     }
 }
