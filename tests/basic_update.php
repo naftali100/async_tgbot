@@ -16,6 +16,7 @@ trait UpdateTypes
     public $myUserId = 227774988; // set it to the chat that receive messages during testing
 
     public Update $private_message;
+    public Update $private_with_ent;
     public Update $group_message;
     public Update $edited_message;
     public Update $new_member;
@@ -399,6 +400,40 @@ trait UpdateTypes
                 "date": 1663503683
             }
         }');
+        $this->private_with_ent = new Update($this->config, '
+        {
+            "update_id": 933270796,
+            "message": {
+             "message_id": 1193322,
+             "from": {
+              "id": ' . $this->user_id . ',
+              "is_bot": false,
+              "first_name": "Naftali",
+              "username": "Naftali100",
+              "language_code": "en"
+             },
+             "chat": {
+              "id": ' . $this->user_id . ',
+              "first_name": "Naftali",
+              "username": "Naftali100",
+              "type": "private"
+             },
+             "date": 1664306176,
+             "text": "text",
+             "entities": [
+              {
+               "offset": 0,
+               "length": 4,
+               "type": "bold"
+              },
+              {
+               "offset": 0,
+               "length": 4,
+               "type": "italic"
+              }
+             ]
+            }
+           }');
         // $this->document_file = new Update($this->config, json_encode([]));
         // $this->photo_file = new Update($this->config, json_encode([]));
         // $this->music_file = new Update($this->config, json_encode([]));
