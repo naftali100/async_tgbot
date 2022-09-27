@@ -233,7 +233,7 @@ class Update extends Api implements \ArrayAccess
         $this->chatType = $this->__get('chat')?->type ?? $this->__get('chat_type');
 
         // check if can be object
-        $this->ent = $this->offsetGet('entities');
+        $this->ent = $this->__get('entities');
         $this->keyboard = $this->offsetGet('reply_markup')['inline_keyboard'] ?? null;
 
         // general data for all kind of files 
@@ -257,21 +257,21 @@ class Update extends Api implements \ArrayAccess
         if ($this->ent != null) {
             $i = 0;
             foreach ($this->ent as $e) {
-                if ($e['type'] == 'code')
+                if ($e->type == 'code')
                     $replacement = '`';
-                elseif ($e['type'] == 'pre')
+                elseif ($e->type == 'pre')
                     $replacement = '```';
-                elseif ($e['type'] == 'bold')
+                elseif ($e->type == 'bold')
                     $replacement = '*';
-                elseif ($e['type'] == 'italic')
+                elseif ($e->type == 'italic')
                     $replacement = '_';
-                elseif ($e['type'] == 'spoiler')
+                elseif ($e->type == 'spoiler')
                     $replacement = '|';
                 else
                     continue;
 
-                $realText = substr_replace($realText, $replacement, $e['offset'] + $i, 0);
-                $realText = substr_replace($realText, $replacement, $e['offset'] + $e['length'] + strlen($replacement) + $i, 0);
+                $realText = substr_replace($realText, $replacement, $e->offset + $i, 0);
+                $realText = substr_replace($realText, $replacement, $e->offset + $e->length + strlen($replacement) + $i, 0);
                 $i += strlen($replacement) * 2;
             }
         }
