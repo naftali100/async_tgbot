@@ -88,7 +88,7 @@ class Filter
         if (gettype($data) != 'array') {
             $data = [$data];
         }
-        $validator = v::attribute('data', v::in($data));
+        $validator = v::keyNested('data', v::in($data));
         if ($not) {
             $validator = v::not($validator);
         }
