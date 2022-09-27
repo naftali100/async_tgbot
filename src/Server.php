@@ -230,7 +230,7 @@ class Server extends Loader
 
                 $file->config->logger->debug($path . ' took: ' . \Amp\Loop::now() - $time . '. handlers result', $res ?? []);
             } catch (\Throwable $e) {
-                $file->config->logger->error($e->getMessage() . ' when activate handlers in file ' . $e->getFile() . ':' . $e->getLine() . '. path: "' . $path . '" - disabled!');
+                $file->config->logger->error('"' . $e->getMessage()  . '" when activate handlers in file ' . $e->getFile() . ':' . $e->getLine() . '. path: "' . $path . '" - disabled!');
                 $this->files[$path]->active = 0;
             }
         }
