@@ -33,7 +33,7 @@ use bot_lib\Filter;
 
 $config = new Config;
 $config->load("conf.json"); // can store token
-$config->server = "http://loadlhost:8081/bot"; // if you using local telegram-bot-api
+$config->server_url = "http://loadlhost:8081/bot"; // if you using local telegram-bot-api
 
 $handler = new Handler;
 $handler->on_message(
