@@ -228,7 +228,7 @@ class Update extends Api implements \ArrayAccess
         $this->forward = $this->__get('forward_from') ?? $this->__get('forward_from_chat');
         $this->chat = $this->__get('chat');
         $this->from = $this->__get('sender_chat') ?? $this->__get('from') ?? $this->__get('chat');
-        $this->reply = $local_update_obj->$updateType->reply_to_message ?? null;
+        $this->reply = $this->__get('reply_to_message');
         $this->text = $this->__get('text') ?? $this->__get('caption') ?? $this->__get('query');
         $this->chatType = $this->__get('chat')?->type ?? $this->__get('chat_type');
 
@@ -237,7 +237,6 @@ class Update extends Api implements \ArrayAccess
         $this->keyboard = $this->offsetGet('reply_markup')['inline_keyboard'] ?? null;
 
         // general data for all kind of files 
-        // there is also variables for any kind below, you can use them both or delete one of them
         $media = null;
         $fileTypes = ['photo', 'video', 'document', 'audio', 'sticker', 'voice', 'video_note'];
         foreach ($fileTypes as $type) {
@@ -329,13 +328,13 @@ class Update extends Api implements \ArrayAccess
         if (is_null($offset)) {
             $this->update_arr[] = $value;
         } else {
-            $this->update_arr[$offset] = $value;
+            $this->$offset = $value;
         }
     }
 
     public function offsetExists(mixed $offset): bool
     {
-        return isset($this->update_arr[$offset]) || isset($this->$offset);
+        return $this->$offset != null;
     }
 
     public function offsetUnset(mixed $offset): void
@@ -346,10 +345,10 @@ class Update extends Api implements \ArrayAccess
     public function offsetGet(mixed $offset)
     {
         $res = $this->$offset;
-        if (in_array(gettype($res), ['string', 'boolean', 'integer', 'double'])) {
-            return $res;
-        } else if ($res != null) {
+        if (is_object($res)) {
             return Helpers::objectToArray($res);
+        } else if ($res != null) {
+            return $res;
         }
     }
 }
