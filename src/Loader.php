@@ -12,11 +12,7 @@ class Loader
     /**
      * contain all file content 
      * 
-     * - path
-     *      -- file_name
-     *      -- active
-     *      -- HandlerHub
-     *      -- config
+     * array of: path => BotFile
      */
     public array $files = [];
 
@@ -37,7 +33,6 @@ class Loader
      * load handler from file
      * @param string $file_name the file name to open
      * @param string $as custom path to the file
-     * @param bool $extraAccess load the file with access to Server scop
      */
     public function load_file($file_name, $as = null)
     {
@@ -71,8 +66,6 @@ class Loader
 
     private function include_file($name)
     {
-        print "including $name with extra access" . PHP_EOL;
-
         $res = [];
 
         require $name;
