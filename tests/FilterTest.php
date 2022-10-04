@@ -53,4 +53,11 @@ final class FilterTest extends AsyncTestCase
         $this->assertFalse($f($this->private_message));
         $this->assertFalse($f($this->group_message));
     }
+
+    public function testStartsWith(){
+        $f = Filter::StartsWith('text', 'te');
+        $this->assertTrue($f($this->private_message));
+        $f = Filter::StartsWith('text', 're');
+        $this->assertFalse($f($this->private_message));
+    }
 }
