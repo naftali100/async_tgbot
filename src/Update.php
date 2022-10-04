@@ -128,6 +128,13 @@ class Update extends Api implements \ArrayAccess
         }
     }
 
+    public function getUserStatus($id = null)
+    {
+        if (isset($this->update)) {
+            return $this->getChatMember($id ?? $this->chat->id, $this->from->id);
+        }
+    }
+
     public function editKeyboard($newKeyboard)
     {
         if (isset($this->update)) {
