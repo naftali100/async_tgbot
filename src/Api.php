@@ -285,10 +285,10 @@ class Api extends Http
         $data['chat_id'] = $id;
         return $this->ApiRequest('getChatMemberCount', $data);
     }
-    public function getChatMember($id, $uId)
+    public function getChatMember($chat_id, $user_id)
     {
-        $data['chat_id'] = $id;
-        $data['user_id'] = $uId;
+        $data['chat_id'] = $chat_id;
+        $data['user_id'] = $user_id;
         return $this->ApiRequest('getChatMember', $data);
     }
     public function answerCallbackQuery($callback, $text = null, $alert = false)
