@@ -8,11 +8,11 @@ class Filter
 {
     /// update type filters
 
-    static function Update($types, $not = false)
+    public static function update($types, $not = false)
     {
         return self::Filter('updateType', $types, $not);
     }
-    static function MessageUpdates($not = false)
+    public static function messageUpdates($not = false)
     {
         $validator = v::attribute('updateType', v::equals('message'));
         if ($not) {
@@ -20,7 +20,7 @@ class Filter
         }
         return $validator;
     }
-    static function CbqUpdates($not = false)
+    public static function cbqUpdates($not = false)
     {
         $validator = v::attribute('updateType', v::equals('callback_query'));
         if ($not) {
@@ -28,7 +28,7 @@ class Filter
         }
         return $validator;
     }
-    static function InlineUpdates($not = false)
+    public static function inlineUpdates($not = false)
     {
         $validator = v::attribute('updateType', v::equals('inline_query'));
         if ($not) {
@@ -36,7 +36,7 @@ class Filter
         }
         return $validator;
     }
-    static function ServiceUpdates($not = false)
+    public static function serviceUpdates($not = false)
     {
         $validator = v::attribute('service', v::trueVal());
         if ($not) {
@@ -44,7 +44,7 @@ class Filter
         }
         return $validator;
     }
-    static function FileUpdates($not = false)
+    public static function fileUpdates($not = false)
     {
         $validator = v::attribute('media', v::not(v::nullType()));
         if ($not) {
@@ -55,14 +55,14 @@ class Filter
 
     /// filter specific update parts
 
-    static function Message($text, $not = false)
+    public static function message($text, $not = false)
     {
         return v::allOf(
             self::Filter('text', $text, $not),
             self::MessageUpdates()
         );
     }
-    static function MessageRegex($text, $not = false)
+    public static function messageRegex($text, $not = false)
     {
         $validator = v::attribute('text', v::regex($text));
         if ($not) {
@@ -74,54 +74,54 @@ class Filter
             self::MessageUpdates()
         );
     }
-    static function Cbq($data, $not = false)
+    public static function cbq($data, $not = false)
     {
         return v::allOf(
             self::Filter('data', $data, $not),
             self::CbqUpdates()
         );
     }
-    static function User($id, $not = false)
+    public static function user($id, $not = false)
     {
         return self::Filter('from.id', $id, $not);
     }
-    static function Chat($id, $not = false)
+    public static function chat($id, $not = false)
     {
         return self::Filter('chat.id', $id, $not);
     }
 
     /// type of 
 
-    static function FileType($type, $not = false)
+    public static function fileType($type, $not = false)
     {
         return self::Filter('media.file_type', $type, $not);
     }
 
     /// chat type 
 
-    static function chatType($type, $not = false)
+    public static function chatType($type, $not = false)
     {
         return self::Filter('chatType', $type, $not);
     }
 
-    static function privateChat($not = false)
+    public static function privateChat($not = false)
     {
         return self::ChatType('private', $not);
     }
-    static function groupChat($not = false)
+    public static function groupChat($not = false)
     {
         return self::ChatType(['group', 'supergroup'], $not);
     }
-    static function channelChat($not = false)
+    public static function channelChat($not = false)
     {
         return self::ChatType('channel', $not);
     }
 
-    // static function ServiceType($type, $not = false)
+    // public static function ServiceType($type, $not = false)
 
     /// misc
 
-    static function JoinRequests($not = false)
+    public static function joinRequests($not = false)
     {
         $validator = v::keyNested('chat_join_request');
         if ($not) {
@@ -129,10 +129,10 @@ class Filter
         }
         return $validator;
     }
-    // static function NewMember()
+    // public static function NewMember()
     // {
     // }
-    // static function MyStatusChanged()
+    // public static function MyStatusChanged()
     // {
     // }
 
@@ -148,7 +148,7 @@ class Filter
         }
         return $validator;
     }
-    static function startsWith($getter, $filter, $not = false)
+    public static function startsWith($getter, $filter, $not = false)
     {
         $validator = v::keyNested($getter, v::startsWith($filter));
         if ($not) {
