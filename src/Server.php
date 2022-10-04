@@ -27,6 +27,9 @@ class Server extends Loader
     /** http server instance */
     private HttpServer $server;
 
+    private $logLevel = LogLevel::INFO;
+    private $logger;
+
     public function __construct($servers = null)
     {
         $this->servers = $servers;
@@ -50,20 +53,24 @@ class Server extends Loader
             try {
                 $servers = $as_cluster ? (yield $this->prepareServers($as_cluster)) : $this->prepareServers($as_cluster);
 
-                $logger = $this->get_logger($as_cluster);
+                $this->logger = $this->get_logger($as_cluster);
 
                 // Set up a request handler.
-                $this->server = new HttpServer($servers, new CallableRequestHandler(function (Request $request) use ($logger) {
-                    try {
-                        // yield \Amp\call([$this, 'requestHandler'], $request, $logger);
-                        \Amp\asyncCall([$this, 'requestHandler'], $request, $logger);
-                    } catch (\Throwable $e) {
-                        print $e->getMessage() . ' when handling request to ' . $request->getUri() . ' on ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
-                    }
-                    return new Response(Status::OK, [
-                        'content-type' => 'text/plain; charset=utf-8'
-                    ], 'ok');
-                }), $logger);
+                $this->server = new HttpServer(
+                    $servers,
+                    new CallableRequestHandler(function (Request $request) {
+                        try {
+                            // yield \Amp\call([$this, 'requestHandler'], $request, $logger);
+                            \Amp\asyncCall([$this, 'requestHandler'], $request);
+                        } catch (\Throwable $e) {
+                            print $e->getMessage() . ' when handling request to ' . $request->getUri() . ' on ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
+                        }
+                        return new Response(Status::OK, [
+                            'content-type' => 'text/plain; charset=utf-8'
+                        ], 'ok');
+                    }),
+                    $this->logger
+                );
 
                 // Start the HTTP server
                 yield $this->server->start();
@@ -83,9 +90,7 @@ class Server extends Loader
                     }));
                 }
             } catch (\Throwable $e) {
-                print $e->getMessage() . ' in event-loop. file: ' . $e->getFile() . ' line ' . $e->getLine() . ' exiting loop and server ' . PHP_EOL;
-                yield $this->server->stop();
-                Loop::stop();
+                print '"' . $e->getMessage() . '" in event-loop. file: ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
             }
         });
     }
@@ -118,14 +123,14 @@ class Server extends Loader
         return $listening_servers;
     }
 
-    private function get_logger($cluster = false, $level = LogLevel::INFO)
+    private function get_logger($cluster = false)
     {
         if ($cluster) {
             // Creating a log handler in this way allows the script to be run in a cluster or standalone.
             if (Cluster::isWorker()) {
                 $handler = Cluster::createLogHandler();
             } else {
-                $handler = new StreamHandler(ByteStream\getStdout(), $level);
+                $handler = new StreamHandler(ByteStream\getStdout(), $this->logLevel);
                 $handler->setFormatter(new ConsoleFormatter);
             }
 
@@ -133,7 +138,7 @@ class Server extends Loader
             $logger->pushHandler($handler);
             return $logger;
         } else {
-            $logHandler = new StreamHandler(ByteStream\getStdout(), $level);
+            $logHandler = new StreamHandler(ByteStream\getStdout(), $this->logLevel);
             $logHandler->setFormatter(new ConsoleFormatter);
             $logger = new Logger('bots server');
             $logger->pushHandler($logHandler);
@@ -194,14 +199,14 @@ class Server extends Loader
      * load the update and file's handler using his config
      * then run the handlers
      */
-    public function requestHandler($request, $logger)
+    public function requestHandler($request)
     {
         $path = ltrim($request->getUri()->getPath(), '/');
 
         if (!isset($this->files[$path])) {
-            $logger->notice('file ' . $path . ' not exist');
+            $this->logger->notice('file ' . $path . ' not exist');
         } elseif ($this->files[$path]->active) {
-            $logger->info('running file: ' . $path);
+            $this->logger->info('running file: ' . $path);
 
             try {
                 $time = \Amp\Loop::now();
@@ -244,5 +249,10 @@ class Server extends Loader
     public function getState()
     {
         return $this->server->getState();
+    }
+
+    public function setLogLevel($level = LogLevel::INFO)
+    {
+        $this->logLevel = $level;
     }
 }
