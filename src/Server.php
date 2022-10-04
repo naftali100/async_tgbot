@@ -27,7 +27,7 @@ class Server extends Loader
     /** http server instance */
     private HttpServer $server;
 
-    private $logLevel = LogLevel::INFO;
+    private $logLevel = LogLevel::NOTICE;
     private $logger;
 
     public function __construct($servers = null)
