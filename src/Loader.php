@@ -66,6 +66,7 @@ class Loader
 
     private function include_file($name)
     {
+        print 'including file: ' . $name . PHP_EOL;
         $res = [];
 
         require $name;
