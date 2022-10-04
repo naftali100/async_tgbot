@@ -96,13 +96,28 @@ class Filter
     {
         return self::Filter('media.file_type', $type, $not);
     }
-    // static function ServiceType($type, $not = false)
-    // {
-    // }
-    static function ChatType($type, $not = false)
+
+    /// chat type 
+
+    static function chatType($type, $not = false)
     {
         return self::Filter('chatType', $type, $not);
     }
+
+    static function privateChat($not = false)
+    {
+        return self::ChatType('private', $not);
+    }
+    static function groupChat($not = false)
+    {
+        return self::ChatType(['group', 'supergroup'], $not);
+    }
+    static function channelChat($not = false)
+    {
+        return self::ChatType('channel', $not);
+    }
+
+    // static function ServiceType($type, $not = false)
 
     /// misc
 
@@ -121,13 +136,21 @@ class Filter
     // {
     // }
 
-    // free form 
-    static function Filter($getter, $filter, $not)
+    // free form - exact math
+    public static function filter($getter, $filter, $not)
     {
         if (gettype($filter) != 'array') {
             $filter = [$filter];
         }
         $validator = v::keyNested($getter, v::in($filter));
+        if ($not) {
+            $validator = v::not($validator);
+        }
+        return $validator;
+    }
+    static function startsWith($getter, $filter, $not = false)
+    {
+        $validator = v::keyNested($getter, v::startsWith($filter));
         if ($not) {
             $validator = v::not($validator);
         }
