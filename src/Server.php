@@ -6,6 +6,11 @@
 
 namespace bot_lib;
 
+// v3 uses
+use Amp\Http\Server\SocketHttpServer;
+use Amp\Http\Server\RequestHandler\ClosureRequestHandler;
+use Amp\Http\Server\DefaultErrorHandler;
+
 use Amp\ByteStream;
 use Amp\Cluster\Cluster;
 use Amp\Http\Server\HttpServer;
@@ -17,6 +22,7 @@ use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
 use Amp\Socket;
 use Monolog\Logger;
+use Monolog\Processor\PsrLogMessageProcessor;
 use Amp\Loop;
 use Psr\Log\LogLevel;
 
@@ -39,9 +45,9 @@ class Server extends Loader
     {
         $as_cluster = str_ends_with($argv[0] ?? "", "bin/cluster");
         if ($startLoop) {
-            Loop::run(function () use ($as_cluster) {
-                $this->runServer($as_cluster);
-            });
+            // Loop::run(function () use ($as_cluster) {
+            //     $this->runServer($as_cluster);
+            // });
         } else {
             return $this->runServer($as_cluster);
         }
@@ -49,50 +55,65 @@ class Server extends Loader
 
     private function runServer($as_cluster)
     {
-        return \Amp\call(function () use ($as_cluster) {
+        // return \Amp\call(function () use ($as_cluster) {
             try {
-                $servers = $as_cluster ? (yield $this->prepareServers($as_cluster)) : $this->prepareServers($as_cluster);
+                $servers = $as_cluster ? ($this->prepareServers($as_cluster)) : $this->prepareServers($as_cluster);
 
                 $this->logger = $this->get_logger($as_cluster);
 
                 // Set up a request handler.
-                $this->server = new HttpServer(
-                    $servers,
-                    new CallableRequestHandler(function (Request $request) {
-                        try {
-                            // yield \Amp\call([$this, 'requestHandler'], $request, $logger);
-                            \Amp\asyncCall([$this, 'requestHandler'], $request);
-                        } catch (\Throwable $e) {
-                            print $e->getMessage() . ' when handling request to ' . $request->getUri() . ' on ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
-                        }
-                        return new Response(Status::OK, [
-                            'content-type' => 'text/plain; charset=utf-8'
-                        ], 'ok');
-                    }),
-                    $this->logger
-                );
+                $this->server = new SocketHttpServer($this->logger);
+                foreach ($servers as $ser) {
+                    $this->server->expose($ser);
+                }
+                $this->server->start(new ClosureRequestHandler(function($request){
+                    $this->requestHandler($request);
+
+                    return new Response(
+                        status: Status::OK,
+                        headers: ["content-type" => "text/plain; charset=utf-8",],
+                        body: "ok"
+                    );
+                }), new DefaultErrorHandler);
+
+                // $this->server = new HttpServer(
+                //     $servers,
+                //     new CallableRequestHandler(function (Request $request) {
+                //         try {
+                //             //  \Amp\call([$this, 'requestHandler'], $request, $logger);
+                //             // \Amp\asyncCall([$this, 'requestHandler'], $request);
+                //             $this->requestHandler($request);
+                //         } catch (\Throwable $e) {
+                //             print $e->getMessage() . ' when handling request to ' . $request->getUri() . ' on ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
+                //         }
+                //         return new Response(Status::OK, [
+                //             'content-type' => 'text/plain; charset=utf-8'
+                //         ], 'ok');
+                //     }),
+                //     $this->logger
+                // );
 
                 // Start the HTTP server
-                yield $this->server->start();
+                //  $this->server->start();
 
                 // \Amp\call(\Closure::fromCallable([$this, 'cli_options']));
 
-                if ($as_cluster) {
-                    // Stop the server when the worker is terminated.
-                    Cluster::onTerminate(function () {
-                        return $this->server->stop();
-                    });
-                } else {
-                    Loop::unreference(Loop::onSignal(\SIGINT, function (string $watcherId) {
-                        Loop::cancel($watcherId);
-                        yield $this->server->stop();
-                        Loop::stop();
-                    }));
-                }
+                // if ($as_cluster) {
+                //     // Stop the server when the worker is terminated.
+                //     Cluster::onTerminate(function () {
+                //         return $this->server->stop();
+                //     });
+                // } else {
+                //     Loop::unreference(Loop::onSignal(\SIGINT, function (string $watcherId) {
+                //         Loop::cancel($watcherId);
+                //          $this->server->stop();
+                //         Loop::stop();
+                //     }));
+                // }
             } catch (\Throwable $e) {
                 print '"' . $e->getMessage() . '" in event-loop. file: ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
             }
-        });
+        // });
     }
 
     private function prepareServers(bool $cluster = false): array
@@ -100,24 +121,24 @@ class Server extends Loader
         $listening_servers = [];
         if (gettype($this->servers) == 'array') {
             $listening_servers = array_map(function ($elem) use ($cluster) {
-                if ($cluster) {
-                    return Cluster::listen($elem);
-                } else {
-                    return Socket\Server::listen($elem);
-                }
+                // if ($cluster) {
+                //     // return Cluster::listen($elem);
+                // } else {
+                    return Socket\SocketAddress\fromString($elem);
+                // }
             }, $this->servers);
         } elseif (gettype($this->servers) == 'string') {
-            if ($cluster) {
-                $listening_servers = [Cluster::listen($this->servers)];
-            } else {
-                $listening_servers = [Socket\Server::listen($this->servers)];
-            }
+            // if ($cluster) {
+            //     // $listening_servers = [Cluster::listen($this->servers)];
+            // } else {
+                $listening_servers = [Socket\SocketAddress\fromString($this->servers)];
+            // }
         } else {
-            if ($cluster) {
-                $listening_servers = [Cluster::listen('127.0.0.1:1337')];
-            } else {
-                $listening_servers = [Socket\Server::listen('127.0.0.1:1337')];
-            }
+            // if ($cluster) {
+                // $listening_servers = [Cluster::listen('127.0.0.1:1337')];
+            // } else {
+                $listening_servers = [Socket\SocketAddress\fromString('127.0.0.1:1337')];
+            // }
         }
 
         return $listening_servers;
@@ -125,25 +146,27 @@ class Server extends Loader
 
     private function get_logger($cluster = false)
     {
-        if ($cluster) {
-            // Creating a log handler in this way allows the script to be run in a cluster or standalone.
-            if (Cluster::isWorker()) {
-                $handler = Cluster::createLogHandler();
-            } else {
-                $handler = new StreamHandler(ByteStream\getStdout(), $this->logLevel);
-                $handler->setFormatter(new ConsoleFormatter);
-            }
+        // if ($cluster) {
+        //     // Creating a log handler in this way allows the script to be run in a cluster or standalone.
+        //     // if (Cluster::isWorker()) {
+        //     //     $handler = Cluster::createLogHandler();
+        //     // } else {
+        //         $handler = new StreamHandler(ByteStream\getStdout(), $this->logLevel);
+        //         $handler->setFormatter(new ConsoleFormatter);
+        //     // }
 
-            $logger = new Logger('worker-' . Cluster::getId());
-            $logger->pushHandler($handler);
-            return $logger;
-        } else {
+        //     $logger = new Logger('worker-' . Cluster::getId());
+        //     $logger->pushHandler($handler);
+        //     return $logger;
+        // } else {
             $logHandler = new StreamHandler(ByteStream\getStdout(), $this->logLevel);
+            $logHandler->pushProcessor(new PsrLogMessageProcessor());
             $logHandler->setFormatter(new ConsoleFormatter);
             $logger = new Logger('bots server');
             $logger->pushHandler($logHandler);
+
             return $logger;
-        }
+        // }
     }
 
     /**
@@ -155,7 +178,7 @@ class Server extends Loader
     {
         $in = ByteStream\getStdin();
 
-        while (($chunk = yield $in->read()) !== null) {
+        while (($chunk =  $in->read()) !== null) {
             $flag = false;
             switch (trim($chunk)) {
                 case 'ls':
@@ -180,7 +203,7 @@ class Server extends Loader
                     // case 'reload':
                     //     // TODO: how to reload the files too
                     //     print 'restarting server...' . PHP_EOL;
-                    //     yield $server->stop(2000);
+                    //      $server->stop(2000);
                     //     Loop::stop();
                     //     $flag = true;
                     //     break;
@@ -209,7 +232,7 @@ class Server extends Loader
             $this->logger->info('running file: ' . $path);
 
             try {
-                $time = \Amp\Loop::now();
+                $time = \Amp\now();
                 /**
                  * @var BotFile
                  */
@@ -217,7 +240,7 @@ class Server extends Loader
 
                 $update_string = '';
 
-                while (($chunk = yield $request->getBody()->read()) !== null) {
+                while (($chunk =  $request->getBody()->read()) !== null) {
                     $update_string .= $chunk;
                 }
 
@@ -231,9 +254,10 @@ class Server extends Loader
                 }
 
                 $file->config->logger->debug('server activating handlers');
-                $res = yield \Amp\call([$file->handler, 'activate'], $file->config, $update);
+                $res =  $file->handler->activate($file->config, $update);
+                // $res =  \Amp\call([$file->handler, 'activate'], $file->config, $update);
 
-                $file->config->logger->debug($path . ' took: ' . \Amp\Loop::now() - $time . '. handlers result', $res ?? []);
+                $file->config->logger->debug($path . ' took: ' . \Amp\now() - $time . '. handlers result', $res ?? []);
             } catch (\Throwable $e) {
                 $file->config->logger->error('"' . $e->getMessage()  . '" when activate handlers in file ' . $e->getFile() . ':' . $e->getLine() . '. path: "' . $path . '" - disabled!');
                 $this->files[$path]->active = 0;

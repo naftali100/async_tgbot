@@ -18,7 +18,8 @@ final class HttpTest extends AsyncTestCase
     }
 
     public function testArrayBody(){
-        $res = yield $this->private_message->Request('http://example.com', ['data' => 'data'])->promise;
+        $res = $this->private_message->Request('http://example.com', ['data' => 'data']);
+        // $res = $this->private_message->Request('http://example.com', ['data' => 'data'])->promise;
         $this->assertEquals(200, $res->getStatus());
     }
 }

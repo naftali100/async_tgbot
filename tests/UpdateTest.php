@@ -83,22 +83,24 @@ final class UpdateTest extends AsyncTestCase
 
     public function testRequestResultType()
     {
-        $promise = $this->private_message->sendMessage($this->myUserId, "hello");
+        $promise = \Amp\async(function() {
+            return $this->private_message->sendMessage($this->myUserId, "hello");
+        })->await();
 
-        $res = yield $promise;
+        $res = $promise;
         $this->assertIsObject($res);
         $this->assertInstanceOf(Update::class, $res);
 
-        $res = yield $promise->result;
+        $res = $promise->result;
         $this->assertIsString($res);
 
-        $res = yield $promise->json;
+        $res = $promise->json;
         $this->assertIsString($res);
 
-        $res = yield $promise->array;
+        $res = $promise->array;
         $this->assertIsArray($res);
 
-        $res = yield $promise->decode;
+        $res = $promise->decode;
         $this->assertIsArray($res);
     }
 

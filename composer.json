@@ -7,19 +7,18 @@
     ],
     "homepage": "https://github.com/naftali100/async_tgbot",
     "license": "MIT",
+    "minimum-stability": "beta",
     "require": {
-        "amphp/amp": "^2.6.2",
-        "amphp/http": "^1.6.3",
-        "amphp/http-client": "^4.6.2",
-        "amphp/http-server": "^2.1.7",
-        "amphp/log": "^1.1",
-        "amphp/cluster": "^1.0.1",
-        "amphp/file": "^2.0.4",
-        "respect/validation": "^2.2"
+        "amphp/amp": "^3",
+        "amphp/http-client": "^5",
+        "amphp/http-server": "^3",
+        "amphp/log": "^2",
+        "amphp/file": "^3",
+        "respect/validation": "^2.2.3"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.5.24",
-        "amphp/phpunit-util": "^2.0"
+        "phpunit/phpunit": "^9.5.25",
+        "amphp/phpunit-util": "^3"
     },
     "autoload": {
         "psr-4": {
