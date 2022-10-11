@@ -34,7 +34,7 @@ class Handler
         }
 
         $called = false;
-        $promises = [];
+        $futures = [];
 
         $handlers_to_run = $this->handlers;
         // run before handler
@@ -65,23 +65,23 @@ class Handler
         if (!$called && isset($this->fallback)) {
             $config->logger->debug('activating "fallback" handler');
             if (isset($this->middle)) {
-                $promises[] = $this->middle->runMiddle($update, $this->fallback);
+                $futures[] = $this->middle->runMiddle($update, $this->fallback);
             } else {
-                $promises[] = $this->fallback->runHandler($update);
+                $futures[] = $this->fallback->runHandler($update);
             }
         }
         // wait for handler to finish and run after handler
         $res = [];
         try {
-            $res = $promises;
+            $res = \Amp\Future\awaitAll($futures);
             if (isset($this->after)) {
                 $config->logger->debug('activating "after" handler');
-                $res[] = $this->after->runHandler($update, $config->async);
+                $res[] = \Amp\Future\await([$this->after->runHandler($update, $config->async)]);
             }
             $config->logger->debug('finished all handlers');
         } catch (\Throwable $e) {
             if (isset($this->on_error)) {
-                $res[] = $this->on_error->runHandler($update, $e, $config->async);
+                $res[] = \Amp\Future\await([$this->on_error->runHandler($update, $e, $config->async)]);
             }
             // TODO: get backtrace to the file where the error coming from
             $config->logger->error($e->getMessage() . ', when running handlers in ' . $e->getFile() . ':' . $e->getLine());
@@ -144,7 +144,7 @@ class TheHandler
 
     function runHandler($update, ...$args)
     {
-        call_user_func($this->func, $update, ...$args);
+        return \Amp\async($this->func, $update, ...$args);
     }
 
     public function runMiddle($update, $handler)
@@ -152,7 +152,7 @@ class TheHandler
         $h = function ($update, ...$args) use ($handler) {
             return $handler->run_handler($update, ...$args);
         };
-        call_user_func($this->func, $update, $h);
+        return \Amp\async($this->func, $update, $h);
     }
 
     /**
