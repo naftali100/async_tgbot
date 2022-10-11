@@ -34,4 +34,12 @@ final class ApiTest extends AsyncTestCase
         $res = $this->private_message->sendMessage($this->myUserId, 'text', entities: $this->private_with_ent->ent)->update;
         $this->assertTrue($res->ok);
     }
+
+    // public function testReplyWithKeyboardFromUpdate()
+    // {
+    //     $res = $this->private_message->sendMessage($this->myUserId, 'hello', $this->cbq->keyboard)->getUpdate();
+    //     var_dump($res->update);
+    //     var_dump($res->request_info);
+    //     $this->assertTrue($res->ok);
+    // }
 }
