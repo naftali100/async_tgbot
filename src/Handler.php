@@ -40,7 +40,7 @@ class Handler
         // run before handler
         if (isset($this->before)) {
             $config->logger->debug('activating "before" handler');
-            $new_handlers = yield $this->before->runHandler($update, $config->async);
+            $new_handlers = $this->before->runHandler($update, $config->async);
             if (gettype($new_handlers) == 'array') {
                 $handlers_to_run = $new_handlers;
             }
@@ -73,15 +73,15 @@ class Handler
         // wait for handler to finish and run after handler
         $res = [];
         try {
-            $res = yield $promises;
+            $res = $promises;
             if (isset($this->after)) {
                 $config->logger->debug('activating "after" handler');
-                $res[] = yield $this->after->runHandler($update, $config->async);
+                $res[] = $this->after->runHandler($update, $config->async);
             }
             $config->logger->debug('finished all handlers');
         } catch (\Throwable $e) {
             if (isset($this->on_error)) {
-                $res[] = yield $this->on_error->runHandler($update, $e, $config->async);
+                $res[] = $this->on_error->runHandler($update, $e, $config->async);
             }
             // TODO: get backtrace to the file where the error coming from
             $config->logger->error($e->getMessage() . ', when running handlers in ' . $e->getFile() . ':' . $e->getLine());
@@ -144,7 +144,7 @@ class TheHandler
 
     function runHandler($update, ...$args)
     {
-        return \Amp\call($this->func, $update, ...$args);
+        call_user_func($this->func, $update, ...$args);
     }
 
     public function runMiddle($update, $handler)
@@ -152,7 +152,7 @@ class TheHandler
         $h = function ($update, ...$args) use ($handler) {
             return $handler->run_handler($update, ...$args);
         };
-        return \Amp\call($this->func, $update, $h);
+        call_user_func($this->func, $update, $h);
     }
 
     /**

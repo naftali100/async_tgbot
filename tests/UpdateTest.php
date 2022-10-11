@@ -81,29 +81,6 @@ final class UpdateTest extends AsyncTestCase
         $this->assertEquals($needle, $this->inline_query['text']);
     }
 
-    public function testRequestResultType()
-    {
-        $promise = \Amp\async(function() {
-            return $this->private_message->sendMessage($this->myUserId, "hello");
-        })->await();
-
-        $res = $promise;
-        $this->assertIsObject($res);
-        $this->assertInstanceOf(Update::class, $res);
-
-        $res = $promise->result;
-        $this->assertIsString($res);
-
-        $res = $promise->json;
-        $this->assertIsString($res);
-
-        $res = $promise->array;
-        $this->assertIsArray($res);
-
-        $res = $promise->decode;
-        $this->assertIsArray($res);
-    }
-
     public function testChatType()
     {
         $this->assertEquals('private', $this->private_message->chatType);

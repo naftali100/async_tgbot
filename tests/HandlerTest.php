@@ -12,6 +12,7 @@ use Amp\PHPUnit\AsyncTestCase;
 use bot_lib\Config;
 use bot_lib\Handler;
 use bot_lib\Filter;
+use Psr\Log\LogLevel;
 
 final class HandlerTest extends AsyncTestCase
 {
@@ -26,24 +27,23 @@ final class HandlerTest extends AsyncTestCase
     // if every test end up using this, move this to setUp function
     public function setupServer($handlers = null)
     {
-        return \Amp\call(function () use ($handlers) {
-            $config = new Config();
-            $config->renameLogger('handlersTest logger');
-            // $config->setLevel('debug');
-            // $config->debug = true;
-            $config->load(__DIR__ . '/conf.json');
+        $config = new Config();
+        $config->renameLogger('handlersTest logger');
+        // $config->setLevel('debug');
+        // $config->debug = true;
+        $config->load(__DIR__ . '/conf.json');
 
-            $this->server = new Server("127.0.0.1:1337");
-            if ($handlers != null) {
-                // handler is Handler
-                $this->server->load_handler('index', $handlers, $config);
-            } else {
-                $this->server->load_handler('index', Closure::fromCallable([$this, 'handler']), $config);
-            }
+        $this->server = new Server("127.0.0.1:1337");
+        $this->server->setLogLevel(LogLevel::NOTICE);
+        if ($handlers != null) {
+            // handler is Handler
+            $this->server->load_handler('index', $handlers, $config);
+        } else {
+            $this->server->load_handler('index', Closure::fromCallable([$this, 'handler']), $config);
+        }
 
-            yield $this->server->run(false);
-            $this->assertEquals(\Amp\Http\Server\HttpServer::STARTED, $this->server->getState());
-        });
+        $this->server->run(false);
+        $this->assertEquals(\Amp\Http\Server\HttpServerStatus::Started, $this->server->getState());
     }
 
     public function handler(Update $u)
@@ -54,16 +54,17 @@ final class HandlerTest extends AsyncTestCase
     public function testServerRequestPrivateMessage()
     {
         // test with empty handler
-        yield $this->setupServer();
+        $this->setupServer();
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->getPlainRes();
     }
 
-    protected function tearDownAsync()
+    protected function tearDown(): void
     {
         if (isset($this->server)) {
-            yield $this->server->stop();
+            $this->server->stop();
             $this->server->files = [];
+            $this->assertEquals(\Amp\Http\Server\HttpServerStatus::Stopped, $this->server->getState());
         }
     }
 
@@ -101,9 +102,9 @@ final class HandlerTest extends AsyncTestCase
             }
         );
 
-        yield $this->setupServer($handler);
+        $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr));
         $this->assertTrue($this->checkOnMessage1);
         $this->assertTrue($this->checkOnMessage2);
     }
@@ -124,9 +125,9 @@ final class HandlerTest extends AsyncTestCase
             }
         );
 
-        yield $this->setupServer($handler);
+        $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr));
     }
 
     public function testOnCbq()
@@ -161,9 +162,9 @@ final class HandlerTest extends AsyncTestCase
             name: 'test wrong data'
         );
 
-        yield $this->setupServer($handler);
+        $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->cbq->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->cbq->update_arr))->plain;
         $this->assertTrue($this->called1);
         $this->assertTrue($this->called2);
     }
@@ -185,9 +186,9 @@ final class HandlerTest extends AsyncTestCase
             }
         );
 
-        yield $this->setupServer($handler);
+        $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
     }
 
     public function testNewChatMember()
@@ -195,6 +196,7 @@ final class HandlerTest extends AsyncTestCase
         $handler = new Handler();
         $handler->on_new_member(
             function ($u) {
+                $this->testNewChatMemberCheck1 = true;
                 $this->assertEquals($this->user_id, $u->from->id);
             }
         );
@@ -220,15 +222,16 @@ final class HandlerTest extends AsyncTestCase
 
         $handler->on_service(
             function () {
-                $this->testNewChatMemberCheck1 = true;
+                $this->testNewChatMemberCheck2 = true;
             }
         );
 
-        yield $this->setupServer($handler);
+        $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->new_member->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->new_member->update_arr))->plain;
 
         $this->assertTrue($this->testNewChatMemberCheck1);
+        $this->assertTrue($this->testNewChatMemberCheck2);
     }
 
     public function testOnService()
@@ -241,9 +244,9 @@ final class HandlerTest extends AsyncTestCase
             }
         );
 
-        yield $this->setupServer($handler);
+        $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->pin_message->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->pin_message->update_arr))->plain;
         $this->assertTrue($this->testOnServiceCheck1);
     }
 
@@ -267,9 +270,9 @@ final class HandlerTest extends AsyncTestCase
             }
         );
 
-        yield $this->setupServer($handler);
+        $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->edited_message->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->edited_message->update_arr))->plain;
         $this->assertTrue($this->testOnEditCheck1);
     }
 
@@ -296,9 +299,9 @@ final class HandlerTest extends AsyncTestCase
         );
 
 
-        yield $this->setupServer($handler);
+        $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->group_message->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->group_message->update_arr))->plain;
         $this->assertTrue($this->groupMessageCheck1);
     }
 
@@ -320,9 +323,9 @@ final class HandlerTest extends AsyncTestCase
         );
 
 
-        yield $this->setupServer($handler);
+        $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->inline_query->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->inline_query->update_arr))->plain;
         $this->assertTrue($this->onInlineCheck1);
     }
 
@@ -357,9 +360,9 @@ final class HandlerTest extends AsyncTestCase
             }
         );
 
-        yield $this->setupServer($handler);
+        $this->setupServer($handler);
 
-        yield $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
+        $this->private_message->Request('http://127.0.0.1:1337/index', json_encode($this->private_message->update_arr))->plain;
         $this->assertTrue($this->HandlerWithFilterCheck1);
         $this->assertTrue($this->HandlerWithFilterCheck2);
         $this->assertTrue($this->HandlerWithFilterCheck3);

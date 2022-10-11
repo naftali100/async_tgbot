@@ -9,7 +9,6 @@ use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client;
 use Amp\Http\Client\Response as AmpRes;
 
-
 /**
  * http class
  */
@@ -22,91 +21,62 @@ class Http
         return $this->Request($url, $data);
     }
 
-    public function Request($url, $body = null)
+    public function Request($url, $body = null): Response
     {
-        // $promise = call(function () use ($url, $body) {
-            if ($body == null) {
-                $request = new Client\Request($url);
-            } else if (is_array($body)) {
-                $request = new Client\Request($url, 'POST');
-                $request->setBody($this->BuildApiRequestBody($body));
-            } else if (is_string($body) || (is_object($body) && get_class($body) == FormBody::class)) {
-                $request = new Client\Request($url, 'POST');
-                $request->setBody($body);
-            } else if ($url instanceof Client\Request) {
-                $request = $url;
-            }
-            
-            
-            $this->config->logger->notice('request body prepared');
-            
-            if ($this->config->debug > 1) {
-                var_dump($url);
-            }
-            
-            if (str_ends_with(strtolower($url), 'getfile') || str_ends_with(strtolower($url), 'sendaudio')) {
-                $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
-                $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
-                $request->setBodySizeLimit(2 * 1024 * 1024 * 1024); // 2 GB
-            }
-            
-            $time = hrtime(1);
-            
-            $client = HttpClientBuilder::buildDefault();
-            $result = $client->request($request);
+        if ($body == null) {
+            $request = new Client\Request($url);
+        } else if (is_array($body)) {
+            $request = new Client\Request($url, 'POST');
+            $request->setBody($this->BuildApiRequestBody($body));
+        } else if (is_string($body) || (is_object($body) && get_class($body) == FormBody::class)) {
+            $request = new Client\Request($url, 'POST');
+            $request->setBody($body);
+        } else if ($url instanceof Client\Request) {
+            $request = $url;
+        }
 
-            // $resultBody = $result->getBody()->buffer();
-            // $requestBody = Helpers::cast(FormBody::class, $request->getBody());
-            // $update = new Update($this->config, $resultBody);
-            // $update->request_info = [
-            //     'url' => $result->getRequest()->getUri(),
-            //     'request_body' => $requestBody->getFields()
-            // ];
-            return $result;
-            // throw new \Error('heereeeeeeeeeeeeeeee');
 
-            // $this->config->logger->notice('request done');
-            // if (
-            //     isset($this?->config) &&
-            //     isset($this?->config?->apiErrorHandler) &&
-            //     $this?->config?->apiErrorHandler != null
-            // ) {
-            //     $promise->onResolve($this->config->apiErrorHandler);
-            // }
-            // if ($this?->config?->debug) {
-            //     $promise->onResolve(function () use ($url, $time) {
-            //         print 'request to: ' . $url . ' took: ' . ($time - hrtime(1) * 1000 * 1000) . ' ms' . PHP_EOL;
-            //     });
-            // }
-            // return $promise;
-        // });
+        $this->config->logger->notice('request body prepared');
+
+        if ($this->config->debug > 1) {
+            var_dump($url);
+        }
+
+        if (str_ends_with(strtolower($url), 'getfile') || str_ends_with(strtolower($url), 'sendaudio')) {
+            $request->setInactivityTimeout($this->config->fileRequestTimeout * 1000);
+            $request->setTransferTimeout($this->config->fileRequestTimeout * 1000);
+            $request->setBodySizeLimit(2 * 1024 * 1024 * 1024); // 2 GB
+        }
+
+        $time = hrtime(1);
+
+        $client = HttpClientBuilder::buildDefault();
+        $result = $client->request($request);
 
         return new Response($result, $this->config);
     }
 
     public function BuildApiRequestBody(array $data = [])
     {
-        // return call(function () use ($data) {
-            $body = new FormBody;
-            foreach ($data as $key => $value) {
-                if (!empty($value)) {
-                    if (!is_string($value)) {
-                        $value = json_encode($value);
-                    }
-                    if (in_array($key, ['document', 'photo', 'audio', 'thumb'])) {
-                        if (\Amp\File\exists($value)) {
-                            $body->addFile($key, $value);
-                        } else {
-                            throw new \Error("file $value not exist");
-                        }
+        $body = new FormBody;
+        foreach ($data as $key => $value) {
+            if (!empty($value)) {
+                if (!is_string($value)) {
+                    $value = json_encode($value);
+                }
+                if (in_array($key, ['document', 'photo', 'audio', 'thumb'])) {
+                    if (\Amp\File\exists($value)) {
+                        $body->addFile($key, $value);
                     } else {
-                        $body->addField($key, $value);
+                        throw new \Error("file $value not exist");
                     }
+                } else {
+                    $body->addField($key, $value);
                 }
             }
+        }
 
-            return $body;
-        // });
+        return $body;
     }
 }
 
@@ -129,11 +99,17 @@ class Http
  */
 class Response
 {
-    private $update_promise;
+    private AmpRes $response;
+    private string $responseBodyString;
 
-    public function __construct(private $request, private $config)
+    public function __construct(AmpRes $response, private $config)
     {
-        $this->update_promise = $this->get_update();
+        $this->response = $response;
+    }
+
+    public function getResponse(): AmpRes
+    {
+        return $this->response;
     }
 
     public function __get($key)
@@ -143,61 +119,51 @@ class Response
             case 'response':
             case 'json':
             case 'plain':
-                return $this->get_plain_res();
+                return $this->getPlainRes();
                 break;
             case 'decode':
             case 'array':
-                return $this->get_decoded_res(true);
+                return $this->getDecodedRes(true);
                 break;
-            case 'promise':
-            case 'request':
-                return $this->request;
-                break;
+                // case 'promise':
+                // case 'request':
+                //     return $this->request;
+                //     break;
             case 'update':
+                return $this->getUpdate();
+                break;
             default:
-                return $this->update_promise;
+                return $this->getUpdate()->{$key};
         }
     }
 
-    private function get_update()
+    public function __call($name, $arguments)
     {
-        $return_update = function ($req, $conf) {
-            /**
-             * @var Client\Response
-             */
-            $result = yield $req;
-            $requestBody = Helpers::cast(FormBody::class, $result->getRequest()->getBody());
-            $resultBody = yield $result->getBody()->buffer();
-            $update = new Update($conf, $resultBody);
-            $update->request_info = [
-                'url' => $result->getRequest()->getUri(),
-                'request_body' => $requestBody->getFields()
-            ];
-            return $update;
-        };
-        // return call($return_update, $this->request, $this->config);
+        return $this->response->{$name}(...$arguments);
     }
 
-    private function get_plain_res()
+    public function getUpdate()
     {
-        $return_response = function ($req) {
-            $res = yield $req;
-            return yield $res->getBody()->buffer();
-        };
-        // return call($return_response, $this->request);
+        $requestBody = Helpers::cast(FormBody::class, $this->response->getRequest()->getBody());
+        $resultBody = $this->getPlainRes();
+        $update = new Update($this->config, $resultBody);
+        $update->request_info = [
+            'url' => $this->response->getRequest()->getUri(),
+            'request_body' => $requestBody->getFields()
+        ];
+        return $update;
     }
 
-    private function get_decoded_res($array = false)
+    public function getPlainRes()
     {
-        $return_decoded_response = function ($req) use ($array) {
-            $res = yield $req;
-            return json_decode((yield $res->getBody()->buffer()), $array);
-        };
-        // return call($return_decoded_response, $this->request);
+        if(!isset($this->responseBodyString)){
+            $this->responseBodyString = $this->response->getBody()->buffer();
+        }
+        return $this->responseBodyString;
     }
 
-    public function onResolve(callable $cb)
+    public function getDecodedRes($array = true)
     {
-        // $this->update_promise->onResolve($cb);
+        return json_decode($this->getPlainRes(), $array);
     }
 }

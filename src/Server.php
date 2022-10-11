@@ -31,7 +31,7 @@ class Server extends Loader
     // public array $files = []; - set in Loader
 
     /** http server instance */
-    private HttpServer $server;
+    private SocketHttpServer $server;
 
     private $logLevel = LogLevel::NOTICE;
     private $logger;
@@ -46,7 +46,9 @@ class Server extends Loader
         $as_cluster = str_ends_with($argv[0] ?? "", "bin/cluster");
         if ($startLoop) {
             // Loop::run(function () use ($as_cluster) {
-            //     $this->runServer($as_cluster);
+                $this->runServer($as_cluster);
+                \Amp\trapSignal(SIGINT);
+                $this->server->stop();
             // });
         } else {
             return $this->runServer($as_cluster);
@@ -66,6 +68,13 @@ class Server extends Loader
                 foreach ($servers as $ser) {
                     $this->server->expose($ser);
                 }
+                $this->server->onStart(function(){
+                    $this->logger->notice('server started');
+                });
+                $this->server->onStop(function(){
+                    $this->logger->notice('server stopped');
+                });
+
                 $this->server->start(new ClosureRequestHandler(function($request){
                     $this->requestHandler($request);
 
@@ -75,41 +84,6 @@ class Server extends Loader
                         body: "ok"
                     );
                 }), new DefaultErrorHandler);
-
-                // $this->server = new HttpServer(
-                //     $servers,
-                //     new CallableRequestHandler(function (Request $request) {
-                //         try {
-                //             //  \Amp\call([$this, 'requestHandler'], $request, $logger);
-                //             // \Amp\asyncCall([$this, 'requestHandler'], $request);
-                //             $this->requestHandler($request);
-                //         } catch (\Throwable $e) {
-                //             print $e->getMessage() . ' when handling request to ' . $request->getUri() . ' on ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
-                //         }
-                //         return new Response(Status::OK, [
-                //             'content-type' => 'text/plain; charset=utf-8'
-                //         ], 'ok');
-                //     }),
-                //     $this->logger
-                // );
-
-                // Start the HTTP server
-                //  $this->server->start();
-
-                // \Amp\call(\Closure::fromCallable([$this, 'cli_options']));
-
-                // if ($as_cluster) {
-                //     // Stop the server when the worker is terminated.
-                //     Cluster::onTerminate(function () {
-                //         return $this->server->stop();
-                //     });
-                // } else {
-                //     Loop::unreference(Loop::onSignal(\SIGINT, function (string $watcherId) {
-                //         Loop::cancel($watcherId);
-                //          $this->server->stop();
-                //         Loop::stop();
-                //     }));
-                // }
             } catch (\Throwable $e) {
                 print '"' . $e->getMessage() . '" in event-loop. file: ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
             }
@@ -272,7 +246,7 @@ class Server extends Loader
 
     public function getState()
     {
-        return $this->server->getState();
+        return $this->server->getStatus();
     }
 
     public function setLogLevel($level = LogLevel::INFO)
