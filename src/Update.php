@@ -178,11 +178,11 @@ class Update extends Api implements \ArrayAccess
         $this->editKeyboard(json_encode(['inline_keyboard' => $newkey]));
     }
 
-    public function ban($id = null)
+    public function ban($id = null, $removeMessages = false)
     {
         if ($this->chatType != 'private') {
             if ($this->sender_chat == null) {
-                return $this->banChatMember($this->chat->id, $id ?? $this->from->id);
+                return $this->banChatMember($this->chat->id, $id ?? $this->from->id, deleteAllMessages: $removeMessages);
             } else {
                 return $this->banChatSenderChat($this->chat->id, $id ?? $this->from->id);
             }
