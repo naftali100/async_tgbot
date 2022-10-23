@@ -344,9 +344,9 @@ class Api extends Http
         $data['message_id'] = $messageId;
         return $this->ApiRequest('deleteMessage', $data);
     }
-    public function answerInlineQuery($inlineMessage, $res, $cacheTime = null, $isPersonal = null, $nextOffset = null, $switchPmText = null, $switchPmParameter = null)
+    public function answerInlineQuery($queryId, $res, $cacheTime = null, $isPersonal = null, $nextOffset = null, $switchPmText = null, $switchPmParameter = null)
     {
-        $data['inline_query_id'] = $inlineMessage;
+        $data['inline_query_id'] = $queryId;
         $data['results'] = $res;
         $data['cache_time'] = $cacheTime;
         $data['is_personal'] = $isPersonal;
