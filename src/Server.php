@@ -6,19 +6,21 @@
 
 namespace bot_lib;
 
+use Amp\Loop;
 use Amp\ByteStream;
+use Amp\Socket;
 use Amp\Cluster\Cluster;
 use Amp\Http\Server\HttpServer;
-use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Server\Request;
 use Amp\Http\Server\Response;
+use Amp\Http\Server\Router;
+use Amp\Http\Server\RequestHandler\CallableRequestHandler;
 use Amp\Http\Status;
 use Amp\Log\ConsoleFormatter;
 use Amp\Log\StreamHandler;
-use Amp\Socket;
 use Monolog\Logger;
-use Amp\Loop;
 use Psr\Log\LogLevel;
+use Amp\Http\Server\StaticContent\DocumentRoot;
 
 class Server extends Loader
 {
@@ -50,47 +52,63 @@ class Server extends Loader
     private function runServer($as_cluster)
     {
         return \Amp\call(function () use ($as_cluster) {
-            try {
-                $servers = $as_cluster ? (yield $this->prepareServers($as_cluster)) : $this->prepareServers($as_cluster);
+            $servers = $as_cluster ? (yield $this->prepareServers($as_cluster)) : $this->prepareServers($as_cluster);
 
-                $this->logger = $this->get_logger($as_cluster);
+            $this->logger = $this->get_logger($as_cluster);
+            $router = new Router;
 
-                // Set up a request handler.
-                $this->server = new HttpServer(
-                    $servers,
-                    new CallableRequestHandler(function (Request $request) {
-                        try {
-                            // yield \Amp\call([$this, 'requestHandler'], $request, $logger);
-                            \Amp\asyncCall([$this, 'requestHandler'], $request);
-                        } catch (\Throwable $e) {
-                            print $e->getMessage() . ' when handling request to ' . $request->getUri() . ' on ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
+            // $documentRoot = new DocumentRoot(__DIR__ . '/public');
+            // $router->setFallback($documentRoot);
+
+            foreach ($this->files as $path => $file) {
+                $handler = new CallableRequestHandler(function (Request $request) use ($path, $file) {
+                    try {
+                        $time = \Amp\Loop::now();
+
+                        $update_string = '';
+                        while (($chunk = yield $request->getBody()->read()) !== null) {
+                            $update_string .= $chunk;
                         }
-                        return new Response(Status::OK, [
-                            'content-type' => 'text/plain; charset=utf-8'
-                        ], 'ok');
-                    }),
-                    $this->logger
-                );
 
-                // Start the HTTP server
-                yield $this->server->start();
+                        // get token from request params if exist
+                        parse_str($request->getUri()->getQuery(), $query);
+                        if (isset($query['token'])) {
+                            $file->config->token = $query['token'];
+                        }
 
-                // \Amp\call(\Closure::fromCallable([$this, 'cli_options']));
+                        $update_class_name = $file->config->updateClassName;
+                        $update = new $update_class_name($file->config, $update_string);
 
-                if ($as_cluster) {
-                    // Stop the server when the worker is terminated.
-                    Cluster::onTerminate(function () {
-                        return $this->server->stop();
-                    });
-                } else {
-                    Loop::unreference(Loop::onSignal(\SIGINT, function (string $watcherId) {
-                        Loop::cancel($watcherId);
-                        yield $this->server->stop();
-                        Loop::stop();
-                    }));
-                }
-            } catch (\Throwable $e) {
-                print '"' . $e->getMessage() . '" in event-loop. file: ' . $e->getFile() . ':' . $e->getLine() . PHP_EOL;
+                        $file->config->logger->debug('server activating handlers');
+                        $res = yield \Amp\call([$file->handler, 'activate'], $file->config, $update);
+
+                        $file->config->logger->debug($path . ' took: ' . \Amp\Loop::now() - $time . '. handlers result', $res ?? []);
+                    } catch (\Throwable $e) {
+                        $file->config->logger->error('"' . $e->getMessage()  . '" when activate handlers in file ' . $e->getFile() . ':' . $e->getLine() . '. path: "' . $path . '" - disabled!');
+                        $this->files[$path]->active = 0;
+                    }
+                    return new Response(Status::OK, [
+                        'content-type' => 'text/plain; charset=utf-8'
+                    ], 'ok');
+                });
+                $router->addRoute('GET', '/' . $path, $handler);
+                $router->addRoute('POST', '/' . $path, $handler);
+            }
+
+            $this->server = new HttpServer($servers, $router, $this->logger);
+            yield $this->server->start();
+
+            if ($as_cluster) {
+                // Stop the server when the worker is terminated.
+                Cluster::onTerminate(function () {
+                    return $this->server->stop();
+                });
+            } else {
+                Loop::unreference(Loop::onSignal(\SIGINT, function (string $watcherId) {
+                    Loop::cancel($watcherId);
+                    yield $this->server->stop();
+                    Loop::stop();
+                }));
             }
         });
     }
@@ -143,101 +161,6 @@ class Server extends Loader
             $logger = new Logger('bots server');
             $logger->pushHandler($logHandler);
             return $logger;
-        }
-    }
-
-    /**
-     * cli-options
-     * 
-     * get info about running bots and handlers from console
-     */
-    private function cli_options()
-    {
-        $in = ByteStream\getStdin();
-
-        while (($chunk = yield $in->read()) !== null) {
-            $flag = false;
-            switch (trim($chunk)) {
-                case 'ls':
-                    foreach ($this->files as $file_name => $h) {
-                        print $file_name . ' active: ' . $h['active'] . '\n';
-                    }
-                    break;
-                case 'll':
-                    foreach ($this->files as $file_name => $h) {
-                        print $file_name . PHP_EOL;
-                        foreach ($h['handler'] as $key => $hh) {
-                            if ($key == 'handlers') {
-                                continue;
-                            }
-                            print $key . PHP_EOL;
-                        }
-                        foreach ($h['handler']->handlers as $h) {
-                            print var_export($h) . PHP_EOL;
-                        }
-                    }
-                    break;
-                    // case 'reload':
-                    //     // TODO: how to reload the files too
-                    //     print 'restarting server...' . PHP_EOL;
-                    //     yield $server->stop(2000);
-                    //     Loop::stop();
-                    //     $flag = true;
-                    //     break;
-                case 'exit':
-                    exit();
-                    break;
-                default:
-                    print 'can\'t understand you. available options are: exit/reload/ls/ll/^C' . PHP_EOL;
-            }
-            if ($flag) break;
-        }
-    }
-
-    /**
-     * get the path of request
-     * load the update and file's handler using his config
-     * then run the handlers
-     */
-    public function requestHandler($request)
-    {
-        $path = ltrim($request->getUri()->getPath(), '/');
-
-        if (!isset($this->files[$path])) {
-            $this->logger->notice('file ' . $path . ' not exist');
-        } elseif ($this->files[$path]->active) {
-            $this->logger->info('running file: ' . $path);
-
-            try {
-                $time = \Amp\Loop::now();
-                /**
-                 * @var BotFile
-                 */
-                $file = $this->files[$path];
-
-                $update_string = '';
-
-                while (($chunk = yield $request->getBody()->read()) !== null) {
-                    $update_string .= $chunk;
-                }
-
-                $update_class_name = $file->config->updateClassName;
-                $update = new $update_class_name($file->config, $update_string);
-
-                // get token from request params if exist
-                parse_str($request->getUri()->getQuery(), $query);
-                if (isset($query['token'])) {
-                    $file->config->token = $query['token'];
-                }
-
-                $file->config->logger->debug('server activating handlers');
-                $res = yield \Amp\call([$file->handler, 'activate'], $file->config, $update);
-
-                $file->config->logger->debug($path . ' took: ' . \Amp\Loop::now() - $time . '. handlers result', $res ?? []);
-            } catch (\Throwable $e) {
-                $file->config->logger->error('"' . $e->getMessage()  . '" when activate handlers in file ' . $e->getFile() . ':' . $e->getLine() . '. path: "' . $path . '" - disabled!');
-                $this->files[$path]->active = 0;
-            }
         }
     }
 
