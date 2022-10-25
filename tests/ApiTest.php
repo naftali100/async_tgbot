@@ -6,6 +6,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/basic_update.php';
 
 use Amp\PHPUnit\AsyncTestCase;
+use bot_lib\Helpers;
 
 final class ApiTest extends AsyncTestCase
 {
@@ -33,5 +34,19 @@ final class ApiTest extends AsyncTestCase
     {
         $res = yield $this->private_message->sendMessage($this->myUserId, 'text', entities: $this->private_with_ent->ent);
         $this->assertTrue($res->ok);
+    }
+
+    public function testKeyboard()
+    {
+        $key = Helpers::keyboard([[
+            "text1" => [
+                "web_app" => [
+                    'url' => 'https://nbots.ga:1338'
+                ]
+            ]
+        ]], false);
+        $res = yield $this->private_message->sendMessage($this->myUserId, 'text', $key);
+        print_r($key);
+        print_r($res->update);
     }
 }

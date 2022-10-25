@@ -302,7 +302,8 @@ class Update extends Api implements \ArrayAccess
             'voice_chat_ended',
             'voice_chat_participants_invited',
             'voice_chat_scheduled',
-            'voice_chat_started'
+            'voice_chat_started',
+            'web_app_data'
         ];
         if (in_array($updateType, ['chat_member', 'my_chat_member'])) {
             $this->service = true;
