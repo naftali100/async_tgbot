@@ -41,14 +41,14 @@ trait UpdateTypes
              "from": {
               "id": ' . $this->user_id . ',
               "is_bot": false,
-              "first_name": "Naftali",
+              "first_name": "name",
               "username": "' . $this->username . '",
               "language_code": "en",
               "is_premium": true
              },
              "chat": {
               "id": ' . $this->user_id . ',
-              "first_name": "Naftali",
+              "first_name": "name",
               "username": "username",
               "type": "private"
              },
@@ -64,7 +64,7 @@ trait UpdateTypes
              "from": {
               "id": ' . $this->user_id . ',
               "is_bot": false,
-              "first_name": "Naftali",
+              "first_name": "name",
               "username": "username",
               "language_code": "en",
               "is_premium": true
@@ -88,14 +88,14 @@ trait UpdateTypes
              "from": {
               "id": ' . $this->user_id . ',
               "is_bot": false,
-              "first_name": "Naftali",
+              "first_name": "name",
               "username": "username",
               "language_code": "en",
               "is_premium": true
              },
              "chat": {
               "id": ' . $this->chat_id . ',
-              "first_name": "Naftali",
+              "first_name": "name",
               "username": "username",
               "type": "private"
              },
@@ -112,14 +112,14 @@ trait UpdateTypes
              "from": {
               "id": ' . $this->user_id . ',
               "is_bot": false,
-              "first_name": "Naftali",
+              "first_name": "name",
               "username": "username",
               "language_code": "en",
               "is_premium": true
              },
              "chat": {
               "id": ' . $this->myUserId . ',
-              "first_name": "Naftali",
+              "first_name": "name",
               "username": "username",
               "type": "private"
              },
@@ -127,7 +127,7 @@ trait UpdateTypes
              "forward_from": {
               "id": ' . $this->myUserId . ',
               "is_bot": false,
-              "first_name": "Naftali",
+              "first_name": "name",
               "username": "username",
               "language_code": "en",
               "is_premium": true
@@ -147,7 +147,7 @@ trait UpdateTypes
                         "id": ' . $this->user_id . ',
                         "is_bot": false,
                         "is_deleted": false,
-                        "first_name": "Naftali",
+                        "first_name": "name",
                         "username": "username",
                         "language_code": "en",
                         "is_premium": true,
@@ -165,7 +165,7 @@ trait UpdateTypes
                         },
                         "chat": {
                             "id": ' . $this->chat_id . ',
-                            "first_name": "Naftali",
+                            "first_name": "name",
                             "username": "username",
                             "type": "private",
                             "user_status": "recently"
@@ -196,7 +196,7 @@ trait UpdateTypes
              "from": {
               "id": ' . $this->user_id . ',
               "is_bot": false,
-              "first_name": "Naftali",
+              "first_name": "name",
               "username": "username",
               "language_code": "en",
               "is_premium": true
@@ -213,7 +213,7 @@ trait UpdateTypes
              "from": {
               "id": ' . $this->user_id . ',
               "is_bot": false,
-              "first_name": "avi",
+              "first_name": "name",
               "username": "aaaaaa"
              },
              "chat": {
@@ -226,20 +226,20 @@ trait UpdateTypes
              "new_chat_participant": {
               "id": ' . $this->user_id . ',
               "is_bot": false,
-              "first_name": "avi",
+              "first_name": "name",
               "username": "aaaaa"
              },
              "new_chat_member": {
               "id": ' . $this->user_id . ',
               "is_bot": false,
-              "first_name": "avi",
+              "first_name": "name",
               "username": "aaa"
              },
              "new_chat_members": [
               {
                "id": ' . $this->user_id . ',
                "is_bot": false,
-               "first_name": "avi",
+               "first_name": "name",
                "username": "aaaa"
               }
              ],
@@ -256,7 +256,7 @@ trait UpdateTypes
                         "id": ' . $this->user_id . ',
                         "is_bot": false,
                         "is_deleted": false,
-                        "first_name": "Naftali",
+                        "first_name": "name",
                         "username": "username",
                         "language_code": "en",
                         "is_premium": true,
@@ -275,7 +275,7 @@ trait UpdateTypes
                             "id": ' . $this->user_id . ',
                             "is_bot": false,
                             "is_deleted": false,
-                            "first_name": "Naftali",
+                            "first_name": "name",
                             "username": "username",
                             "language_code": "en",
                             "is_premium": true,
@@ -330,14 +330,14 @@ trait UpdateTypes
              "from": {
               "id": ' . $this->user_id . ',
               "is_bot": false,
-              "first_name": "Naftali",
-              "username": "Naftali100",
+              "first_name": "name",
+              "username": "username",
               "language_code": "en"
              },
              "chat": {
               "id": 227774988,
-              "first_name": "Naftali",
-              "username": "Naftali100",
+              "first_name": "name",
+              "username": "username",
               "type": "private"
              },
              "date": 1664048548,
@@ -409,14 +409,14 @@ trait UpdateTypes
              "from": {
               "id": ' . $this->user_id . ',
               "is_bot": false,
-              "first_name": "Naftali",
-              "username": "Naftali100",
+              "first_name": "name",
+              "username": "username",
               "language_code": "en"
              },
              "chat": {
               "id": ' . $this->user_id . ',
-              "first_name": "Naftali",
-              "username": "Naftali100",
+              "first_name": "name",
+              "username": "username",
               "type": "private"
              },
              "date": 1664306176,
@@ -443,15 +443,15 @@ trait UpdateTypes
                     "id": '.$this->user_id.',
                     "is_bot": false,
                     "is_deleted": false,
-                    "first_name": "Naftali",
-                    "username": "Naftali100",
+                    "first_name": "name",
+                    "username": "username",
                     "language_code": "en",
                     "user_status": "recently"
                 },
                 "chat": {
                     "id": '.$this->user_id.',
-                    "first_name": "Naftali",
-                    "username": "Naftali100",
+                    "first_name": "name",
+                    "username": "username",
                     "type": "private",
                     "user_status": "recently"
                 },

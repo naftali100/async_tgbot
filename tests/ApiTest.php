@@ -26,7 +26,7 @@ final class ApiTest extends AsyncTestCase
 
     public function testGetMessage()
     {
-        $res = yield $this->private_message->getMessage(227774988, 1)->array;
+        $res = yield $this->private_message->getMessage($this->myUserId, 1)->array;
         $this->assertTrue($res['ok']);
     }
 
