@@ -30,5 +30,8 @@
     },
     "config": {
         "optimize-autoloader": true
+    },
+    "scripts": {
+        "test": "composer exec phpunit tests"
     }
 }
