@@ -19,45 +19,75 @@ final class FilterTest extends AsyncTestCase
         $this->init();
     }
 
-    public function testMessageFilters(){
+    public function testMessageFilters()
+    {
         $v = Filter::Message('text');
-        $this->assertTrue($v->validate($this->private_message));
-        $this->assertFalse($v->validate($this->cbq));
+        $this->assertTrue($v($this->private_message));
+        $this->assertFalse($v($this->cbq));
+
         $v = Filter::Message('text1');
-        $this->assertFalse($v->validate($this->private_message));
+        $this->assertFalse($v($this->private_message));
+
         $v = Filter::MessageRegex('/text/');
-        $this->assertTrue($v->validate($this->private_message));
+        $this->assertTrue($v($this->private_message));
+
         $v = Filter::MessageUpdates();
-        $this->assertTrue($v->validate($this->private_message));
-        $this->assertFalse($v->validate($this->cbq));
+        $this->assertTrue($v($this->private_message));
+        $this->assertFalse($v($this->cbq));
     }
 
-    public function testCbqFilter(){
+    public function testCbqFilter()
+    {
         $f = Filter::CbqUpdates();
-        $this->assertTrue($f->validate($this->cbq));
+        $this->assertTrue($f($this->cbq));
+        $this->assertFalse($f($this->private_message));
+
         $f = Filter::Cbq(['dat1a', 'a']);
-        $this->assertFalse($f->validate($this->cbq));
+        $this->assertFalse($f($this->cbq));
         $f = Filter::Cbq(['data', 'a', 'b']);
-        $this->assertTrue($f->validate($this->cbq));
+        $this->assertTrue($f($this->cbq));
     }
 
-    public function testFileTypeFilter(){
+    public function testFileFilter()
+    {
+        $f = Filter::fileUpdates();
+        $this->assertTrue($f($this->photo_file));
+        $this->assertFalse($f($this->private_message));
+
         $f = Filter::FileType('photo');
         $this->assertTrue($f($this->photo_file));
         $this->assertFalse($f($this->private_message));
     }
 
-    public function testFilterJoinRequests(){
+    public function testFilterJoinRequests()
+    {
         $f = Filter::JoinRequests();
         $this->assertTrue($f($this->join_request));
         $this->assertFalse($f($this->private_message));
         $this->assertFalse($f($this->group_message));
     }
 
-    public function testStartsWith(){
+    public function testStartsWith()
+    {
         $f = Filter::StartsWith('text', 'te');
         $this->assertTrue($f($this->private_message));
         $f = Filter::StartsWith('text', 're');
         $this->assertFalse($f($this->private_message));
     }
+
+    public function testWebApp()
+    {
+        $this->assertNotNull($this->webapp_data->web_app_data);
+
+        $f = Filter::webAppUpdates();
+        $this->assertTrue($f($this->webapp_data));
+        $this->assertFalse($f($this->private_message));
+
+        $f = Filter::webData('data');
+        $this->assertTrue($f($this->webapp_data));
+
+        $f = Filter::webData('data1');
+        $this->assertFalse($f($this->webapp_data));
+    }
+
 }

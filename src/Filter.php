@@ -18,7 +18,10 @@ class Filter
         if ($not) {
             $validator = v::not($validator);
         }
-        return $validator;
+        return v::allOf(
+            $validator,
+            Filter::serviceUpdates(true)
+        );
     }
     public static function cbqUpdates($not = false)
     {
@@ -55,7 +58,7 @@ class Filter
 
     public static function webAppUpdates($not = false)
     {
-        $validator = v::attribute('web_app_data', v::not(v::nullType()));
+        $validator = v::keyNested('web_app_data', v::not(v::nullType()));
         if ($not) {
             $validator = v::not($validator);
         }
