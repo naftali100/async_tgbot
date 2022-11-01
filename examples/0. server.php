@@ -1,8 +1,7 @@
 <?php
 
-// example of server capable to run mutiple bots
-require_once "../src/bot_lib.php";
-require_once "../vendor/autoload.php";
+// example of server capable to run multiple bots
+require_once __DIR__."/../vendor/autoload.php";
 
 use bot_lib\Server;
 
@@ -14,6 +13,6 @@ $server->load_file("bot2.php", "index"); // will run the handlers in bot2.php on
 $server->load_file("manager.php", "index.php");
 $server->load_folder("folder_full_of_bots");
 
-// you can choose whether run the server with one thread or multiple. pass 'true' param to run method to run cluster
-// if you use cluster you have to run the server with vendor/bin/cluster server.php 
+// if you want to use cluster you have to run the server with 
+// $ vendor/bin/cluster server.php
 $server->run();

@@ -46,6 +46,11 @@ $handler->after(function($u){
     store_in_db($u->user);
 });
 
+// if no handlers activated this handler will be activated
+$handler->fallback(function($u){
+    $u->reply('try the buttons in the menu');
+});
+
 $handler->on_start(
     filter: function($u){
         return str_starts_with($u->message, "/start");
