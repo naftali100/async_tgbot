@@ -53,6 +53,15 @@ class Filter
         return $validator;
     }
 
+    public static function webAppUpdates($not = false)
+    {
+        $validator = v::attribute('web_app_data', v::not(v::nullType()));
+        if ($not) {
+            $validator = v::not($validator);
+        }
+        return $validator;
+    }
+
     /// filter specific update parts
 
     public static function message($text, $not = false)
@@ -79,6 +88,13 @@ class Filter
         return v::allOf(
             self::Filter('data', $data, $not),
             self::CbqUpdates()
+        );
+    }
+    public static function webData($data, $not = false)
+    {
+        return v::allOf(
+            self::Filter('web_app_data.data', $data, $not),
+            self::webAppUpdates()
         );
     }
     public static function user($id, $not = false)

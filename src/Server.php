@@ -60,6 +60,13 @@ class Server extends Loader
             // $documentRoot = new DocumentRoot(__DIR__ . '/public');
             // $router->setFallback($documentRoot);
 
+            // answer all request to avoid bot api resending failed updates
+            $router->setFallback(new CallableRequestHandler(function (Request $request) {
+                return new Response(Status::OK, [
+                    'content-type' => 'text/plain; charset=utf-8'
+                ], 'ok');
+            }));
+
             foreach ($this->files as $path => $file) {
                 $handler = new CallableRequestHandler(function (Request $request) use ($path, $file) {
                     try {
@@ -91,7 +98,7 @@ class Server extends Loader
                         'content-type' => 'text/plain; charset=utf-8'
                     ], 'ok');
                 });
-                $router->addRoute('GET', '/' . $path, $handler);
+
                 $router->addRoute('POST', '/' . $path, $handler);
             }
 
