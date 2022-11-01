@@ -39,14 +39,13 @@ final class ApiTest extends AsyncTestCase
     public function testKeyboard()
     {
         $key = Helpers::keyboard([[
-            "text1" => [
+            "text" => [
                 "web_app" => [
-                    'url' => 'https://nbots.ga:1338'
+                    'url' => 'https://google.com'
                 ]
             ]
         ]], false);
         $res = yield $this->private_message->sendMessage($this->myUserId, 'text', $key);
-        print_r($key);
-        print_r($res->update);
+        $this->assertTrue($res->ok);
     }
 }
