@@ -2,10 +2,8 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/basic_update.php';
-
 use Amp\PHPUnit\AsyncTestCase;
+use bot_lib\Test\UpdateTypes;
 
 final class HttpTest extends AsyncTestCase
 {

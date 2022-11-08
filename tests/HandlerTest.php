@@ -2,16 +2,13 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/basic_update.php';
-
+use Amp\PHPUnit\AsyncTestCase;
 use bot_lib\Update;
 use bot_lib\Server;
-
-use Amp\PHPUnit\AsyncTestCase;
 use bot_lib\Config;
 use bot_lib\Handler;
 use bot_lib\Filter;
+use bot_lib\Test\UpdateTypes;
 
 final class HandlerTest extends AsyncTestCase
 {

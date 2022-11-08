@@ -1,6 +1,5 @@
 <?php
-
-require_once __DIR__ . '/../vendor/autoload.php';
+namespace bot_lib\Test;
 
 use bot_lib\Update;
 use bot_lib\Config;

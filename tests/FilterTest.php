@@ -2,12 +2,11 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/basic_update.php';
+namespace bot_lib\Test;
 
 use Amp\PHPUnit\AsyncTestCase;
-
 use bot_lib\Filter;
+use bot_lib\Test\UpdateTypes;
 
 final class FilterTest extends AsyncTestCase
 {

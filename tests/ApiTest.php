@@ -1,11 +1,12 @@
 <?php
-
 declare(strict_types=1);
 
-require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/basic_update.php';
+namespace bot_lib\Test;
+// TODO: auto load or something...
+require_once __DIR__.'/UpdateTypes.php';
 
 use Amp\PHPUnit\AsyncTestCase;
+use bot_lib\Test\UpdateTypes;
 use bot_lib\Helpers;
 
 final class ApiTest extends AsyncTestCase

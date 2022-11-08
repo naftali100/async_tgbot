@@ -4,3 +4,4 @@ composer.phar
 test.php
 **/conf.json
 test/
+.phpunit*

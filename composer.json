@@ -28,6 +28,11 @@
             "bot_lib\\": "./src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "bot_lib\\Test\\": "./tests/"
+        }
+    },
     "config": {
         "optimize-autoloader": true
     },

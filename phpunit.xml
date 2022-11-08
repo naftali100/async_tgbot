@@ -1,0 +1,7 @@
+<phpunit>
+  <testsuites>
+    <testsuite name="bot_lib">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>
