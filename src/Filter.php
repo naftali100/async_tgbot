@@ -108,6 +108,13 @@ class Filter
     {
         return self::Filter('chat.id', $id, $not);
     }
+    public static function isForum($not = false){
+        $validator = v::attribute('thread', v::not(v::nullType()));
+        if ($not) {
+            $validator = v::not($validator);
+        }
+        return $validator;
+    }
 
     /// type of 
 

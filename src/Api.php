@@ -8,7 +8,7 @@ namespace bot_lib;
 
 class Api extends Http
 {
-    public function sendMessage($id, $text, $replyMarkup = null, $replyMessage = null, $entities = null, bool $protectContent = false)
+    public function sendMessage($id, $text, $replyMarkup = null, $replyMessage = null, $entities = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['text'] = $this->text_adjust($text);
@@ -22,7 +22,7 @@ class Api extends Http
         $data['allow_sending_without_reply'] = true;
         return $this->ApiRequest('sendMessage', $data);
     }
-    public function forwardMessage($id, $fromChatId, $messageId)
+    public function forwardMessage($id, $fromChatId, $messageId, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['from_chat_id'] = $fromChatId;
@@ -30,7 +30,7 @@ class Api extends Http
         $data['message_id'] = $messageId;
         return $this->ApiRequest('forwardMessage', $data);
     }
-    public function copyMessage($id, $from, $messageId, $replyMessage = null, $replyMarkup = null, $caption = null, $captionEnt = null)
+    public function copyMessage($id, $from, $messageId, $replyMessage = null, $replyMarkup = null, $caption = null, $captionEnt = null, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['from_chat_id'] = $from;
@@ -45,7 +45,7 @@ class Api extends Http
         return $this->ApiRequest('copyMessage', $data);
     }
 
-    public function sendPhoto($id, $photo, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false)
+    public function sendPhoto($id, $photo, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['photo'] = $photo;
@@ -59,7 +59,7 @@ class Api extends Http
         $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendPhoto', $data);
     }
-    public function sendAudio($id, $audio, $caption = null, $thumb = null, $duration = null, $performer = null, $title = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false)
+    public function sendAudio($id, $audio, $caption = null, $thumb = null, $duration = null, $performer = null, $title = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['audio'] = $audio;
@@ -76,7 +76,7 @@ class Api extends Http
         $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendAudio', $data);
     }
-    public function sendDocument($id, $document, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false)
+    public function sendDocument($id, $document, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['document'] = $document;
@@ -90,7 +90,7 @@ class Api extends Http
         $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendDocument', $data);
     }
-    public function sendSticker($id, $sticker, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false)
+    public function sendSticker($id, $sticker, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['sticker'] = $sticker;
@@ -102,7 +102,7 @@ class Api extends Http
         $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendSticker', $data);
     }
-    public function sendVideo($id, $video, $caption = null, $duration = null, $width = null, $height = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false)
+    public function sendVideo($id, $video, $caption = null, $duration = null, $width = null, $height = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['video'] = $video;
@@ -119,7 +119,7 @@ class Api extends Http
         $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendVideo', $data);
     }
-    public function sendVoice($id, $voice, $duration = null, $replyMessage = null, $replyMarkup = null, bool $protectContent = false)
+    public function sendVoice($id, $voice, $duration = null, $replyMessage = null, $replyMarkup = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['voice'] = $voice;
@@ -129,7 +129,7 @@ class Api extends Http
         $data['reply_markup'] = $replyMarkup;
         return $this->ApiRequest('sendVoice', $data);
     }
-    public function sendLocation($id, $latitude, $longitude, $replyMessage = null, $replyMarkup = null, bool $protectContent = false)
+    public function sendLocation($id, $latitude, $longitude, $replyMessage = null, $replyMarkup = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['latitude'] = $latitude;
@@ -140,7 +140,7 @@ class Api extends Http
         $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendLocation', $data);
     }
-    public function sendVenue($id, $latitude, $longitude, $title, $address, $foursquare = null, $replyMessage = null, $replyMarkup = null, bool $protectContent = false)
+    public function sendVenue($id, $latitude, $longitude, $title, $address, $foursquare = null, $replyMessage = null, $replyMarkup = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['latitude'] = $latitude;
@@ -154,7 +154,7 @@ class Api extends Http
         $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendVenue', $data);
     }
-    public function sendContact($id, $phoneNumber, $firstName, $lastName = null, $replyMessage = null, $replyMarkup = null, bool $protectContent = false)
+    public function sendContact($id, $phoneNumber, $firstName, $lastName = null, $replyMessage = null, $replyMarkup = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['phone_number'] = $phoneNumber;
@@ -166,7 +166,7 @@ class Api extends Http
         $data['protect_content'] = $protectContent;
         return $this->ApiRequest('sendContact', $data);
     }
-    public function sendDice($id, $emoji, $replyTo = null, $replyMarkup = null, bool $protectContent = false)
+    public function sendDice($id, $emoji, $replyTo = null, $replyMarkup = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
         $data['emoji'] = $emoji;
@@ -233,7 +233,7 @@ class Api extends Http
     {
         $data['chat_id'] = $id;
         $data['user_id'] = $user;
-        $data['permissions'] = $prem ?? Helpers::build_prem();
+        $data['permissions'] = $prem ?? Helpers::permissions('block');
         $data['until_date'] = $until;
         return $this->ApiRequest('restrictChatMember', $data);
     }
@@ -407,16 +407,63 @@ class Api extends Http
         // TODO
     }
 
-    public function approveChatJoinRequest($chat, $user){
+    public function approveChatJoinRequest($chat, $user)
+    {
         $data['chat_id'] = $chat;
         $data['user_id'] = $user;
         return $this->ApiRequest('approveChatJoinRequest', $data);
     }
 
-    public function declineChatJoinRequest($chat, $user){
+    public function declineChatJoinRequest($chat, $user)
+    {
         $data['chat_id'] = $chat;
         $data['user_id'] = $user;
         return $this->ApiRequest('declineChatJoinRequest', $data);
+    }
+
+    public function createForumTopic($chat, $name, int $icon_color, $icon_custom_emoji_id)
+    {
+        $data['chat_id'] = $chat;
+        $data['name'] = $name;
+        $data['icon_color'] = $icon_color;
+        $data['icon_custom_emoji_id'] = $icon_custom_emoji_id;
+        return $this->ApiRequest('createForumTopic', $data);
+    }
+    public function editForumTopic($chat, $thread, $newName, $newCustomEmoji)
+    {
+        $data['chat_id'] = $chat;
+        $data['message_thread_id'] = $thread;
+        $data['name'] = $newName;
+        $data['icon_custom_emoji_id'] = $newCustomEmoji;
+        return $this->ApiRequest('editForumTopic', $data);
+    }
+    public function closeForumTopic($chat, $thread)
+    {
+        $data['chat_id'] = $chat;
+        $data['message_thread_id'] = $thread;
+        return $this->ApiRequest('closeForumTopic', $data);
+    }
+    public function reopenForumTopic($chat, $thread)
+    {
+        $data['chat_id'] = $chat;
+        $data['message_thread_id'] = $thread;
+        return $this->ApiRequest('reopenForumTopic', $data);
+    }
+    public function deleteForumTopic($chat, $thread)
+    {
+        $data['chat_id'] = $chat;
+        $data['message_thread_id'] = $thread;
+        return $this->ApiRequest('deleteForumTopic', $data);
+    }
+    public function unpinAllForumTopicMessages($chat, $thread)
+    {
+        $data['chat_id'] = $chat;
+        $data['message_thread_id'] = $thread;
+        return $this->ApiRequest('unpinAllForumTopicMessages', $data);
+    }
+    public function getForumTopicIconStickers()
+    {
+        return $this->ApiRequest('getForumTopicIconStickers');
     }
 
     /**

@@ -106,14 +106,14 @@ class Update extends Api implements \ArrayAccess
         }
     }
 
-    public function forward($to, $noCredit = false, $rm = null, $replyTo = null, $caption = null, $ent = null)
+    public function forward($to, $noCredit = false, $rm = null, $replyTo = null, $caption = null, $ent = null, $thread = null)
     {
         if (isset($this->update) && !$this->has_protected_content) {
             if (!$this->service) {
                 if ($noCredit) {
-                    return $this->copyMessage($to, $this->chat->id, $this->message_id, $rm, $replyTo, $caption, $ent);
+                    return $this->copyMessage($to, $this->chat->id, $this->message_id, $rm, $replyTo, $caption, $ent, $thread);
                 } else {
-                    return $this->forwardMessage($to, $this->chat->id, $this->message_id);
+                    return $this->forwardMessage($to, $this->chat->id, $this->message_id, $thread);
                 }
             } else {
                 return $this;
@@ -124,7 +124,7 @@ class Update extends Api implements \ArrayAccess
     public function reply($text, $replyMarkup = null, $ent = null)
     {
         if (isset($this->update)) {
-            return $this->sendMessage($this->chat->id ?? $this->from->id, $text, $replyMarkup, $this->message_id ?? null, entities: $ent);
+            return $this->sendMessage($this->chat->id ?? $this->from->id, $text, $replyMarkup, $this->message_id ?? null, entities: $ent, threadId: $this->thread);
         }
     }
 
@@ -238,6 +238,7 @@ class Update extends Api implements \ArrayAccess
         $this->reply = $this->__get('reply_to_message');
         $this->text = $this->__get('text') ?? $this->__get('caption') ?? $this->__get('query');
         $this->chatType = $this->__get('chat')?->type ?? $this->__get('chat_type');
+        $this->thread = $this->__get('message_thread_id') ?? null; // convinces prop
 
         // check if can be object
         $this->ent = $this->__get('entities');
@@ -303,7 +304,10 @@ class Update extends Api implements \ArrayAccess
             'voice_chat_participants_invited',
             'voice_chat_scheduled',
             'voice_chat_started',
-            'web_app_data'
+            'web_app_data',
+            'forum_topic_created',
+            'forum_topic_closed',
+            'forum_topic_reopened'
         ];
         if (in_array($updateType, ['chat_member', 'my_chat_member'])) {
             $this->service = true;

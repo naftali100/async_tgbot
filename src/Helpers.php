@@ -54,19 +54,19 @@ class Helpers
     {
         switch ($mode) {
             case 'block':
-                return self::build_prem();
+                return self::build_perm();
             case 'default':
                 //TODO: get chat permissions
                 break;
             case 'open':
-                return self::build_prem(1, 1, 1, 1, 1, 1, 1, 1);
+                return self::build_perm(1, 1, 1, 1, 1, 1, 1, 1);
             case 'only_messages':
-                return self::build_prem(send_message: true);
+                return self::build_perm(send_message: true);
             default;
         }
     }
 
-    public static function build_prem(
+    public static function build_perm(
         $send_message = false,
         $send_media = false,
         $send_polls = false,
@@ -74,7 +74,8 @@ class Helpers
         $send_web_page = false,
         $change_info = false,
         $invite = false,
-        $pin = false
+        $pin = false,
+        $topics = false
     ) {
         $prem = [
             'can_send_messages' => $send_message,
@@ -85,6 +86,7 @@ class Helpers
             'can_change_info' => $change_info,
             'can_invite_users' => $invite,
             'can_pin_messages' => $pin,
+            'can_manage_topics' => $topics
         ];
         return json_encode($prem);
     }
