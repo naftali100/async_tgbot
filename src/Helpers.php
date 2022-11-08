@@ -39,7 +39,7 @@ class Helpers
             $type = 'keyboard';
         }
 
-        return json_encode(array($type => $keyRow));
+        return [$type => $keyRow];
     }
 
     /**
