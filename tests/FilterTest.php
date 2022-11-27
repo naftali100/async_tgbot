@@ -89,4 +89,10 @@ final class FilterTest extends AsyncTestCase
         $this->assertFalse($f($this->webapp_data));
     }
 
+    public function testEditFilter(){
+        $f = Filter::editUpdates();
+        $this->assertTrue($f($this->edited_message));
+        $this->assertFalse($f($this->private_message));
+    }
+
 }

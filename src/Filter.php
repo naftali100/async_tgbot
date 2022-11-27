@@ -23,6 +23,14 @@ class Filter
             Filter::serviceUpdates(true)
         );
     }
+    public static function editUpdates($not = false)
+    {
+        $validator = v::keyNested('edited_message', v::not(v::nullType()));
+        if ($not) {
+            $validator = v::not($validator);
+        }
+        return $validator;
+    }
     public static function cbqUpdates($not = false)
     {
         $validator = v::attribute('updateType', v::equals('callback_query'));
