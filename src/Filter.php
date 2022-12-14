@@ -163,9 +163,15 @@ class Filter
 
     /// misc
 
-    // public static function NewMember()
-    // {
-    // }
+    public static function newMember($not = false)
+    {
+        $validator = v::keyNested('new_chat_member', v::not(v::nullType()));
+        if ($not) {
+            $validator = v::not($validator);
+        }
+
+        return $validator;
+    }
     // public static function MyStatusChanged()
     // {
     // }
