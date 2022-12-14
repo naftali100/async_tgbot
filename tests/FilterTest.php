@@ -95,4 +95,11 @@ final class FilterTest extends AsyncTestCase
         $this->assertFalse($f($this->private_message));
     }
 
+    public function testServiceFilter(){
+        $f = Filter::serviceUpdates();
+        $this->assertTrue($f($this->pin_message));
+        $this->assertTrue($f($this->new_member));
+        $this->assertFalse($f($this->private_message));
+    }
+
 }

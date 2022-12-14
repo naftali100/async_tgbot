@@ -25,7 +25,7 @@ class Filter
     }
     public static function editUpdates($not = false)
     {
-        $validator = v::keyNested('edited_message', v::not(v::nullType()));
+        $validator = v::attribute('updateType', v::equals('edited_message'));
         if ($not) {
             $validator = v::not($validator);
         }
@@ -63,10 +63,17 @@ class Filter
         }
         return $validator;
     }
-
     public static function webAppUpdates($not = false)
     {
         $validator = v::keyNested('web_app_data', v::not(v::nullType()));
+        if ($not) {
+            $validator = v::not($validator);
+        }
+        return $validator;
+    }
+    public static function joinRequests($not = false)
+    {
+        $validator = v::attribute('updateType', v::equals('chat_join_request'));
         if ($not) {
             $validator = v::not($validator);
         }
@@ -116,7 +123,8 @@ class Filter
     {
         return self::Filter('chat.id', $id, $not);
     }
-    public static function isForum($not = false){
+    public static function isForum($not = false)
+    {
         $validator = v::attribute('thread', v::not(v::nullType()));
         if ($not) {
             $validator = v::not($validator);
@@ -155,14 +163,6 @@ class Filter
 
     /// misc
 
-    public static function joinRequests($not = false)
-    {
-        $validator = v::keyNested('chat_join_request');
-        if ($not) {
-            $validator = v::not($validator);
-        }
-        return $validator;
-    }
     // public static function NewMember()
     // {
     // }
