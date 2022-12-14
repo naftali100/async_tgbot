@@ -8,6 +8,10 @@ namespace bot_lib;
 
 class Api extends Http
 {
+    public function getMe()
+    {
+        return $this->ApiRequest('getMe');
+    }
     public function sendMessage($id, $text, $replyMarkup = null, $replyMessage = null, $entities = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
