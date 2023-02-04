@@ -57,7 +57,7 @@ class Api extends Http
         $data['allow_sending_without_reply'] = true;
         $data['message_thread_id'] = $thread;
 
-        $this->ApiRequest('sendMediaGroup', $data);
+        return $this->ApiRequest('sendMediaGroup', $data);
     }
 
     public function sendPhoto($id, $photo, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false, $threadId = null)
