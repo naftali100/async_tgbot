@@ -49,6 +49,17 @@ class Api extends Http
         return $this->ApiRequest('copyMessage', $data);
     }
 
+    public function sendMediaGroup($chat, $media, $reply_to, $protected, $thread) {
+        $data['chat_id'] = $chat;
+        $data['media'] = $media;
+        $data['protect_content'] = $protected;
+        $data['reply_to_message_id'] = $reply_to;
+        $data['allow_sending_without_reply'] = true;
+        $data['message_thread_id'] = $thread;
+
+        $this->ApiRequest('sendMediaGroup', $data);
+    }
+
     public function sendPhoto($id, $photo, $caption = null, $replyMessage = null, $replyMarkup = null, $entities = null, bool $protectContent = false, $threadId = null)
     {
         $data['chat_id'] = $id;
