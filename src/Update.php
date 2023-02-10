@@ -15,9 +15,6 @@ class Update extends Api implements \ArrayAccess
     /** text in update (message, caption, query) */
     public $text;
 
-    /** the user in update from */
-    public $user;
-
     /** type of chat in update */
     public $chatType = null;
 
