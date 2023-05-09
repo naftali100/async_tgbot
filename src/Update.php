@@ -216,6 +216,16 @@ class Update extends Api implements \ArrayAccess
             throw new \Error('failed to parse json array');
         }
 
+        // channel logic to match message update structure
+        if (isset($local_update_obj->channel_post)) {
+            $local_update_obj->message = $local_update_obj->channel_post;
+            unset($local_update_obj->channel_post);
+        }
+        if (isset($local_update_arr['channel_post'])) {
+            $local_update_arr['message'] = $local_update_arr['channel_post'];
+            unset($local_update_arr['channel_post']);
+        }
+
         $this->update_obj = $this->update = $local_update_obj;
         $this->update_arr = $local_update_arr;
 

@@ -176,7 +176,7 @@ class Filter
     // {
     // }
 
-    // free form - exact math
+    // free form - exact match
     public static function filter($getter, $filter, $not)
     {
         if (gettype($filter) != 'array') {

@@ -1,4 +1,5 @@
 <?php
+
 namespace bot_lib\Test;
 
 use bot_lib\Update;
@@ -439,7 +440,7 @@ trait UpdateTypes
             "message": {
                 "message_id": 368000,
                 "from": {
-                    "id": '.$this->user_id.',
+                    "id": ' . $this->user_id . ',
                     "is_bot": false,
                     "is_deleted": false,
                     "first_name": "name",
@@ -448,7 +449,7 @@ trait UpdateTypes
                     "user_status": "recently"
                 },
                 "chat": {
-                    "id": '.$this->user_id.',
+                    "id": ' . $this->user_id . ',
                     "first_name": "name",
                     "username": "username",
                     "type": "private",
@@ -459,6 +460,25 @@ trait UpdateTypes
                     "button_text": "btn data",
                     "data": "data"
                 }
+            }
+        }');
+        $this->channel_message = new Update($this->config, '{
+            "update_id": 133990870,
+            "channel_post": {
+                "message_id": 129,
+                "sender_chat": {
+                    "id": ' . $this->channel_id . ',
+                    "title": "channel name",
+                    "type": "channel"
+                },
+                "chat": {
+                    "id": ' . $this->channel_id . ',
+                    "title": "channel name",
+                    "type": "channel"
+                },
+                "date": 1683626404,
+                "views": 1,
+                "text": "text"
             }
         }');
         // $this->document_file = new Update($this->config, json_encode([]));

@@ -124,7 +124,7 @@ class Api extends Http
         $data['chat_id'] = $id;
         $data['audio'] = $audio;
         $data['caption'] = $caption;
-        $data['thumb'] = $thumb;
+        $data['thumbnail'] = $thumb;
         $data['duration'] = $duration;
         $data['performer'] = $performer;
         $data['title'] = $title;

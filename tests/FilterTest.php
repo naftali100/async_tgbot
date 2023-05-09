@@ -7,6 +7,7 @@ namespace bot_lib\Test;
 use Amp\PHPUnit\AsyncTestCase;
 use bot_lib\Filter;
 use bot_lib\Test\UpdateTypes;
+use Respect\Validation\Validator as v;
 
 final class FilterTest extends AsyncTestCase
 {
@@ -89,24 +90,46 @@ final class FilterTest extends AsyncTestCase
         $this->assertFalse($f($this->webapp_data));
     }
 
-    public function testEditFilter(){
+    public function testEditFilter()
+    {
         $f = Filter::editUpdates();
         $this->assertTrue($f($this->edited_message));
         $this->assertFalse($f($this->private_message));
     }
 
-    public function testServiceFilter(){
+    public function testServiceFilter()
+    {
         $f = Filter::serviceUpdates();
         $this->assertTrue($f($this->pin_message));
         $this->assertTrue($f($this->new_member));
         $this->assertFalse($f($this->private_message));
     }
 
-    public function testNewMemberFilter(){
+    public function testNewMemberFilter()
+    {
         $f = Filter::newMember();
         $this->assertTrue($f($this->new_member));
         $this->assertFalse($f($this->pin_message));
         $this->assertFalse($f($this->private_message));
     }
 
+    public function testChannelMessage()
+    {
+        $f1 = v::allOf(
+            Filter::messageUpdates(),
+            Filter::message('text'),
+            Filter::chatType('channel'),
+            Filter::channelChat()
+        );
+        $this->assertTrue($f1($this->channel_message));
+
+        $f2 = v::NoneOf(
+            Filter::privateChat(),
+            Filter::cbqUpdates(),
+            Filter::editUpdates(),
+            Filter::inlineUpdates(),
+            Filter::serviceUpdates()
+        );
+        $this->assertTrue($f2($this->channel_message));
+    }
 }
