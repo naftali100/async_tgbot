@@ -79,7 +79,7 @@ class Http
                     if (!is_string($value)) {
                         $value = json_encode($value);
                     }
-                    if (in_array($key, ['document', 'photo', 'audio', 'thumb'])) {
+                    if (in_array($key, ['document', 'photo', 'audio', 'thumbnail'])) {
                         if (yield \Amp\File\exists($value)) {
                             $body->addFile($key, $value);
                         } else {
