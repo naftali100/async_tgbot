@@ -171,3 +171,18 @@ contain static helpers functions.
 
 - keyboard: easily create inline keyboard. see comment how to use.
 - permissions: create [ChatPermissions](https://core.telegram.org/bots/api#chatpermissions) json.
+
+## debugging
+
+to enable debug logs for the server
+```php
+use Psr\Log\LogLevel;
+
+$server->setLogLevel(LogLevel::DEBUG);
+```
+
+to enable logging per bot you can add this to the bot file
+```php
+use Psr\Log\LogLevel;
+
+$config->setLevel(LogLevel::DEBUG);
