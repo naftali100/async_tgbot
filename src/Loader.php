@@ -32,7 +32,7 @@ class Loader
     public function load($path, $botClass)
     {
         if (!$botClass instanceof Bot) {
-            throw new \Error('invalid class. all classes should implement Bot interface');
+            throw new \Error('invalid class '. get_class($botClass) . '. all classes should extend the Bot abstract class');
         }
         $this->bots[$path] = $botClass;
     }

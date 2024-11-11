@@ -25,10 +25,10 @@ class ServerOptions
 {
   public function __construct(
     $options = [
-      host => "127.0.0.1",
-      port => 1337,
-      reload => false,
-      debug => false
+      'host' => "127.0.0.1",
+      'port' => 1337,
+      'reload' => false,
+      'debug' => false
     ]
   ) {
     $this->host = $options["host"] ?? "";
@@ -45,11 +45,7 @@ class ServerOptions
 class Server
 {
   private ServerOptions $options;
-  /**
-   * Summary of __construct
-   * @param \Naftali\Lib\Loader $bots
-   * @param mixed $options
-   */
+
   public function __construct(
     private Loader $bots,
     $options = [

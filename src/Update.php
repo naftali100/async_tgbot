@@ -26,11 +26,6 @@ class Update
   public $service;
   public $cb_answered;
 
-  /**
-   * Summary of __construct
-   * @param \Naftali\Lib\Bot $bot
-   * @param mixed $update
-   */
   public function __construct(private Bot $bot, private $update)
   {
     $this->http = $bot->http;
