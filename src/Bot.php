@@ -9,7 +9,6 @@ abstract class Bot
   {
     $this->http = new Http($this->config);
   }
-  abstract public function bot();
   abstract public function handleUpdate(Update $update);
 
   /***********
