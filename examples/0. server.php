@@ -9,10 +9,7 @@ use bot_lib\Loader;
 
 $loader = new Loader();
 
-$loader->load('bot1', new EchoBot(new Config(
-  token: 'TOKEN',
-  baseUrl: 'http://localhost:8081/bot'
-))); // bot class is auto loaded
+$loader->load('bot1', new EchoBot(Config::fromJsonFile(__DIR__ . '/conf.json'))); // bot class is auto loaded
 
 $server = new Server($loader);
 
