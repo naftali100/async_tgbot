@@ -2,7 +2,10 @@
 
 simple flexible and async library based on amphp for telegram bot api.
 
-> NOTE: this is an old project and very poorly written. I wouldn't recommend to use it.
+working on v3 with new architecture and cleaner library overall. still missing a lot of features from the last version
+- cluster
+- filters
+- examples
 
 ## installation
 

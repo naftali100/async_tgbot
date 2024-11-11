@@ -2,98 +2,43 @@
 
 namespace bot_lib;
 
-/**
- * load bots files.
- * 
- * you shouldn't use this class directly. use Server. see examples
- */
 class Loader
 {
-    /**
-     * contain all file content 
-     * 
-     * array of: path => BotFile
-     */
-    public array $files = [];
-
-    public function load_folder($path, $recursive = false)
+    public function __construct()
     {
-        $path = rtrim($path, '/');
-        $file_list = array_diff(scandir($path), array('.', '..'));
-        foreach ($file_list as $file) {
-            if (is_file($path . '/' . $file)) {
-                $this->load_file($path . '/' . $file);
-            } elseif (is_dir($path . '/' . $file) && $recursive) {
-                $this->load_folder($path . '/' . $file, $recursive);
-            }
+        function camelToSnake($camelCase)
+        {
+            $pattern = '/(?<=\\w)(?=[A-Z])|(?<=[a-z])(?=\d)/';
+            $snakeCase = preg_replace($pattern, '_', $camelCase);
+            return strtolower($snakeCase);
         }
+
+        spl_autoload_register(function ($class_name) {
+            set_error_handler(function () { /* ignore errors */
+            });
+            include_once getcwd() . '/' . $class_name . '.php';
+            include_once getcwd() . '/' . strtolower($class_name) . '.php';
+            include_once getcwd() . '/' . camelToSnake($class_name) . '.php';
+            include_once getcwd() . '/' . lcfirst(camelToSnake($class_name)) . '.php';
+
+            include_once getcwd() . '/bots/' . $class_name . '.php';
+            include_once getcwd() . '/bots/' . strtolower($class_name) . '.php';
+            include_once getcwd() . '/bots/' . camelToSnake($class_name) . '.php';
+            include_once getcwd() . '/bots/' . lcfirst(camelToSnake($class_name)) . '.php';
+        });
+        restore_error_handler();
+    }
+    public $bots = [];
+    public function load($path, $botClass)
+    {
+        if (!$botClass instanceof Bot) {
+            throw new \Error('invalid class. all classes should implement Bot interface');
+        }
+        $this->bots[$path] = $botClass;
     }
 
-    /**
-     * load handler from file
-     * @param string $file_name the file name to open
-     * @param string $as custom path to the file
-     */
-    public function load_file($file_name, $as = null)
+    public function autoLoad($folder)
     {
-        if (is_file($file_name)) {
-            list($handler, $config) = $this->include_file($file_name);
-
-            $path = $file_name;
-            if ($as) {
-                $path = $as;
-            }
-
-            $this->files[$path] = new BotFile($file_name, true, $handler, $config);
-        } else {
-            print 'file ' . $file_name . ' not found' . PHP_EOL;
-        }
-    }
-
-    public function load_handler($name, $handler, $config = null)
-    {
-        if ($config == null) {
-            $config = new Config;
-        }
-        // if function - create new Handler
-        if (get_class($handler) == 'Closure') {
-            $handler_obj = new Handler();
-            $handler_obj->func($handler);
-            $handler = $handler_obj;
-        }
-        $this->files[$name] = new BotFile('', true, $handler, $config);
-    }
-
-    private function include_file($name)
-    {
-        print 'including file: ' . $name . PHP_EOL;
-        $res = [];
-
-        require $name;
-        foreach (get_defined_vars() as $value) {
-            if (is_a($value, 'bot_lib\Handler')) {
-                $res[0] = $value;
-            }
-            if (is_a($value, 'bot_lib\Config')) {
-                $res[1] = $value;
-            }
-        }
-
-        if (!isset($res[0]))
-            throw new \Error('can\'t find Handler instance');
-
-        if (!isset($res[1]))
-            $res[1] = new Config();
-
-        $res[2] = Update::class;
-
-        foreach (get_declared_classes() as $class) {
-            if (is_subclass_of($class, Update::class)) {
-                $res[2] = $class;
-                break;
-            }
-        }
-
-        return $res;
+        // auto load all classes in folder
     }
 }
