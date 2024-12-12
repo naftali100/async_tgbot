@@ -14,11 +14,11 @@ class Handler
     public TheHandler $middle;
     public TheHandler $after;
     public TheHandler $on_error;
-    private array $handlers = []; // TODO only public because of separation.. wrong... 
+    private array $handlers = []; // TODO only public because of separation.. wrong...
 
     public function __construct(Update|null $update = null)
     {
-        if ($update != null){
+        if ($update != null) {
             $this->update = $update;
         }
     }
@@ -89,7 +89,7 @@ class Handler
         return $res;
     }
 
-    function __call($func_name, $args)
+    public function __call($func_name, $args)
     {
         // try {
         $func = $args['func'] ?? $args[0] ?? null;
@@ -119,9 +119,9 @@ class Handler
 
 /**
  * the actual handler
- *  
+ *
  * store the func and the condition if passed
- * 
+ *
  * @param string $when name of handler. can be used as a filter.
  * @param string|array|Closure $filter whether or not run the func. can be string or array combined with 'when' param or func that take Update as parameter and return bool
  * @param Closure $func  the function that will run if all condition met
@@ -133,7 +133,7 @@ class TheHandler
 
     private \Closure|v $filter;
 
-    function __construct(public $when, array|\Closure|v $filter, private $func, public bool $last, public string $name = '')
+    public function __construct(public $when, array|\Closure|v $filter, private $func, public bool $last, public string $name = '')
     {
         if (is_callable($filter)) {
             $this->filter = $filter;
@@ -142,7 +142,7 @@ class TheHandler
         }
     }
 
-    function runHandler($update, ...$args)
+    public function runHandler($update, ...$args)
     {
         return \Amp\call($this->func, $update, ...$args);
     }
@@ -158,7 +158,7 @@ class TheHandler
     /**
      * determinate whether or not the handler should run
      * @param Update update - the update
-     * 
+     *
      * @return bool
      */
     public function shouldRun(Update $update): bool
@@ -216,10 +216,11 @@ class TheHandler
     {
         $this->backup = [$this->when, $this->func, $this->filter, $this->last];
         $this->func = $func;
-        if (gettype($filter) == 'string')
+        if (gettype($filter) == 'string') {
             $this->filter = [$filter];
-        else
+        } else {
             $this->filter = $filter;
+        }
         $this->last = $last;
         $this->when = $when;
     }

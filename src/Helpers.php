@@ -33,9 +33,9 @@ class Helpers
             $keyCol = array();
         }
         $type = '';
-        if($isInline){
+        if ($isInline) {
             $type = 'inline_keyboard';
-        }else{
+        } else {
             $type = 'keyboard';
         }
 
@@ -43,11 +43,11 @@ class Helpers
     }
 
     /**
-     * create ChatPermissions json. 
-     * 
+     * create ChatPermissions json.
+     *
      * accepts:
-     * - block : block all user permissions 
-     * - only_messages : open only sending messages 
+     * - block : block all user permissions
+     * - only_messages : open only sending messages
      * - open : open all user permissions
      */
     public static function permissions(string $mode = 'block')
@@ -62,7 +62,7 @@ class Helpers
                 return self::build_perm(1, 1, 1, 1, 1, 1, 1, 1);
             case 'only_messages':
                 return self::build_perm(send_message: true);
-            default;
+            default:
         }
     }
 
@@ -91,7 +91,7 @@ class Helpers
         return json_encode($prem);
     }
 
-    static function objectToArray($o)
+    public static function objectToArray($o)
     {
         $a = array();
         foreach ($o as $k => $v) {

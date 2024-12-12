@@ -132,14 +132,14 @@ class Filter
         return $validator;
     }
 
-    /// type of 
+    /// type of
 
     public static function fileType($type, $not = false)
     {
         return self::Filter('media.file_type', $type, $not);
     }
 
-    /// chat type 
+    /// chat type
 
     public static function chatType($type, $not = false)
     {
