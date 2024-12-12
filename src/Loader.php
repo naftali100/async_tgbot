@@ -29,12 +29,13 @@ class Loader
         restore_error_handler();
     }
     public $bots = [];
-    public function load($path, $botClass)
+    public function load($path, $botClass, $config)
     {
-        if (!$botClass instanceof Bot) {
-            throw new \Error('invalid class '. get_class($botClass) . '. all classes should extend the Bot abstract class');
+        $botInstance = new $botClass($config);
+        if (!$botInstance instanceof Bot) {
+            throw new \Error('invalid class '. get_class($botInstance) . '. all classes should extend the Bot abstract class');
         }
-        $this->bots[$path] = $botClass;
+        $this->bots[$path] = ['class' => $botClass, 'config' => $config];
     }
 
     public function autoLoad($folder)

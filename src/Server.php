@@ -47,7 +47,7 @@ class Server
     private ServerOptions $options;
 
     public function __construct(
-        private Loader $bots,
+        private Loader $loader,
         $options = [
         'host' => "127.0.0.1",
         'port' => 1337,
@@ -70,8 +70,9 @@ class Server
 
         $router = new Router($server, $logger, $errorHandler);
 
-        foreach ($this->bots->bots as $path => $bot) {
-            $router->addRoute('POST', "/{$path}", new ClosureRequestHandler(function (Request $request) use ($bot) {
+        foreach ($this->loader->bots as $path => $botOptions) {
+            $router->addRoute('POST', "/{$path}", new ClosureRequestHandler(function (Request $request) use ($botOptions) {
+                $bot = new $botOptions['class']($botOptions['config']);
                 $update = new Update($bot, $request->getBody()->buffer());
                 $bot->handleUpdate($update);
                 return new Response(
