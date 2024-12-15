@@ -6,6 +6,32 @@ use Amp\Http\Client\Form;
 use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\Request;
 
+class Response implements \Stringable
+{
+    public function __construct(public $body)
+    {
+    }
+
+    public function __get($type)
+    {
+        switch ($type) {
+            case 'json':
+            case 'decode':
+                return json_decode($this->body, true);
+            case 'string':
+            case 'body':
+                return $this->body;
+            default:
+                return json_decode($this->body, true)->$type;
+        }
+    }
+
+    public function __toString(): string
+    {
+        return $this->body;
+    }
+}
+
 class Http
 {
     private $client;
@@ -17,7 +43,7 @@ class Http
     {
         return $this->request($this->config->baseUrl . $this->config->token . '/' . $method, $data);
     }
-    public function request($url, $body)
+    public function request($url, $body = null)
     {
         $response = $this->client->request(new Request($url, $body ? 'POST' : 'GET', $body ? $this->buildApiRequestBody($body) : null));
         return $response->getBody()->buffer();
