@@ -1,8 +1,56 @@
 <?php
 
-namespace bot_lib;
+namespace bot_lib\Filter;
 
 use Respect\Validation\Validator as v;
+use Respect\Validation\ChainedValidator as cv;
+
+#[\Attribute(\Attribute::TARGET_METHOD)]
+class BaseFilter
+{
+    public cv $validator;
+}
+
+/**
+ * Filters only the given update type
+ */
+class Update extends BaseFilter
+{
+    public function __construct(public $types, public $not = false)
+    {
+        $this->validator = Filter::update($this->types, $this->not);
+    }
+}
+
+class MessageUpdates extends BaseFilter
+{
+    public function __construct($not = false)
+    {
+        $this->validator = Filter::messageUpdates($not);
+    }
+}
+
+class EditUpdates extends BaseFilter
+{
+    public function __construct($not = false)
+    {
+        $this->validator = Filter::editUpdates($not);
+    }
+}
+
+class CbqUpdates extends BaseFilter
+{
+    public function __construct($not = false)
+    {
+        $this->validator = Filter::cbqUpdates($not);
+    }
+}
+
+class InlineUpdates extends BaseFilter{
+    public function __construct(bool $not = false){
+        $this->filter = Filter::inlineUpdates($not);
+    }
+}
 
 class Filter
 {

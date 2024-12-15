@@ -57,11 +57,39 @@ class Server
     ) {
         $this->options = new ServerOptions($options);
     }
+
+    private function handleUpdate(Bot $bot, Update $update)
+    {
+        $reflector = new \ReflectionClass($bot);
+        
+        // check if method 'before' exist
+        if ($reflector->getMethod('before')->getDeclaringClass()->getName() !== Bot::class) {
+            $bot->before($update);
+        }
+
+        $bot->handleUpdate($update);
+
+        foreach ($reflector->getMethods() as $method) {
+            $attributes = $method->getAttributes(Filter\BaseFilter::class, \ReflectionAttribute::IS_INSTANCEOF);
+            foreach ($attributes as $attr) {
+                if (!$attr->newInstance()->validator->validate($update)) {
+                    break;
+                }
+            }
+            $bot->$method($update);
+        }
+
+        if ($reflector->getMethod('after')->getDeclaringClass()->getName() !== Bot::class) {
+            $bot->after($update);
+        }
+    }
+
     public function run()
     {
         $logHandler = new StreamHandler(ByteStream\getStdout());
         $logHandler->pushProcessor(new PsrLogMessageProcessor());
         $logHandler->setFormatter(new ConsoleFormatter());
+        $logHandler->setLevel('INFO');
         $logger = new Logger('server');
         $logger->pushHandler($logHandler);
 
@@ -75,7 +103,7 @@ class Server
                 $bot = new $botOptions['class']($botOptions['config']);
                 $update = new Update($bot, $request->getBody()->buffer());
                 try {
-                    $bot->handleUpdate($update);
+                    $this->handleUpdate($bot, $update);
                 } catch (\Throwable $e) {
                     $reflector = new \ReflectionMethod($bot, 'onError');
                     if ($reflector->getDeclaringClass()->getName() !== 'Bot') {

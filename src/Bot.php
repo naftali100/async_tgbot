@@ -31,6 +31,16 @@ abstract class Bot
     {
     }
 
+    /**
+     * optionally override this function that will be called before the main handleUpdate
+     */
+    public function before(Update $update){}
+
+    /**
+     * optionally override this function that will bw called after the main handleUpdate
+     */
+    public function after(Update $update){}
+
     /***********
      * API Methods
      ***********/
