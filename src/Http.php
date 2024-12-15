@@ -46,7 +46,7 @@ class Http
     public function request($url, $body = null)
     {
         $response = $this->client->request(new Request($url, $body ? 'POST' : 'GET', $body ? $this->buildApiRequestBody($body) : null));
-        return $response->getBody()->buffer();
+        return new Response($response->getBody()->buffer());
     }
 
     private function buildApiRequestBody(array $data = [])
