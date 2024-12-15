@@ -2,6 +2,12 @@
 
 namespace bot_lib;
 
+/**
+ *
+ * The main class for each bot
+ *
+ * an instance of this class will be created for each update
+ */
 abstract class Bot
 {
     public Http $http;
@@ -9,7 +15,21 @@ abstract class Bot
     {
         $this->http = new Http($this->config);
     }
+    /**
+     * the function that will be called to handle the update
+     * @param \bot_lib\Update $update
+     * @return void
+     */
     abstract public function handleUpdate(Update $update);
+
+    /**
+     * override this method to be called in case of an error
+     * @param \Throwable $e
+     * @return void
+     */
+    public function onError(\Throwable $e)
+    {
+    }
 
     /***********
      * API Methods

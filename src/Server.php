@@ -71,16 +71,26 @@ class Server
         $router = new Router($server, $logger, $errorHandler);
 
         foreach ($this->loader->bots as $path => $botOptions) {
-            $router->addRoute('POST', "/{$path}", new ClosureRequestHandler(function (Request $request) use ($botOptions) {
+            $router->addRoute('POST', "/{$path}", new ClosureRequestHandler(function (Request $request) use ($botOptions, $logger) {
                 $bot = new $botOptions['class']($botOptions['config']);
                 $update = new Update($bot, $request->getBody()->buffer());
-                $bot->handleUpdate($update);
+                try {
+                    $bot->handleUpdate($update);
+                } catch (\Throwable $e) {
+                    $reflector = new \ReflectionMethod($bot, 'onError');
+                    if ($reflector->getDeclaringClass()->getName() !== 'Bot') {
+                        $bot->onError($e);
+                    } else {
+                        $logger->error('Error in: ' . get_class($bot) . ' '. $e->getMessage(), [$e]);
+                    }
+                }
                 return new Response(
                     status: HttpStatus::OK,
                     headers: ['content-type' => 'text/plain'],
                     body: 'ok',
                 );
             }));
+            $logger->info('Bot loaded: ' . $path);
         }
 
         $url = new \Amp\Socket\InternetAddress($this->options->host, $this->options->port);
