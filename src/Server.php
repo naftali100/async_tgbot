@@ -25,7 +25,7 @@ class ServerOptions
 {
     public function __construct(
         $options = [
-        'host' => "127.0.0.1",
+        'host' => gethostname() ?? '127.0.0.1',
         'port' => 1337,
         'reload' => false,
         'debug' => false
@@ -61,7 +61,7 @@ class Server
 
     public function __construct(
         $options = [
-        'host' => "127.0.0.1",
+        'host' => gethostname() ?? '127.0.0.1',
         'port' => 1337,
         'reload' => false,
         'debug' => false
@@ -192,7 +192,7 @@ class Server
     {
         foreach ($this->bots as $path => $botOptions) {
             $bot = new $botOptions['class']($botOptions['config']);
-            $url = urlencode($this->options->host . $this->options->port . '/' . $path);
+            $url = urlencode($this->options->host . ':' . $this->options->port . '/' . $path);
             $bot->setWebhook($url);
         }
     }
