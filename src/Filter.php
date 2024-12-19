@@ -46,8 +46,10 @@ class CbqUpdates extends BaseFilter
     }
 }
 
-class InlineUpdates extends BaseFilter{
-    public function __construct(bool $not = false){
+class InlineUpdates extends BaseFilter
+{
+    public function __construct(bool $not = false)
+    {
         $this->filter = Filter::inlineUpdates($not);
     }
 }

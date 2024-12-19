@@ -61,7 +61,7 @@ class Server
     private function handleUpdate(Bot $bot, Update $update)
     {
         $reflector = new \ReflectionClass($bot);
-        
+
         // check if method 'before' exist
         if ($reflector->getMethod('before')->getDeclaringClass()->getName() !== Bot::class) {
             $bot->before($update);
@@ -134,7 +134,8 @@ class Server
         $server->stop();
     }
 
-    public function setWebhooks() {
+    public function setWebhooks()
+    {
         foreach ($this->loader->bots as $path => $botOptions) {
             $bot = new $botOptions['class']($botOptions['config']);
             $url = urlencode($this->options->host . $this->options->port . '/' . $path);
