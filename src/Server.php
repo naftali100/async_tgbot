@@ -46,8 +46,20 @@ class Server
 {
     private ServerOptions $options;
 
+    /**
+     * an array containing the path config and class of each bot
+     *
+     * example:
+     * {
+     *     'path' => [
+     *          'config' => Config,
+     *          'class' => EchoBot
+     * }
+     * @var
+     */
+    private $bots;
+
     public function __construct(
-        private Loader $loader,
         $options = [
         'host' => "127.0.0.1",
         'port' => 1337,
@@ -56,6 +68,48 @@ class Server
     ]
     ) {
         $this->options = new ServerOptions($options);
+
+        //
+        // register class loader
+        //
+        function camelToSnake($camelCase)
+        {
+            $pattern = '/(?<=\\w)(?=[A-Z])|(?<=[a-z])(?=\d)/';
+            $snakeCase = preg_replace($pattern, '_', $camelCase);
+            return strtolower($snakeCase);
+        }
+
+        spl_autoload_register(function ($class_name) {
+            set_error_handler(function () { /* ignore errors */
+            });
+            include_once getcwd() . '/' . $class_name . '.php';
+            include_once getcwd() . '/' . strtolower($class_name) . '.php';
+            include_once getcwd() . '/' . camelToSnake($class_name) . '.php';
+            include_once getcwd() . '/' . lcfirst(camelToSnake($class_name)) . '.php';
+
+            include_once getcwd() . '/bots/' . $class_name . '.php';
+            include_once getcwd() . '/bots/' . strtolower($class_name) . '.php';
+            include_once getcwd() . '/bots/' . camelToSnake($class_name) . '.php';
+            include_once getcwd() . '/bots/' . lcfirst(camelToSnake($class_name)) . '.php';
+        });
+        restore_error_handler();
+    }
+
+    /**
+     * load a bot
+     * @param string $path the url path of the webhook for this bot in this server
+     * @param string $botClass the className for the bot use `BotClass::class` to get it
+     * @param \bot_lib\Config $config config loaded via `Config::fromJsonFile($path)` or `Config::fromEnvFile($path)`
+     * @throws \Error
+     * @return void
+     */
+    public function load(string $path, string $botClass, Config $config)
+    {
+        $botInstance = new $botClass($config);
+        if (!$botInstance instanceof Bot) {
+            throw new \Error('invalid class '. get_class($botInstance) . '. all classes should extend the Bot abstract class');
+        }
+        $this->bots[$path] = ['class' => $botClass, 'config' => $config];
     }
 
     private function handleUpdate(Bot $bot, Update $update)
@@ -98,7 +152,7 @@ class Server
 
         $router = new Router($server, $logger, $errorHandler);
 
-        foreach ($this->loader->bots as $path => $botOptions) {
+        foreach ($this->bots as $path => $botOptions) {
             $router->addRoute('POST', "/{$path}", new ClosureRequestHandler(function (Request $request) use ($botOptions, $logger) {
                 $bot = new $botOptions['class']($botOptions['config']);
                 $update = new Update($bot, $request->getBody()->buffer());
@@ -136,7 +190,7 @@ class Server
 
     public function setWebhooks()
     {
-        foreach ($this->loader->bots as $path => $botOptions) {
+        foreach ($this->bots as $path => $botOptions) {
             $bot = new $botOptions['class']($botOptions['config']);
             $url = urlencode($this->options->host . $this->options->port . '/' . $path);
             $bot->setWebhook($url);
