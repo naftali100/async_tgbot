@@ -8,7 +8,7 @@ use Amp\Http\Client\Request;
 
 class Response implements \Stringable
 {
-    public function __construct(public $body)
+    public function __construct(public $body, private Config $config)
     {
     }
 
@@ -21,6 +21,13 @@ class Response implements \Stringable
             case 'string':
             case 'body':
                 return $this->body;
+            case 'update':
+                $bot = new class ($this->config) extends \bot_lib\Bot {
+                    public function handleUpdate(Update $update)
+                    { // hack
+                    }
+                };
+                return new Update($bot, $this->body);
             default:
                 return json_decode($this->body, true)->$type;
         }
@@ -46,7 +53,7 @@ class Http
     public function request($url, $body = null)
     {
         $response = $this->client->request(new Request($url, $body ? 'POST' : 'GET', $body ? $this->buildApiRequestBody($body) : null));
-        return new Response($response->getBody()->buffer());
+        return new Response($response->getBody()->buffer(), $this->config);
     }
 
     private function buildApiRequestBody(array $data = [])
