@@ -755,6 +755,11 @@ abstract class Bot
     {
         return $this->http->apiRequest('getForumTopicIconStickers');
     }
+    public function setWebhook($url)
+    {
+        $data['url'] = $url;
+        return $this->http->apiRequest('setWebhook', $data);
+    }
 
     /**
      * prepare the text to avoid send errors

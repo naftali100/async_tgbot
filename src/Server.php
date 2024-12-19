@@ -133,4 +133,12 @@ class Server
 
         $server->stop();
     }
+
+    public function setWebhooks() {
+        foreach ($this->loader->bots as $path => $botOptions) {
+            $bot = new $botOptions['class']($botOptions['config']);
+            $url = urlencode($this->options->host . $this->options->port . '/' . $path);
+            $bot->setWebhook($url);
+        }
+    }
 }
