@@ -7,6 +7,8 @@ namespace bot_lib;
  * The main class for each bot
  *
  * an instance of this class will be created for each update
+ *
+ * the file name of your bot must be the same as the name of the class
  */
 abstract class Bot
 {
@@ -34,12 +36,16 @@ abstract class Bot
     /**
      * optionally override this function that will be called before the main handleUpdate
      */
-    public function before(Update $update){}
+    public function before(Update $update)
+    {
+    }
 
     /**
      * optionally override this function that will bw called after the main handleUpdate
      */
-    public function after(Update $update){}
+    public function after(Update $update)
+    {
+    }
 
     /***********
      * API Methods
