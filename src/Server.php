@@ -31,7 +31,7 @@ class ServerOptions
         'debug' => false
     ]
     ) {
-        $this->host = $options["host"] ?? "";
+        $this->host = $options["host"] ?? "127.0.0.1";
         $this->port = $options["port"] ?? 1337;
         $this->reload = $options["reload"] ?? false;
         $this->debug = $options["debug"] ?? false;
@@ -45,6 +45,7 @@ class ServerOptions
 class Server
 {
     private ServerOptions $options;
+    private Logger $logger;
 
     /**
      * an array containing the path config and class of each bot
@@ -68,6 +69,13 @@ class Server
     ]
     ) {
         $this->options = new ServerOptions($options);
+        $logHandler = new StreamHandler(ByteStream\getStdout());
+        $logHandler->pushProcessor(new PsrLogMessageProcessor());
+        $logHandler->setFormatter(new ConsoleFormatter());
+        $logHandler->setLevel($this->options->debug ? 'Debug' : 'Info');
+        $logger = new Logger('server');
+        $logger->pushHandler($logHandler);
+        $this->logger = $logger;
 
         //
         // register class loader
@@ -140,12 +148,7 @@ class Server
 
     public function run()
     {
-        $logHandler = new StreamHandler(ByteStream\getStdout());
-        $logHandler->pushProcessor(new PsrLogMessageProcessor());
-        $logHandler->setFormatter(new ConsoleFormatter());
-        $logHandler->setLevel('Info');
-        $logger = new Logger('server');
-        $logger->pushHandler($logHandler);
+        $logger = $this->logger;
 
         $server = SocketHttpServer::createForDirectAccess($logger);
         $errorHandler = new DefaultErrorHandler();
@@ -154,6 +157,7 @@ class Server
 
         foreach ($this->bots as $path => $botOptions) {
             $router->addRoute('POST', "/{$path}", new ClosureRequestHandler(function (Request $request) use ($botOptions, $logger) {
+                $logger->debug('new request', ['path' => $request->getUri()->getPath()]);
                 $bot = new $botOptions['class']($botOptions['config']);
                 $update = new Update($bot, $request->getBody()->buffer());
                 try {
@@ -175,8 +179,8 @@ class Server
             $logger->info("bot {$botOptions['class']} loaded in path: {$path}");
         }
 
-        $url = new \Amp\Socket\InternetAddress($this->options->host, $this->options->port);
-        $server->expose($url);
+        $server->expose(new \Amp\Socket\InternetAddress($this->options->host, $this->options->port));
+        $server->expose(new \Amp\Socket\InternetAddress(gethostbyname(gethostname()), $this->options->port));
 
         $server->start($router, $errorHandler);
 
@@ -191,9 +195,11 @@ class Server
     public function setWebhooks()
     {
         foreach ($this->bots as $path => $botOptions) {
+            $this->logger->debug("setting webhook for {$path}");
             $bot = new $botOptions['class']($botOptions['config']);
-            $url = urlencode((gethostname() ?? $this->options->host) . ':' . $this->options->port . '/' . $path);
-            $bot->setWebhook($url);
+            $url = (gethostname() ?? $this->options->host) . ':' . $this->options->port . '/' . $path;
+            $res = $bot->setWebhook($url);
+            $this->logger->debug($res);
         }
     }
 }
