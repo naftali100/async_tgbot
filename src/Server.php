@@ -25,7 +25,7 @@ class ServerOptions
 {
     public function __construct(
         $options = [
-        'host' => gethostname() ?? '127.0.0.1',
+        'host' => '127.0.0.1',
         'port' => 1337,
         'reload' => false,
         'debug' => false
@@ -61,7 +61,7 @@ class Server
 
     public function __construct(
         $options = [
-        'host' => gethostname() ?? '127.0.0.1',
+        'host' => '127.0.0.1',
         'port' => 1337,
         'reload' => false,
         'debug' => false
@@ -143,7 +143,7 @@ class Server
         $logHandler = new StreamHandler(ByteStream\getStdout());
         $logHandler->pushProcessor(new PsrLogMessageProcessor());
         $logHandler->setFormatter(new ConsoleFormatter());
-        $logHandler->setLevel('INFO');
+        $logHandler->setLevel('Info');
         $logger = new Logger('server');
         $logger->pushHandler($logHandler);
 
@@ -172,7 +172,7 @@ class Server
                     body: 'ok',
                 );
             }));
-            $logger->info('Bot loaded: ' . $path);
+            $logger->info("bot {$botOptions['class']} loaded in path: {$path}");
         }
 
         $url = new \Amp\Socket\InternetAddress($this->options->host, $this->options->port);
@@ -192,7 +192,7 @@ class Server
     {
         foreach ($this->bots as $path => $botOptions) {
             $bot = new $botOptions['class']($botOptions['config']);
-            $url = urlencode($this->options->host . ':' . $this->options->port . '/' . $path);
+            $url = urlencode(gethostname() ?? $this->options->host . ':' . $this->options->port . '/' . $path);
             $bot->setWebhook($url);
         }
     }
