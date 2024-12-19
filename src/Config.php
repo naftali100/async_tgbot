@@ -6,6 +6,13 @@ class Config
 {
     public function __construct(public $token = '', public $baseUrl = 'https://api.telegram.org/bot')
     {
+        $parsedBaseUrl = parse_url($baseUrl);
+        if(!$parsedBaseUrl) {
+            throw new \Error('baseUrl must be a valid url');
+        }
+        if (!str_ends_with($parsedBaseUrl['path'], 'user') && !str_ends_with($parsedBaseUrl['path'], 'bot')) {
+            throw new \Error('baseUrl must end with "user" or "bot"');
+        }
     }
 
     public static function fromJsonFile($path)
