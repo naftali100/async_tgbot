@@ -192,7 +192,7 @@ class Server
     {
         foreach ($this->bots as $path => $botOptions) {
             $bot = new $botOptions['class']($botOptions['config']);
-            $url = urlencode(gethostname() ?? $this->options->host . ':' . $this->options->port . '/' . $path);
+            $url = urlencode((gethostname() ?? $this->options->host) . ':' . $this->options->port . '/' . $path);
             $bot->setWebhook($url);
         }
     }
