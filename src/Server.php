@@ -195,14 +195,19 @@ class Server
         $server->stop();
     }
 
-    public function setWebhooks()
+    /**
+     * set all bots webhook to current server
+     * @param string $webhookTargetUrl the url to sent the webhooks to
+     * @return void
+     */
+    public function setWebhooks(string $webhookTargetUrl = null)
     {
         foreach ($this->bots as $path => $botOptions) {
             $this->logger->debug("setting webhook for {$path}");
             $bot = new $botOptions['class']($botOptions['config']);
-            $url = (gethostname() ?? $this->options->host) . ':' . $this->options->port . '/' . $path;
-            $res = $bot->setWebhook($url);
-            $this->logger->debug($res);
+            $url = 'http://' . (gethostname() ?? $this->options->host) . ':' . $this->options->port . '/' . $path;
+            $res = $bot->setWebhook($webhookTargetUrl ?? $url);
+            $this->logger->debug($res, [$url]);
         }
     }
 }
