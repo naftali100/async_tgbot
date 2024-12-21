@@ -2,7 +2,6 @@
 
 namespace bot_lib\Filter;
 
-use Respect\Validation\Validator as v;
 use Respect\Validation\ChainedValidator as cv;
 
 #[\Attribute(\Attribute::TARGET_METHOD)]
@@ -18,7 +17,7 @@ class Update extends BaseFilter
 {
     public function __construct(public $types, public $not = false)
     {
-        $this->validator = Filter::update($this->types, $this->not);
+        $this->validator = \bot_lib\Filter::update($this->types, $this->not);
     }
 }
 
@@ -26,7 +25,7 @@ class MessageUpdates extends BaseFilter
 {
     public function __construct($not = false)
     {
-        $this->validator = Filter::messageUpdates($not);
+        $this->validator = \bot_lib\Filter::messageUpdates($not);
     }
 }
 
@@ -34,7 +33,7 @@ class EditUpdates extends BaseFilter
 {
     public function __construct($not = false)
     {
-        $this->validator = Filter::editUpdates($not);
+        $this->validator = \bot_lib\Filter::editUpdates($not);
     }
 }
 
@@ -42,7 +41,7 @@ class CbqUpdates extends BaseFilter
 {
     public function __construct($not = false)
     {
-        $this->validator = Filter::cbqUpdates($not);
+        $this->validator = \bot_lib\Filter::cbqUpdates($not);
     }
 }
 
@@ -50,9 +49,12 @@ class InlineUpdates extends BaseFilter
 {
     public function __construct(bool $not = false)
     {
-        $this->filter = Filter::inlineUpdates($not);
+        $this->filter = \bot_lib\Filter::inlineUpdates($not);
     }
 }
+
+namespace bot_lib;
+use Respect\Validation\Validator as v;
 
 class Filter
 {
