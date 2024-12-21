@@ -2,7 +2,7 @@
 
 namespace bot_lib;
 
-class Update
+class Update implements \ArrayAccess
 {
     public Http $http;
     /**
@@ -307,5 +307,25 @@ class Update
         if ($this->media != null) {
             return $this->bot->getFile($this->media['file_id']);
         }
+    }
+
+    public function offsetExists(mixed $offset): bool
+    {
+        return property_exists($this, $offset);
+    }
+
+    public function offsetGet(mixed $offset): mixed
+    {
+        return $this->$offset;
+    }
+
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+        $this->$offset = $value;
+    }
+
+    public function offsetUnset(mixed $offset): void
+    {
+        unset($this->$offset);
     }
 }
