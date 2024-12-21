@@ -19,7 +19,7 @@ use Monolog\Processor\PsrLogMessageProcessor;
 abstract class Bot
 {
     public Http $http;
-    private Logger $log;
+    protected Logger $log;
     public function __construct(public Config $config)
     {
         $this->http = new Http($this->config);
