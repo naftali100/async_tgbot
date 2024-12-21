@@ -154,6 +154,9 @@ class Server
         $logger = $this->logger;
 
         $server = SocketHttpServer::createForDirectAccess($logger);
+        $server->expose(new \Amp\Socket\InternetAddress($this->options->host, $this->options->port));
+        $server->expose(new \Amp\Socket\InternetAddress(gethostbyname(gethostname()), $this->options->port));
+
         $errorHandler = new DefaultErrorHandler();
 
         $router = new Router($server, $logger, $errorHandler);
@@ -179,11 +182,8 @@ class Server
                     body: 'ok',
                 );
             }));
-            $logger->info("bot {$botOptions['class']} loaded in path: {$path}");
+            $logger->info("bot {$botOptions['class']} stated in path: {$path}");
         }
-
-        $server->expose(new \Amp\Socket\InternetAddress($this->options->host, $this->options->port));
-        $server->expose(new \Amp\Socket\InternetAddress(gethostbyname(gethostname()), $this->options->port));
 
         $server->start($router, $errorHandler);
 
