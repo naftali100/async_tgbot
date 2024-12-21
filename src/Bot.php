@@ -2,6 +2,12 @@
 
 namespace bot_lib;
 
+use Amp\Log\ConsoleFormatter;
+use Amp\Log\StreamHandler;
+use Amp\ByteStream;
+use Monolog\Logger;
+use Monolog\Processor\PsrLogMessageProcessor;
+
 /**
  *
  * The main class for each bot
@@ -13,9 +19,18 @@ namespace bot_lib;
 abstract class Bot
 {
     public Http $http;
+    private Logger $log;
     public function __construct(public Config $config)
     {
         $this->http = new Http($this->config);
+
+        $logHandler = new StreamHandler(ByteStream\getStdout());
+        $logHandler->pushProcessor(new PsrLogMessageProcessor());
+        $logHandler->setFormatter(new ConsoleFormatter());
+        $logHandler->setLevel('Info');
+        $logger = new Logger('Bot ' . get_class($this));
+        $logger->pushHandler($logHandler);
+        $this->log = $logger;
     }
     /**
      * the function that will be called to handle the update
