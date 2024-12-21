@@ -21,6 +21,22 @@ use Monolog\Processor\PsrLogMessageProcessor;
 
 use function Amp\trapSignal;
 
+function botAutoloader($class_name)
+{
+    set_error_handler(function () { /* ignore errors */
+    });
+    include_once getcwd() . '/' . $class_name . '.php';
+    include_once getcwd() . '/' . strtolower($class_name) . '.php';
+    include_once getcwd() . '/' . camelToSnake($class_name) . '.php';
+    include_once getcwd() . '/' . lcfirst(camelToSnake($class_name)) . '.php';
+
+    include_once getcwd() . '/bots/' . $class_name . '.php';
+    include_once getcwd() . '/bots/' . strtolower($class_name) . '.php';
+    include_once getcwd() . '/bots/' . camelToSnake($class_name) . '.php';
+    include_once getcwd() . '/bots/' . lcfirst(camelToSnake($class_name)) . '.php';
+    restore_error_handler();
+}
+
 class ServerOptions
 {
     public function __construct(
@@ -86,21 +102,6 @@ class Server
             $snakeCase = preg_replace($pattern, '_', $camelCase);
             return strtolower($snakeCase);
         }
-
-        spl_autoload_register(function ($class_name) {
-            set_error_handler(function () { /* ignore errors */
-            });
-            include_once getcwd() . '/' . $class_name . '.php';
-            include_once getcwd() . '/' . strtolower($class_name) . '.php';
-            include_once getcwd() . '/' . camelToSnake($class_name) . '.php';
-            include_once getcwd() . '/' . lcfirst(camelToSnake($class_name)) . '.php';
-
-            include_once getcwd() . '/bots/' . $class_name . '.php';
-            include_once getcwd() . '/bots/' . strtolower($class_name) . '.php';
-            include_once getcwd() . '/bots/' . camelToSnake($class_name) . '.php';
-            include_once getcwd() . '/bots/' . lcfirst(camelToSnake($class_name)) . '.php';
-        });
-        restore_error_handler();
     }
 
     /**
@@ -113,11 +114,13 @@ class Server
      */
     public function load(string $path, string $botClass, Config $config)
     {
+        spl_autoload_register('bot_lib\botAutoloader');
         $botInstance = new $botClass($config);
         if (!$botInstance instanceof Bot) {
             throw new \Error('invalid class '. get_class($botInstance) . '. all classes should extend the Bot abstract class');
         }
         $this->bots[$path] = ['class' => $botClass, 'config' => $config];
+        spl_autoload_unregister('bot_lib\botAutoloader');
     }
 
     private function handleUpdate(Bot $bot, Update $update)
