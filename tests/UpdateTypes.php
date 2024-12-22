@@ -4,9 +4,12 @@ namespace bot_lib\Test;
 
 use bot_lib\Update;
 use bot_lib\Config;
+use bot_lib\Bot;
 
 trait UpdateTypes
 {
+
+    public Bot $config;
     public $user_id = 0000;
     public $chat_id = 1111;
     public $channel_id = 2222;
@@ -32,8 +35,12 @@ trait UpdateTypes
 
     public function init()
     {
-        $this->config = new Config();
-        $this->config->load(__DIR__ . '/conf.json');
+        $this->config = new class (Config::fromJsonFile(__DIR__ . '/conf.json')) extends \bot_lib\Bot {
+            public function handleUpdate(Update $update)
+            { // hack
+            }
+        };
+
         $this->private_message = new Update($this->config, '{
             "update_id": 933205645,
             "message": {

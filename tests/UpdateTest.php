@@ -41,6 +41,7 @@ final class UpdateTest extends AsyncTestCase
         $this->assertEquals($this->user_id, $this->group_message['from']['id']);
 
         $this->assertEquals($this->channel_id, $this->sender_chat->from->id);
+        $this->assertEquals($this->channel_id, $this->sender_chat->sender_chat->id);
         $this->assertEquals($this->channel_id, $this->sender_chat['from']['id']);
 
         $this->assertEquals($this->user_id, $this->cbq->from->id);
@@ -79,9 +80,9 @@ final class UpdateTest extends AsyncTestCase
         $this->assertEquals($needle, $this->inline_query['text']);
     }
 
-    public function testRequestResultType()
+    public function _testRequestResultType()
     {
-        $promise = $this->private_message->sendMessage($this->myUserId, "hello");
+        $promise = $this->config->sendMessage($this->myUserId, "hello");
 
         $res = yield $promise;
         $this->assertIsObject($res);

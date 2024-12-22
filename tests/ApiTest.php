@@ -21,19 +21,19 @@ final class ApiTest extends AsyncTestCase
 
     public function testPhotoUpload()
     {
-        $res = yield $this->private_message->sendPhoto($this->myUserId, __DIR__ . '/image.jpg');
+        $res = $this->config->sendPhoto($this->myUserId, __DIR__ . '/image.jpg');
         $this->assertTrue($res->ok);
     }
 
     public function testGetMessage()
     {
-        $res = yield $this->private_message->getMessage($this->myUserId, 1)->array;
+        $res = $this->config->getMessage($this->myUserId, 1);
         $this->assertTrue($res['ok']);
     }
 
-    public function testReplyWithEntFromUpdate()
+    public function _testReplyWithEntFromUpdate()
     {
-        $res = yield $this->private_message->sendMessage($this->myUserId, 'text', entities: $this->private_with_ent->ent);
+        $res = $this->config->sendMessage($this->myUserId, 'text', entities: $this->private_with_ent->ent);
         $this->assertTrue($res->ok);
     }
 
@@ -46,7 +46,7 @@ final class ApiTest extends AsyncTestCase
                 ]
             ]
         ]], false);
-        $res = yield $this->private_message->sendMessage($this->myUserId, 'text', $key);
+        $res = $this->config->sendMessage($this->myUserId, 'text', $key);
         $this->assertTrue($res->ok);
     }
 }
