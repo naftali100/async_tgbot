@@ -311,7 +311,10 @@ class Update implements \ArrayAccess
 
     public function offsetExists(mixed $offset): bool
     {
-        return property_exists($this, $offset);
+        return
+        array_key_exists($offset, $this->updateArr) ||
+        array_key_exists($offset, $this->updateArr[$this->updateType]) ||
+        array_key_exists($offset, $this->updateArr[$this->updateType]['message']);
     }
 
     public function offsetGet(mixed $offset): mixed
