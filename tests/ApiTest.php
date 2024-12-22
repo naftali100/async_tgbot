@@ -31,7 +31,7 @@ final class ApiTest extends AsyncTestCase
         $this->assertTrue($res['ok']);
     }
 
-    public function _testReplyWithEntFromUpdate()
+    public function testReplyWithEntFromUpdate()
     {
         $res = $this->config->sendMessage($this->myUserId, 'text', entities: $this->private_with_ent->ent);
         $this->assertTrue($res->ok);

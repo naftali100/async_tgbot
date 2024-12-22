@@ -106,4 +106,9 @@ final class UpdateTest extends AsyncTestCase
         $this->assertEquals('private', $this->private_message->chatType);
         $this->assertEquals('supergroup', $this->group_message->chatType);
     }
+
+    public function testChainedOperation()
+    {
+        $this->assertTrue($this->config->sendMessage($this->myUserId, 'test')->edit('test2')->ok);
+    }
 }

@@ -54,8 +54,8 @@ final class FilterTest extends AsyncTestCase
         $this->assertTrue($f->validate($this->photo_file));
         $this->assertFalse($f->validate($this->private_message));
 
-        $f = Filter::FileType('photo');
-        // $this->assertTrue($f->validate($this->photo_file));
+        $f = Filter::fileType('photo');
+        $this->assertTrue($f->validate($this->photo_file));
         $this->assertFalse($f->validate($this->private_message));
     }
 
