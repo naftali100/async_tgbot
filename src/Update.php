@@ -54,7 +54,7 @@ class Update implements \ArrayAccess
         if (isset($local_update_arr['channel_post'])) {
             $local_update_arr['message'] = $local_update_arr['channel_post'];
             unset($local_update_arr['channel_post']);
-            print_r($local_update_arr);
+            // print_r($local_update_arr);
         }
 
         $this->updateObj = $this->update = $local_update_obj;
@@ -314,12 +314,16 @@ class Update implements \ArrayAccess
         return
         array_key_exists($offset, $this->updateArr) ||
         array_key_exists($offset, $this->updateArr[$this->updateType]) ||
-        array_key_exists($offset, $this->updateArr[$this->updateType]['message']);
+        ($this->updateType == 'callback_query' && array_key_exists($offset, $this->updateArr[$this->updateType]['message']));
     }
 
     public function offsetGet(mixed $offset): mixed
     {
-        return $this->$offset;
+        $res = $this->$offset;
+        if (is_object($res)) {
+            return (array)$res;
+        }
+        return $res;
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
