@@ -86,13 +86,13 @@ class Update implements \ArrayAccess
         $media = null;
         $fileTypes = ['photo', 'video', 'document', 'audio', 'sticker', 'voice', 'video_note'];
         foreach ($fileTypes as $type) {
-            if (isset($local_update_arr[$updateType][$type])) {
+            if (isset($local_update_obj->$updateType->$type)) {
                 if ($type == 'photo') {
-                    $media = $local_update_arr[$updateType]['photo'][count($local_update_arr[$updateType]['photo']) - 1];
+                    $media = $local_update_obj->$updateType->photo[count($local_update_obj->$updateType->photo) - 1];
                 } else {
-                    $media = $local_update_arr[$updateType][$type];
+                    $media = $local_update_obj->$updateType->$type;
                 }
-                $media['file_type'] = $type;
+                $media->file_type = $type;
                 break;
             }
         }
@@ -305,13 +305,14 @@ class Update implements \ArrayAccess
     public function download()
     {
         if ($this->media != null) {
-            return $this->bot->getFile($this->media['file_id']);
+            return $this->bot->getFile($this->media->file_id);
         }
     }
 
     public function offsetExists(mixed $offset): bool
     {
         return
+        $this->$offset ||
         array_key_exists($offset, $this->updateArr) ||
         array_key_exists($offset, $this->updateArr[$this->updateType]) ||
         ($this->updateType == 'callback_query' && array_key_exists($offset, $this->updateArr[$this->updateType]['message']));
