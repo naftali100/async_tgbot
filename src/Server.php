@@ -136,7 +136,7 @@ class Server
 
         foreach ($reflector->getMethods() as $method) {
             $attributes = $method->getAttributes(Filter\BaseFilter::class, \ReflectionAttribute::IS_INSTANCEOF);
-            if(!$attributes){
+            if (!$attributes) {
                 break;
             }
             foreach ($attributes as $attr) {

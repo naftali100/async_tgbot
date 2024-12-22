@@ -54,6 +54,7 @@ class InlineUpdates extends BaseFilter
 }
 
 namespace bot_lib;
+
 use Respect\Validation\Validator as v;
 
 class Filter
