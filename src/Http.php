@@ -48,12 +48,15 @@ class Http
     }
     public function apiRequest($method, $data = [])
     {
-        return $this->request($this->config->baseUrl . $this->config->token . '/' . $method, $data);
+        return new Update(new class ($this->config) extends \bot_lib\Bot {
+            public function handleUpdate(Update $update)
+            { // hack
+            }
+        }, $this->request($this->config->baseUrl . $this->config->token . '/' . $method, $data)->getBody()->buffer());
     }
     public function request($url, $body = null)
     {
-        $response = $this->client->request(new Request($url, $body ? 'POST' : 'GET', $body ? $this->buildApiRequestBody($body) : null));
-        return new Response($response->getBody()->buffer(), $this->config);
+        return $this->client->request(new Request($url, $body ? 'POST' : 'GET', $body ? $this->buildApiRequestBody($body) : null));
     }
 
     private function buildApiRequestBody(array $data = [])
