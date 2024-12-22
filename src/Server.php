@@ -210,7 +210,7 @@ class Server
             $bot = new $botOptions['class']($botOptions['config']);
             $url = 'http://' . (gethostname() ?? $this->options->host) . ':' . $this->options->port . '/' . $path;
             $res = $bot->setWebhook($webhookTargetUrl ?? $url);
-            $this->logger->debug($res, [$url]);
+            $this->logger->debug('set webhook', [$url, $res->result]);
         }
     }
 }
