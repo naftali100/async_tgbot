@@ -18,37 +18,38 @@ working on v3 with new architecture and cleaner library overall. still missing a
 ```php
 require_once './vendor/autoload.php';
 
-use bot_lib\Server; 
-
-$server = new Server("127.0.0.1:8080"); // create server instance listening to port 8080
-$server->load_file("bot.php"); // load the handlers in "bot.php" and store them in "bot.php" path
-$server->load_file("bot1.php", "index"); // you can add second param for different path
-$server->load_folder("folder", true); // load all files in a folder. the second param is whether to load recursively or not
-$server->run();
-```
-#### bot.php
-
-```php
-require_once './vendor/autoload.php';
+require_once __DIR__ . "/../vendor/autoload.php";
 
 use bot_lib\Config;
-use bot_lib\Handler;
-use bot_lib\Update;
-use bot_lib\Filter;
+use bot_lib\Server;
+use bot_lib\Loader;
 
-$config = new Config;
-$config->load("conf.json"); // can store token
-$config->server_url = "http://loadlhost:8081/bot"; // if you using local telegram-bot-api
+$loader = new Loader();
 
-$handler = new Handler;
-$handler->on_message(
-    fn(Update $u) => $u->reply("hello"),
-    Filter::Message('/start')
-);
+$config = Config::fromJsonFile(__DIR__ . '/conf.json'); // can store token
+$config->baseUrl = "http://loadlhost:8081/bot"; // if you using local telegram-bot-api
+$loader->load('EchoBot', EchoBot::class, $config); // bot class is auto loaded, the file name must mach the bot name
+
+$server = new Server($loader, ['host' => '127.0.0.1', 'port' => 8080]);
+
+$server->run();
 ```
-set webhook to 127.0.0.1:8080/you_bot_file_name.php (or custom name passed in second argument to load_file).
+#### echoBot.php
 
-you can add `token` parameter to the webhook url and the server will set it and use this token.
+```php
+
+use bot_lib\Bot;
+use bot_lib\Update;
+
+class EchoBot extends Bot
+{
+    public function handleUpdate(Update $update)
+    {
+        $update->reply("hello");
+    }
+}
+```
+set webhook to 127.0.0.1:8080/you_bot_file_name.php
 
 run `php server.php`.
 
