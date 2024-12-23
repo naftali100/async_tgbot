@@ -22,15 +22,14 @@ abstract class Bot
     protected Logger $log;
     public function __construct(public Config $config)
     {
-        $this->http = new Http($this->config);
-
         $logHandler = new StreamHandler(ByteStream\getStdout());
         $logHandler->pushProcessor(new PsrLogMessageProcessor());
         $logHandler->setFormatter(new ConsoleFormatter());
-        $logHandler->setLevel('Info');
+        $logHandler->setLevel($this->config->debug ? 'Debug' : 'Info');
         $logger = new Logger('Bot ' . get_class($this));
         $logger->pushHandler($logHandler);
         $this->log = $logger;
+        $this->http = new Http($this->config, $this->log);
     }
     /**
      * the function that will be called to handle the update

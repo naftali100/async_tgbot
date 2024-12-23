@@ -5,6 +5,7 @@ namespace bot_lib;
 use Amp\Http\Client\Form;
 use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\Request;
+use Monolog\Logger;
 
 class Response implements \Stringable
 {
@@ -42,7 +43,7 @@ class Response implements \Stringable
 class Http
 {
     private $client;
-    public function __construct(public Config $config)
+    public function __construct(public Config $config, private Logger $log)
     {
         $this->client = HttpClientBuilder::buildDefault();
     }
@@ -56,6 +57,9 @@ class Http
     }
     public function request($url, $body = null)
     {
+        if ($this->config->debug) {
+            $this->log->debug('request', ['url' => $url, 'body' => $body]);
+        }
         return $this->client->request(new Request($url, $body ? 'POST' : 'GET', $body ? $this->buildApiRequestBody($body) : null));
     }
 
