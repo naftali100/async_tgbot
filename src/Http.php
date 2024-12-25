@@ -60,7 +60,21 @@ class Http
         if ($this->config->debug) {
             $this->log->debug('request', ['url' => $url, 'body' => $body]);
         }
-        return $this->client->request(new Request($url, $body ? 'POST' : 'GET', $body ? $this->buildApiRequestBody($body) : null));
+
+        $request = new Request($url);
+        if ($body) {
+            $requestBody = $this->buildApiRequestBody($body);
+            $request->setBody($requestBody);
+            $request->setMethod('POST');
+            if (str_contains($requestBody->getContentType(), 'multipart')) {
+                $request->setInactivityTimeout(30);
+                $request->setTransferTimeout(30);
+                $request->setBodySizeLimit(4 * 1024 * 1024 * 1024); // 4 GB
+            }
+        } else {
+            $request->setMethod('GET');
+        }
+        return $this->client->request($request);
     }
 
     private function buildApiRequestBody(array $data = [])
