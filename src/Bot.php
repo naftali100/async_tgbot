@@ -15,12 +15,22 @@ use Monolog\Processor\PsrLogMessageProcessor;
  * an instance of this class will be created for each update
  *
  * the file name of your bot must be the same as the name of the class
+ *
  */
 abstract class Bot
 {
     public Http $http;
     protected Logger $log;
-    public function __construct(public Config $config)
+
+    /**
+     * create Bot class
+     *
+     * generally you don't need to override this, use the 'before' function
+     *
+     * @param \bot_lib\Config $config config
+     * @param mixed $forUpdate use when overriding the constructor, if true class is instantiated for handling updates, else - for general requests or checks
+     */
+    public function __construct(public Config $config, private $forUpdate = false)
     {
         $logHandler = new StreamHandler(ByteStream\getStdout());
         $logHandler->pushProcessor(new PsrLogMessageProcessor());
@@ -48,14 +58,14 @@ abstract class Bot
     }
 
     /**
-     * optionally override this function that will be called before the main handleUpdate
+     * optionally override this function that will be called before handleUpdate
      */
     public function before(Update $update)
     {
     }
 
     /**
-     * optionally override this function that will bw called after the main handleUpdate
+     * optionally override this function that will bw called after handleUpdate
      */
     public function after(Update $update)
     {
