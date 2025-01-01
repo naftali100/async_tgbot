@@ -76,11 +76,9 @@ class Update implements \ArrayAccess
         $this->reply = $this->__get('reply_to_message');
         $this->text = $this->__get('text') ?? $this->__get('caption') ?? $this->__get('query');
         $this->chatType = $this->__get('chat')?->type ?? $this->__get('chat_type');
-        $this->thread = $this->__get('message_thread_id') ?? null; // convinces prop
-
-        // check if can be object
+        $this->thread = $this->__get('message_thread_id') ?? null;
         $this->ent = $this->__get('entities');
-        // $this->keyboard = $this->offsetGet('reply_markup')['inline_keyboard'] ?? null;
+        $this->keyboard = $this->__get('reply_markup')->inline_keyboard ?? null;
 
         // general data for all kind of files
         $media = null;

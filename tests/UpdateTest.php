@@ -111,4 +111,14 @@ final class UpdateTest extends AsyncTestCase
     {
         $this->assertTrue($this->config->sendMessage($this->myUserId, 'test')->edit('test2')->ok);
     }
+
+    public function testApiCallResult()
+    {
+        $this->assertEquals($this->myUserId, $this->config->sendMessage($this->myUserId, 'test')->chat->id);
+    }
+
+    public function testKeyboardProp()
+    {
+        $this->assertNotEmpty($this->cbq->keyboard);
+    }
 }
