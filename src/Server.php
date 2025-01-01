@@ -166,8 +166,7 @@ class Server
 
         foreach ($this->bots as $path => $botOptions) {
             $router->addRoute('POST', "/{$path}", new ClosureRequestHandler(function (Request $request) use ($botOptions, $logger) {
-                $logger->debug('new request', ['path' => $request->getUri()->getPath()]);
-                $bot = new $botOptions['class']($botOptions['config']);
+                $bot = new $botOptions['class']($botOptions['config'], true);
                 $update = new Update($bot, $request->getBody()->buffer());
                 try {
                     $this->handleUpdate($bot, $update);
