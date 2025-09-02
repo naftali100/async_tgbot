@@ -21,6 +21,12 @@ use Monolog\Processor\PsrLogMessageProcessor;
 
 use function Amp\trapSignal;
 
+function camelToSnake($camelCase)
+{
+    $pattern = '/(?<=\\w)(?=[A-Z])|(?<=[a-z])(?=\d)/';
+    $snakeCase = preg_replace($pattern, '_', $camelCase);
+    return strtolower($snakeCase);
+}
 function botAutoloader($class_name)
 {
     set_error_handler(function () { /* ignore errors */
@@ -34,6 +40,12 @@ function botAutoloader($class_name)
     include_once getcwd() . '/bots/' . strtolower($class_name) . '.php';
     include_once getcwd() . '/bots/' . camelToSnake($class_name) . '.php';
     include_once getcwd() . '/bots/' . lcfirst(camelToSnake($class_name)) . '.php';
+
+    include_once getcwd() . '/' . $class_name . '/' . 'index.php';
+    include_once getcwd() . '/' . strtolower($class_name) . '/' . 'index.php';
+    include_once getcwd() . '/' . camelToSnake($class_name) . '/' . 'index.php';
+    include_once getcwd() . '/' . lcfirst(camelToSnake($class_name)) . '/' . 'index.php';
+
     restore_error_handler();
 }
 
@@ -41,11 +53,11 @@ class ServerOptions
 {
     public function __construct(
         $options = [
-        'host' => '127.0.0.1',
-        'port' => 1337,
-        'reload' => false,
-        'debug' => false
-    ]
+            'host' => '127.0.0.1',
+            'port' => 1337,
+            'reload' => false,
+            'debug' => false
+        ]
     ) {
         $this->host = $options["host"] ?? "127.0.0.1";
         $this->port = $options["port"] ?? 1337;
@@ -78,11 +90,11 @@ class Server
 
     public function __construct(
         $options = [
-        'host' => '127.0.0.1',
-        'port' => 1337,
-        'reload' => false,
-        'debug' => false
-    ]
+            'host' => '127.0.0.1',
+            'port' => 1337,
+            'reload' => false,
+            'debug' => false
+        ]
     ) {
         $this->options = new ServerOptions($options);
         $logHandler = new StreamHandler(ByteStream\getStdout());
@@ -92,22 +104,15 @@ class Server
         $logger = new Logger('server');
         $logger->pushHandler($logHandler);
         $this->logger = $logger;
-
-        //
-        // register class loader
-        //
-        function camelToSnake($camelCase)
-        {
-            $pattern = '/(?<=\\w)(?=[A-Z])|(?<=[a-z])(?=\d)/';
-            $snakeCase = preg_replace($pattern, '_', $camelCase);
-            return strtolower($snakeCase);
-        }
     }
 
     /**
      * load a bot
      * @param string $path the url path of the webhook for this bot in this server
-     * @param string $botClass the className for the bot use `BotClass::class` to get it
+     * @param string $botClass the className for the bot. use `BotClass::class` to get it. the file name of the bot have to be either:
+     * 1. $botClass.php
+     * 2. $botClass/index.php
+     * 3. bots/$botClass.php
      * @param \bot_lib\Config $config config loaded via `Config::fromJsonFile($path)` or `Config::fromEnvFile($path)`
      * @throws \Error
      * @return void
@@ -117,7 +122,7 @@ class Server
         spl_autoload_register('bot_lib\botAutoloader');
         $botInstance = new $botClass($config);
         if (!$botInstance instanceof Bot) {
-            throw new \Error('invalid class '. get_class($botInstance) . '. all classes should extend the Bot abstract class');
+            throw new \Error('invalid class ' . get_class($botInstance) . '. all classes should extend the Bot abstract class');
         }
         $this->bots[$path] = ['class' => $botClass, 'config' => $config];
         spl_autoload_unregister('bot_lib\botAutoloader');
@@ -175,7 +180,7 @@ class Server
                     if ($reflector->getDeclaringClass()->getName() !== 'Bot') {
                         $bot->onError($e);
                     } else {
-                        $logger->error('Error in: ' . get_class($bot) . ' '. $e->getMessage(), [$e]);
+                        $logger->error('Error in: ' . get_class($bot) . ' ' . $e->getMessage(), [$e]);
                     }
                 }
                 return new Response(

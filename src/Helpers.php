@@ -4,9 +4,14 @@ namespace bot_lib;
 
 class Helpers
 {
-    // build inline keyboard from array
-    // argument is array(/*row 1*/ array( 'text' => 'data', 'text2' => 'data2'), /*row 2*/ array( 'text3' => 'data3', 'text4' => 'data4') )
-    // by default the button type is callback_data, you can also set button to url button by array(array( 'link button' => array('url' => 'link'), 'callback button' => 'data'))
+    /**
+     * build inline keyboard from array
+     * @param array $data array(*row 1* [ 'text' => 'data', 'text2' => 'data2' ], *row 2* [ 'text3' => 'data3', 'text4' => 'data4' ] )
+     *
+     * by default the button type is callback_data, you can also set button to url button by array(array( 'link button' => array('url' => 'link'), 'callback button' => 'data'))
+     * @param mixed $isInline
+     * @return array<array>
+     */
     public static function keyboard($data, $isInline = true)
     {
         $keyCol = array();
@@ -32,12 +37,8 @@ class Helpers
             $keyRow[] = $keyCol;
             $keyCol = array();
         }
-        $type = '';
-        if ($isInline) {
-            $type = 'inline_keyboard';
-        } else {
-            $type = 'keyboard';
-        }
+
+        $type = $isInline ? 'inline_keyboard' : 'keyboard';
 
         return [$type => $keyRow];
     }
