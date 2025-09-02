@@ -56,18 +56,21 @@ class ServerOptions
             'host' => '127.0.0.1',
             'port' => 1337,
             'reload' => false,
-            'debug' => false
+            'debug' => false,
+            'attachToHost' => false
         ]
     ) {
         $this->host = $options["host"] ?? "127.0.0.1";
         $this->port = $options["port"] ?? 1337;
         $this->reload = $options["reload"] ?? false;
         $this->debug = $options["debug"] ?? false;
+        $this->attachToHost = $options["attachToHost"] ?? false;
     }
     public $host = '127.0.0.1';
     public $port = 1337;
     public $reload = false;
     public $debug = false;
+    public $attachToHost = false;
 }
 
 class Server
@@ -93,7 +96,8 @@ class Server
             'host' => '127.0.0.1',
             'port' => 1337,
             'reload' => false,
-            'debug' => false
+            'debug' => false,
+            'attachToHost' => false
         ]
     ) {
         $this->options = new ServerOptions($options);
@@ -163,7 +167,7 @@ class Server
 
         $server = SocketHttpServer::createForDirectAccess($logger);
         $server->expose(new \Amp\Socket\InternetAddress($this->options->host, $this->options->port));
-        $server->expose(new \Amp\Socket\InternetAddress(gethostbyname(gethostname()), $this->options->port));
+        $this->options->attachToHost && $server->expose(new \Amp\Socket\InternetAddress(gethostbyname(gethostname()), $this->options->port));
 
         $errorHandler = new DefaultErrorHandler();
 
