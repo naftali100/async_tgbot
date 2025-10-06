@@ -143,18 +143,18 @@ class Server
 
         $bot->handleUpdate($update);
 
-        foreach ($reflector->getMethods() as $method) {
-            $attributes = $method->getAttributes(Filter\BaseFilter::class, \ReflectionAttribute::IS_INSTANCEOF);
-            if (!$attributes) {
-                break;
-            }
-            foreach ($attributes as $attr) {
-                if (!$attr->newInstance()->validator->validate($update)) {
-                    break;
-                }
-            }
-            $bot->$method($update);
-        }
+        // foreach ($reflector->getMethods() as $method) {
+        //     $attributes = $method->getAttributes(Filter\BaseFilter::class, \ReflectionAttribute::IS_INSTANCEOF);
+        //     if (!$attributes) {
+        //         break;
+        //     }
+        //     foreach ($attributes as $attr) {
+        //         if (!$attr->newInstance()->validator->validate($update)) {
+        //             break;
+        //         }
+        //     }
+        //     $bot->$method($update);
+        // }
 
         if ($reflector->getMethod('after')->getDeclaringClass()->getName() !== Bot::class) {
             $bot->after($update);
