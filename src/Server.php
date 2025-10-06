@@ -217,8 +217,17 @@ class Server
             $this->logger->debug("setting webhook for {$path}");
             $bot = new $botOptions['class']($botOptions['config']);
             $url = 'http://' . (gethostname() ?? $this->options->host) . ':' . $this->options->port . '/' . $path;
-            $res = $bot->setWebhook($webhookTargetUrl ?? $url);
-            $this->logger->debug('set webhook', [$url, $res->result]);
+            try {
+                $res = $bot->setWebhook($webhookTargetUrl ?? $url);
+                if ($res->ok !== true) {
+                    throw new \Error("failed to set webhook: " . json_encode($res));
+                }
+            } catch (\Throwable $e) {
+                $this->logger->error("failed to set webhook for {$path} to {$url}: " . $e->getMessage(), [$e]);
+                continue;
+            }
+
+            $this->logger->debug('set webhook', [$webhookTargetUrl ?? $url, $res->result]);
         }
     }
 }
