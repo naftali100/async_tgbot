@@ -27,7 +27,8 @@ class Api
     $replyMessage = null,
     $entities = null,
     bool $protectContent = false,
-    $threadId = null
+    $threadId = null,
+    $parseMode = null
   ) {
     $data['chat_id'] = $id;
     $data['text'] = $this->textAdjust($text);
@@ -39,6 +40,8 @@ class Api
     $data['entities'] = $entities;
     $data['protect_content'] = $protectContent;
     $data['allow_sending_without_reply'] = true;
+    $data['message_thread_id'] = $threadId;
+    $data['parse_mode'] = $parseMode;
     return $this->http->apiRequest('sendMessage', $data);
   }
   public function forwardMessage(
@@ -723,9 +726,10 @@ class Api
   {
     return $this->http->apiRequest('getForumTopicIconStickers');
   }
-  public function setWebhook($url)
+  public function setWebhook($url, $drop_pending_updates = false)
   {
     $data['url'] = $url;
+    $data['drop_pending_updates'] = $drop_pending_updates;
     return $this->http->apiRequest('setWebhook', $data);
   }
 
