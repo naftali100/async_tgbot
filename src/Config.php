@@ -4,7 +4,7 @@ namespace bot_lib;
 
 class Config
 {
-    public function __construct(public $token = '', public $baseUrl = 'https://api.telegram.org/bot', public $debug = false)
+    public function __construct(public $token = '', public $baseUrl = 'https://api.telegram.org/bot', public $debug = false, public $drop_pending_updates = false)
     {
         $parsedBaseUrl = parse_url($baseUrl);
         if (!$parsedBaseUrl) {

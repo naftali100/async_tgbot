@@ -218,7 +218,7 @@ class Server
             $bot = new $botOptions['class']($botOptions['config']);
             $url = 'http://' . (gethostname() ?? $this->options->host) . ':' . $this->options->port . '/' . $path;
             try {
-                $res = $bot->setWebhook($webhookTargetUrl ?? $url);
+                $res = $bot->setWebhook($webhookTargetUrl ?? $url, $botOptions['config']->drop_pending_updates);
                 if ($res->ok !== true) {
                     throw new \Error("failed to set webhook: " . json_encode($res));
                 }
